@@ -58,14 +58,14 @@ typedef ZyanU32 ZyanStatus;
 /**
  * @brief   Defines a zyan status code.
  *
- * @param   error       `1`, if the status code signals an error or `0`, if not.
- * @param   facility    The facility id.
- * @param   code        The actual code.
+ * @param   error   `1`, if the status code signals an error or `0`, if not.
+ * @param   module  The module id.
+ * @param   code    The actual code.
  *
  * @return  The zyan status code.
  */
-#define ZYAN_MAKE_STATUS(error, facility, code) \
-    (ZyanStatus)((((error) & 0x01) << 31) | (((facility) & 0x7FF) << 20) | ((code) & 0xFFFFF))
+#define ZYAN_MAKE_STATUS(error, module, code) \
+    (ZyanStatus)((((error) & 0x01) << 31) | (((module) & 0x7FF) << 20) | ((code) & 0xFFFFF))
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Checks                                                                                         */
@@ -111,13 +111,13 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
  /**
- * @brief   Returns the facility id of a zyan status-code.
+ * @brief   Returns the module id of a zyan status-code.
  *
  * @param   status  The zyan status-code.
  *
- * @return  The facility id of the zyan status-code.
+ * @return  The module id of the zyan status-code.
  */
-#define ZYAN_STATUS_FACILITY(status) \
+#define ZYAN_STATUS_MODULE(status) \
     (((status) >> 20) & 0x7FF)
 
  /**
@@ -135,18 +135,18 @@ typedef ZyanU32 ZyanStatus;
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Facility IDs                                                                                   */
+/* Module IDs                                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   The zycore generic facility id.
+ * @brief   The zycore generic module id.
  */
-#define ZYAN_FACILITY_ZYCORE_GENERIC    0x000
+#define ZYAN_MODULE_ZYCORE  0x000
 
 /**
- * @brief   The base facility id for user-defined status codes.
+ * @brief   The base module id for user-defined status codes.
  */
-#define ZYAN_FACILITY_USER              0x3FF
+#define ZYAN_MODULE_USER    0x3FF
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Status codes                                                                                   */
@@ -156,49 +156,49 @@ typedef ZyanU32 ZyanStatus;
  * @brief   The operation completed successfully.
  */
 #define ZYAN_STATUS_SUCCESS \
-    ZYAN_MAKE_STATUS(0, ZYAN_FACILITY_ZYCORE_GENERIC, 0x00)
+    ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x00)
 
 /**
  * @brief   The operation completed successfully and returned `ZYAN_TRUE`.
  */
 #define ZYAN_STATUS_TRUE \
-    ZYAN_MAKE_STATUS(0, ZYAN_FACILITY_ZYCORE_GENERIC, 0x01)
+    ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x01)
 
 /**
  * @brief   The operation completed successfully and returned `ZYAN_FALSE`.
  */
 #define ZYAN_STATUS_FALSE \
-    ZYAN_MAKE_STATUS(0, ZYAN_FACILITY_ZYCORE_GENERIC, 0x02)
+    ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x02)
 
 /**
  * @brief   An invalid argument was passed to a function.
  */
 #define ZYAN_STATUS_INVALID_ARGUMENT \
-    ZYAN_MAKE_STATUS(1, ZYAN_FACILITY_ZYCORE_GENERIC, 0x03)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x03)
 
 /**
  * @brief   An attempt was made to perform an invalid operation.
  */
 #define ZYAN_STATUS_INVALID_OPERATION \
-    ZYAN_MAKE_STATUS(1, ZYAN_FACILITY_ZYCORE_GENERIC, 0x04)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x04)
 
 /**
  * @brief   An index passed to a function was out of bounds.
  */
 #define ZYAN_STATUS_OUT_OF_RANGE \
-    ZYAN_MAKE_STATUS(1, ZYAN_FACILITY_ZYCORE_GENERIC, 0x05)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x05)
 
 /**
  * @brief   A buffer passed to a function was too small to complete the requested operation.
  */
 #define ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE \
-    ZYAN_MAKE_STATUS(1, ZYAN_FACILITY_ZYCORE_GENERIC, 0x06)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x06)
 
 /**
  * @brief   Insufficient memory to perform the operation.
  */
 #define ZYAN_STATUS_NOT_ENOUGH_MEMORY \
-    ZYAN_MAKE_STATUS(1, ZYAN_FACILITY_ZYCORE_GENERIC, 0x07)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x07)
 
 /* ---------------------------------------------------------------------------------------------- */
 
