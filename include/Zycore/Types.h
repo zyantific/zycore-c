@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief Includes and defines some default datatypes.
+ * @brief   Includes and defines some default datatypes.
  */
 
 #ifndef ZYCORE_TYPES_H

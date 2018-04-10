@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   Provides a simple LibC abstraction and fallback routines.
+ */
+
 #ifndef ZYCORE_LIBC_H
 #define ZYCORE_LIBC_H
 
