@@ -56,13 +56,13 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines a zycore status code.
+ * @brief   Defines a zyan status code.
  *
  * @param   error       `1`, if the status code signals an error or `0`, if not.
  * @param   facility    The facility id.
  * @param   code        The actual code.
  *
- * @return  The zycore status code.
+ * @return  The zyan status code.
  */
 #define ZYAN_MAKE_STATUS(error, facility, code) \
     (ZyanStatus)((((error) & 0x01) << 31) | (((facility) & 0x7FF) << 20) | ((code) & 0xFFFFF))
@@ -72,9 +72,9 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Checks if a zycore operation was successfull.
+ * @brief   Checks if a zyan operation was successfull.
  *
- * @param   status  The zycore status-code to check.
+ * @param   status  The zyan status-code to check.
  *
  * @return  `ZYAN_TRUE`, if the operation succeeded or `ZYAN_FALSE`, if not.
  */
@@ -82,9 +82,9 @@ typedef ZyanU32 ZyanStatus;
     (!((status) & 0x80000000))
 
 /**
- * @brief   Checks if a zycore operation failed.
+ * @brief   Checks if a zyan operation failed.
  *
- * @param   status  The zycore status-code to check.
+ * @param   status  The zyan status-code to check.
  *
  * @return  `ZYAN_TRUE`, if the operation failed or `ZYAN_FALSE`, if not.
  */
@@ -92,9 +92,9 @@ typedef ZyanU32 ZyanStatus;
     ((status) & 0x80000000)
 
 /**
- * @brief   Checks if a zycore operation was successfull and returns with the status-code, if not.
+ * @brief   Checks if a zyan operation was successfull and returns with the status-code, if not.
  *
- * @param   status  The zycore status-code to check.
+ * @param   status  The zyan status-code to check.
  */
 #define ZYAN_CHECK(status) \
     do \
@@ -111,21 +111,21 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
  /**
- * @brief   Returns the facility id of a zycore status-code.
+ * @brief   Returns the facility id of a zyan status-code.
  *
- * @param   status  The zycore status-code.
+ * @param   status  The zyan status-code.
  *
- * @return  The facility id of the zycore status-code.
+ * @return  The facility id of the zyan status-code.
  */
 #define ZYAN_STATUS_FACILITY(status) \
     (((status) >> 20) & 0x7FF)
 
  /**
- * @brief   Returns the code of a zycore status-code.
+ * @brief   Returns the code of a zyan status-code.
  *
- * @param   status  The zycore status-code.
+ * @param   status  The zyan status-code.
  *
- * @return  The code of the zycore status-code.
+ * @return  The code of the zyan status-code.
  */
 #define ZYAN_STATUS_CODE(status) \
     ((status) & 0xFFFFF)
@@ -199,7 +199,6 @@ typedef ZyanU32 ZyanStatus;
  */
 #define ZYAN_STATUS_NOT_ENOUGH_MEMORY \
     ZYAN_MAKE_STATUS(1, ZYAN_FACILITY_ZYCORE_GENERIC, 0x07)
-
 
 /* ---------------------------------------------------------------------------------------------- */
 

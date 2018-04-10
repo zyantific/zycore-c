@@ -18,9 +18,9 @@ option(ZYCORE_WHOLE_PROGRAM_OPTIMIZATION
 option(ZYCORE_NO_LIBC
     "Don't use any C standard library functions (for exotic build-envs like kernel drivers)"
     OFF)
-#option(ZYCORE_BUILD_EXAMPLES
-#    "Build examples"
-#    ON)
+option(ZYCORE_BUILD_EXAMPLES
+    "Build examples"
+    OFF)
 option(ZYCORE_DEV_MODE
     "Enable developer mode (-Wall, -Werror, ...)"
     OFF)
@@ -71,10 +71,16 @@ endif ()
 
 target_sources("Zycore"
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Allocator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Bitset.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/LibC.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Types.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Defines.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Status.h")
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Status.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Vector.h"
+        "src/Allocator.c"
+        "src/Bitset.c"
+        "src/Vector.c")
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zycore" PRIVATE "src/VersionInfo.rc")
@@ -94,13 +100,13 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # Examples                                                                                        #
 # =============================================================================================== #
 
-#if (ZYCORE_BUILD_EXAMPLES)
-#    add_executable("Vector" "examples/Vector.c")
-#    target_link_libraries("Vector" "Zycore")
-#    set_target_properties("Vector" PROPERTIES FOLDER "Examples")
-#    target_compile_definitions("Vector" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-#    if (ZYCORE_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
-#        set_target_properties("Vector" PROPERTIES COMPILE_FLAGS "/GL")
-#        set_target_properties("Vector" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
-#    endif ()
-#endif ()
+if (ZYCORE_BUILD_EXAMPLES)
+    add_executable("Vector" "examples/Vector.c")
+    target_link_libraries("Vector" "Zycore")
+    set_target_properties("Vector" PROPERTIES FOLDER "Examples")
+    target_compile_definitions("Vector" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+    if (ZYCORE_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
+        set_target_properties("Vector" PROPERTIES COMPILE_FLAGS "/GL")
+        set_target_properties("Vector" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
+    endif ()
+endif ()
