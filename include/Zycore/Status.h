@@ -79,7 +79,7 @@ typedef ZyanU32 ZyanStatus;
  * @return  `ZYAN_TRUE`, if the operation succeeded or `ZYAN_FALSE`, if not.
  */
 #define ZYAN_SUCCESS(status) \
-    (~((status) & 0x80000000))
+    (!((status) & 0x80000000))
 
 /**
  * @brief   Checks if a zycore operation failed.
