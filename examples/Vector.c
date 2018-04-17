@@ -242,7 +242,7 @@ static ZyanStatus AllocatorDeallocate(ZyanAllocator* allocator, void* p, ZyanUSi
  *
  * @return  A zyan status code.
  */
-static ZyanStatus test_allocator(void)
+static ZyanStatus TestAllocator(void)
 {
     ZyanAllocator allocator;
     ZYAN_CHECK(ZyanAllocatorInit(&allocator, &AllocatorAllocate, &AllocatorReallocate,
@@ -301,7 +301,7 @@ int main()
     {
         return EXIT_FAILURE;
     }
-    if (!ZYAN_SUCCESS(test_allocator()))
+    if (!ZYAN_SUCCESS(TestAllocator()))
     {
         return EXIT_FAILURE;
     }

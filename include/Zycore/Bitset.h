@@ -302,41 +302,6 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetSetAll(ZyanBitset* bitset);
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetResetAll(ZyanBitset* bitset);
 
-/**
- * @brief   Deletes all bits of the given `ZyanBitset` instance.
- *
- * @param   bitset  A pointer to the `ZyanBitset` instance.
- *
- * @return  A zycore status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanBitsetClear(ZyanBitset* bitset);
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Returns a pointer to the byte that contains the bit at the given `index`.
- *
- * @param   bitset  A pointer to the `ZyanBitset` instance.
- * @param   index   The bit index.
- * @param   byte    Receives a pointer to the byte that contains the desired bit.
- *
- * @return  A zycore status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanBitsetGetByte(const ZyanBitset* bitset, ZyanUSize index,
-    ZyanU8** byte);
-
-/**
- * @brief   Returns a constant pointer to the byte that contains the bit at the given `index`.
- *
- * @param   bitset  A pointer to the `ZyanBitset` instance.
- * @param   index   The bit index.
- * @param   byte    Receives a constant pointer to the byte that contains the desired bit.
- *
- * @return  A zycore status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanBitsetGetByteConst(const ZyanBitset* bitset, ZyanUSize index,
-    const ZyanU8** byte);
-
 /* ---------------------------------------------------------------------------------------------- */
 /* Size management                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
@@ -359,6 +324,15 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetPush(ZyanBitset* bitset, ZyanBool value);
  * @return  A zycore status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetPop(ZyanBitset* bitset);
+
+/**
+ * @brief   Deletes all bits of the given `ZyanBitset` instance.
+ *
+ * @param   bitset  A pointer to the `ZyanBitset` instance.
+ *
+ * @return  A zycore status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanBitsetClear(ZyanBitset* bitset);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Memory management                                                                              */

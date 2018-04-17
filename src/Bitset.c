@@ -252,7 +252,7 @@ ZyanStatus ZyanBitsetFlip(ZyanBitset* bitset)
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Access                                                                                         */
+/* Bit access                                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZyanBitsetSet(ZyanBitset* bitset, ZyanUSize index)
@@ -393,39 +393,6 @@ ZyanStatus ZyanBitsetResetAll(ZyanBitset* bitset)
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanBitsetClear(ZyanBitset* bitset)
-{
-    if (!bitset)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    bitset->size = 0;
-    return ZyanVectorClear(&bitset->bits);
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-
-ZyanStatus ZyanBitsetGetByte(const ZyanBitset* bitset, ZyanUSize index, ZyanU8** byte)
-{
-    if (index >= bitset->size)
-    {
-        return ZYAN_STATUS_OUT_OF_RANGE;
-    }
-
-    return ZyanVectorGet(&bitset->bits, index / 8, (void**)byte);
-}
-
-ZyanStatus ZyanBitsetGetByteConst(const ZyanBitset* bitset, ZyanUSize index, const ZyanU8** byte)
-{
-    if (index >= bitset->size)
-    {
-        return ZYAN_STATUS_OUT_OF_RANGE;
-    }
-
-    return ZyanVectorGetConst(&bitset->bits, index / 8, (const void**)byte);
-}
-
 /* ---------------------------------------------------------------------------------------------- */
 /* Size management                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
@@ -459,6 +426,17 @@ ZyanStatus ZyanBitsetPop(ZyanBitset* bitset)
     }
 
     return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanBitsetClear(ZyanBitset* bitset)
+{
+    if (!bitset)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    bitset->size = 0;
+    return ZyanVectorClear(&bitset->bits);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
