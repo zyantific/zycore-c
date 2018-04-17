@@ -58,6 +58,8 @@
 
 #if defined(_WIN32)
 #   define ZYAN_WINDOWS
+#elif defined(__EMSCRIPTEN__)
+#   define ZYAN_EMSCRIPTEN
 #elif defined(__APPLE__)
 #   define ZYAN_APPLE
 #   define ZYAN_POSIX
@@ -85,6 +87,8 @@
 #   define ZYAN_AARCH64
 #elif defined(_M_ARM) || defined(_M_ARMT) || defined(__arm__) || defined(__thumb__)
 #   define ZYAN_ARM
+#elif defined(__EMSCRIPTEN__)
+    // Nothing to do, `ZYDIS_EMSCRIPTEN` is both platform and arch macro for this one.
 #else
 #   error "Unsupported architecture detected"
 #endif
