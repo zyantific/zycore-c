@@ -451,6 +451,104 @@ ZyanStatus ZyanVectorClear(ZyanVector* vector)
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Searching                                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
+
+ZyanStatus ZyanVectorFind(const ZyanVector* vector, const void* element, ZyanISize* found_index,
+    ZyanEqualityComparison comparison)
+{
+    if (!vector)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanVectorFindEx(vector, element, found_index, comparison, 0, vector->size);
+}
+
+ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* element, ZyanISize* found_index,
+    ZyanEqualityComparison comparison, ZyanUSize index, ZyanUSize count)
+{
+    if (!vector || !count)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if (index + count >= vector->size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    const void* left;
+    for (ZyanUSize i = index; i < index + count; ++i)
+    {
+        ZYAN_CHECK(ZyanVectorGetConst(vector, i, &left));
+        if (comparison(left, element))
+        {
+            *found_index = i;
+            return ZYAN_STATUS_TRUE;
+        }
+    }
+
+    *found_index = -1;
+    return ZYAN_STATUS_FALSE;
+}
+
+ZyanStatus ZyanVectorBinarySearch(const ZyanVector* vector, const void* element,
+    ZyanUSize* found_index, ZyanComparison comparison)
+{
+    if (!vector)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanVectorBinarySearchEx(vector, element, found_index, comparison, 0, vector->size);
+}
+
+ZyanStatus ZyanVectorBinarySearchEx(const ZyanVector* vector, const void* element,
+    ZyanUSize* found_index, ZyanComparison comparison, ZyanUSize index, ZyanUSize count)
+{
+    if (!vector)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if (((index >= vector->size) && (count > 0)) || (index + count > vector->size))
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    if (!count)
+    {
+        *found_index = index;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    const void* element_mid;
+
+    ZyanStatus status = ZYAN_STATUS_FALSE;
+    ZyanISize l = index;
+    ZyanISize h = index + count - 1;
+    while (l <= h)
+    {
+        const ZyanUSize mid = l + ((h - l) >> 1);
+        ZYAN_CHECK(ZyanVectorGetConst(vector, mid, &element_mid));
+        const ZyanI8 cmp = comparison(element_mid, element);
+        if (cmp < 0)
+        {
+            l = mid + 1;
+        } else
+        {
+            h = mid - 1;
+            if (cmp == 0)
+            {
+                status = ZYAN_STATUS_TRUE;
+            }
+        }
+    }
+
+    *found_index = l;
+    return status;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Memory management                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -496,7 +594,7 @@ ZyanStatus ZyanVectorShrinkToFit(ZyanVector* vector)
 /* Information                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanVectorSize(const ZyanVector* vector, ZyanUSize* size)
+ZyanStatus ZyanVectorGetSize(const ZyanVector* vector, ZyanUSize* size)
 {
     if (!vector)
     {
@@ -508,7 +606,7 @@ ZyanStatus ZyanVectorSize(const ZyanVector* vector, ZyanUSize* size)
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanVectorCapacity(const ZyanVector* vector, ZyanUSize* capacity)
+ZyanStatus ZyanVectorGetCapacity(const ZyanVector* vector, ZyanUSize* capacity)
 {
     if (!vector)
     {

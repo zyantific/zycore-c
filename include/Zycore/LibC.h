@@ -150,7 +150,7 @@ ZYAN_INLINE void* ZYAN_MEMCHR(const void* str, int c, ZyanUSize n)
     return 0;
 }
 
-ZYAN_INLINE int ZYAN_MEMCMP(const void* s1, const void* s2,ZyanUSize n)
+ZYAN_INLINE int ZYAN_MEMCMP(const void* s1, const void* s2, ZyanUSize n)
 {
     const ZyanU8* p1 = s1, *p2 = s2;
     while (n--)

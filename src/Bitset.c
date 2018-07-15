@@ -197,8 +197,8 @@ ZyanStatus ZyanBitsetPerformByteOperation(ZyanBitset* destination, const ZyanBit
 
     ZyanUSize s1;
     ZyanUSize s2;
-    ZYAN_CHECK(ZyanVectorSize(&destination->bits, &s1));
-    ZYAN_CHECK(ZyanVectorSize(&source->bits, &s2));
+    ZYAN_CHECK(ZyanVectorGetSize(&destination->bits, &s1));
+    ZYAN_CHECK(ZyanVectorGetSize(&source->bits, &s2));
 
     const ZyanUSize min = ZYAN_MIN(s1, s2);
     for (ZyanUSize i = 0; i < min; ++i)
@@ -240,7 +240,7 @@ ZyanStatus ZyanBitsetFlip(ZyanBitset* bitset)
     }
 
     ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(&bitset->bits, &size));
+    ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
@@ -363,7 +363,7 @@ ZyanStatus ZyanBitsetSetAll(ZyanBitset* bitset)
     }
 
     ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(&bitset->bits, &size));
+    ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
@@ -382,7 +382,7 @@ ZyanStatus ZyanBitsetResetAll(ZyanBitset* bitset)
     }
 
     ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(&bitset->bits, &size));
+    ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
@@ -484,7 +484,7 @@ ZyanStatus ZyanBitsetSizeBytes(const ZyanBitset* bitset, ZyanUSize* size)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanVectorSize(&bitset->bits, size);
+    return ZyanVectorGetSize(&bitset->bits, size);
 }
 
 ZyanStatus ZyanBitsetCapacityBytes(const ZyanBitset* bitset, ZyanUSize* capacity)
@@ -494,7 +494,7 @@ ZyanStatus ZyanBitsetCapacityBytes(const ZyanBitset* bitset, ZyanUSize* capacity
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanVectorCapacity(&bitset->bits, capacity);
+    return ZyanVectorGetCapacity(&bitset->bits, capacity);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -509,7 +509,7 @@ ZyanStatus ZyanBitsetCount(const ZyanBitset* bitset, ZyanUSize* count)
     *count = 0;
 
     ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(&bitset->bits, &size));
+    ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
@@ -536,7 +536,7 @@ ZyanStatus ZyanBitsetAll(const ZyanBitset* bitset)
     }
 
     ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(&bitset->bits, &size));
+    ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
@@ -568,7 +568,7 @@ ZyanStatus ZyanBitsetAny(const ZyanBitset* bitset)
     }
 
     ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(&bitset->bits, &size));
+    ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
@@ -600,7 +600,7 @@ ZyanStatus ZyanBitsetNone(const ZyanBitset* bitset)
     }
 
     ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(&bitset->bits, &size));
+    ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;

@@ -30,6 +30,7 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 #include <Zycore/Allocator.h>
 #include <Zycore/Defines.h>
 #include <Zycore/LibC.h>
@@ -62,6 +63,8 @@ typedef struct TestStruct_
  */
 static void InitTestdata(TestStruct* data, ZyanU32 n)
 {
+    ZYAN_ASSERT(data);
+
     data->u32 = n;
     data->u64 = n;
     data->f   = (float)n;
@@ -82,8 +85,10 @@ static void InitTestdata(TestStruct* data, ZyanU32 n)
  *
  * @return  A zyan status code.
  */
-static ZyanStatus PerformTest(ZyanVector* vector)
+static ZyanStatus PerformBasicTests(ZyanVector* vector)
 {
+    ZYAN_ASSERT(vector);
+
     static       TestStruct  e_v;
     static const TestStruct* e_p;
 
@@ -106,10 +111,10 @@ static ZyanStatus PerformTest(ZyanVector* vector)
     ZYAN_CHECK(ZyanVectorAssign(vector, 10, &e_v));
 
     // Print `u64` of all vector elements
-    ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(vector, &size));
+    ZyanUSize value;
+    ZYAN_CHECK(ZyanVectorGetSize(vector, &value));
     puts("ELEMENTS");
-    for (ZyanUSize i = 0;  i < size; ++i)
+    for (ZyanUSize i = 0;  i < value; ++i)
     {
         ZYAN_CHECK(ZyanVectorGetConst(vector, i, (const void**)&e_p));
         printf("  Element #%02llu: %08llu\n", i, e_p->u64);
@@ -117,9 +122,78 @@ static ZyanStatus PerformTest(ZyanVector* vector)
 
     // Print infos
     puts("INFO");
-    printf("  Size       : %08llu\n", size);
-    ZYAN_CHECK(ZyanVectorCapacity(vector, &size));
-    printf("  Capacity   : %08llu\n\n", size);
+    printf("  Size       : %08llu\n", value);
+    ZYAN_CHECK(ZyanVectorGetCapacity(vector, &value));
+    printf("  Capacity   : %08llu\n\n", value);
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+/**
+ * @brief   A dummy comparison function for the `TestStruct` that uses the `u32` field as key
+ *          value.
+ *
+ * @param   left    A pointer to the first element.
+ * @param   right   A pointer to the second element.
+ *
+ * @return  `0` if the `left` element equals the `right` one, `-1` if the `left` element is smaller
+ *          than the `right` one, or `1` if the `left` element is greater than the `right` one.
+ */
+static ZyanI8 TestDataComparison(const void* left, const void* right)
+{
+    ZYAN_ASSERT(left);
+    ZYAN_ASSERT(right);
+
+    const TestStruct* l = (const TestStruct*)left;
+    const TestStruct* r = (const TestStruct*)right;
+
+    if (l->u32 < r->u32)
+    {
+        return -1;
+    }
+    if (l->u32 > r->u32)
+    {
+        return  1;
+    }
+    return 0;
+}
+
+/**
+ * @brief   Tests the binary-search functionality of the given `ZyanVector` instance.
+ *
+ * @param   vector  A pointer to the `ZyanVector` instance.
+ *
+ * @return  A zyan status code.
+ */
+static ZyanStatus PerformBinarySearchTest(ZyanVector* vector)
+{
+    ZYAN_ASSERT(vector);
+
+    static       TestStruct  e_v;
+    static const TestStruct* e_p;
+
+    ZyanUSize value;
+    ZYAN_CHECK(ZyanVectorGetCapacity(vector, &value));
+
+    // Create a sorted test vector
+    for (ZyanUSize i = 0; i < value; ++i)
+    {
+        const ZyanU32 n = rand() % 100;
+        InitTestdata(&e_v, n);
+
+        ZyanUSize found_index;
+        ZYAN_CHECK(ZyanVectorBinarySearch(vector, &e_v, &found_index, &TestDataComparison));
+        ZYAN_CHECK(ZyanVectorInsert(vector, found_index, &e_v));
+    }
+
+    // Print `u32` of all vector elements
+    ZYAN_CHECK(ZyanVectorGetSize(vector, &value));
+    puts("ELEMENTS");
+    for (ZyanUSize i = 0;  i < value; ++i)
+    {
+        ZYAN_CHECK(ZyanVectorGetConst(vector, i, (const void**)&e_p));
+        printf("  Element #%02llu: %08lu\n", i, e_p->u32);
+    }
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -135,7 +209,10 @@ static ZyanStatus TestDynamic(void)
     ZyanVector vector;
     ZYAN_CHECK(ZyanVectorInit(&vector, sizeof(TestStruct), 10));
 
-    ZYAN_CHECK(PerformTest(&vector));
+    ZYAN_CHECK(PerformBasicTests(&vector));
+    ZYAN_CHECK(ZyanVectorClear(&vector));
+    ZYAN_CHECK(ZyanVectorReserve(&vector, 20));
+    ZYAN_CHECK(PerformBinarySearchTest(&vector));
 
     // Cleanup
     return ZyanVectorDestroy(&vector);
@@ -157,7 +234,7 @@ static ZyanStatus TestStatic(void)
 
     // Compare elements
     ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorSize(&vector, &size));
+    ZYAN_CHECK(ZyanVectorGetSize(&vector, &size));
     for (ZyanUSize i = 0;  i < size; ++i)
     {
         static TestStruct* element;
@@ -168,7 +245,9 @@ static ZyanStatus TestStatic(void)
         }
     }
 
-    ZYAN_CHECK(PerformTest(&vector));
+    ZYAN_CHECK(PerformBasicTests(&vector));
+    ZYAN_CHECK(ZyanVectorClear(&vector));
+    ZYAN_CHECK(PerformBinarySearchTest(&vector));
 
     // Cleanup
     return ZyanVectorDestroy(&vector);
@@ -264,9 +343,9 @@ static ZyanStatus TestAllocator(void)
     }
 
     // Check capacity
-    ZyanUSize size;
-    ZYAN_CHECK(ZyanVectorCapacity(&vector, &size));
-    if (size != 60) // (5 + 1) * 10.0f
+    ZyanUSize value;
+    ZYAN_CHECK(ZyanVectorGetCapacity(&vector, &value));
+    if (value != 60) // (5 + 1) * 10.0f
     {
         return ZYAN_STATUS_INVALID_OPERATION;
     }
@@ -276,10 +355,10 @@ static ZyanStatus TestAllocator(void)
 
     // Print infos
     puts("INFO");
-    ZYAN_CHECK(ZyanVectorSize(&vector, &size));
-    printf("  Size       : %08llu\n", size);
-    ZYAN_CHECK(ZyanVectorCapacity(&vector, &size));
-    printf("  Capacity   : %08llu\n\n", size);
+    ZYAN_CHECK(ZyanVectorGetSize(&vector, &value));
+    printf("  Size       : %08llu\n", value);
+    ZYAN_CHECK(ZyanVectorGetCapacity(&vector, &value));
+    printf("  Capacity   : %08llu\n\n", value);
 
     // Cleanup
     return ZyanVectorDestroy(&vector);
@@ -293,6 +372,9 @@ static ZyanStatus TestAllocator(void)
 
 int main()
 {
+    time_t t;
+    srand((unsigned)time(&t));
+
     if (!ZYAN_SUCCESS(TestDynamic()))
     {
         return EXIT_FAILURE;

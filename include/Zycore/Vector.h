@@ -79,6 +79,29 @@ typedef struct ZyanVector_
     void* data;
 } ZyanVector;
 
+/**
+ * @brief   Defines the `ZyanEqualityComparison` function.
+ *
+ * @param   left    A pointer to the first element.
+ * @param   right   A pointer to the second element.
+ *
+ * @return  This function should return `ZYAN_TRUE` if the `left` element equals the `right` one
+ *          or `ZYAN_FALSE`, if not.
+ */
+typedef ZyanBool (*ZyanEqualityComparison)(const void* left, const void* right);
+
+/**
+ * @brief   Defines the `ZyanComparison` function.
+ *
+ * @param   left    A pointer to the first element.
+ * @param   right   A pointer to the second element.
+ *
+ * @return  This function should return `0` if the `left` element equals the `right` one, `-1` if
+ *          the `left` element is less than the `right` one, or `1` if the `left` element is
+ *          greater than the `right` one.
+ */
+typedef ZyanI8 (*ZyanComparison)(const void* left, const void* right);
+
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
@@ -269,6 +292,82 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorPop(ZyanVector* vector);
 ZYCORE_EXPORT ZyanStatus ZyanVectorClear(ZyanVector* vector);
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Searching                                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Searches for the first occurrence of `element` in the given vector.
+ *
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   element     A pointer to the element to search for.
+ * @param   found_index A pointer to a variable that receives the index of the found element.
+ * @param   comparison  The comparison function to use.
+ *
+ * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ *          zyan status code, if an error occured.
+ *
+ * The `found_index` is set to `-1`, if the element was not found.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorFind(const ZyanVector* vector, const void* element,
+    ZyanISize* found_index, ZyanEqualityComparison comparison);
+
+/**
+ * @brief   Searches for the first occurrence of `element` in the given vector.
+ *
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   element     A pointer to the element to search for.
+ * @param   found_index A pointer to a variable that receives the index of the found element.
+ * @param   comparison  The comparison function to use.
+ * @param   index       The start index.
+ * @param   count       The maximum number of elements to iterate, beginning from the start `index`.
+ *
+ * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ *          zyan status code, if an error occured.
+ *
+ * The `found_index` is set to `-1`, if the element was not found.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* element,
+    ZyanISize* found_index, ZyanEqualityComparison comparison, ZyanUSize index, ZyanUSize count);
+
+/**
+ * @brief   Searches for the first occurrence of `element` in the given vector using a binary-
+ *          search algorithm.
+ *
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   element     A pointer to the element to search for.
+ * @param   found_index A pointer to a variable that receives the index of the found element.
+ * @param   comparison  The comparison function to use.
+ *
+ * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ *          zyan status code, if an error occured.
+ *
+ * If found, `found_index` contains the zero-based index of `element`. If not found, `found_index`
+ * contains the index of the first entry larger than `element`.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorBinarySearch(const ZyanVector* vector, const void* element,
+    ZyanUSize* found_index, ZyanComparison comparison);
+
+/**
+ * @brief   Searches for the first occurrence of `element` in the given vector using a binary-
+ *          search algorithm.
+ *
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   element     A pointer to the element to search for.
+ * @param   found_index A pointer to a variable that receives the index of the found element.
+ * @param   comparison  The comparison function to use.
+ * @param   index       The start index.
+ * @param   count       The maximum number of elements to iterate, beginning from the start `index`.
+ *
+ * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ *          zyan status code, if an error occured.
+ *
+ * If found, `found_index` contains the zero-based index of `element`. If not found, `found_index`
+ * contains the index of the first entry larger than `element`.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorBinarySearchEx(const ZyanVector* vector, const void* element,
+    ZyanUSize* found_index, ZyanComparison comparison, ZyanUSize index, ZyanUSize count);
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Memory management                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -313,7 +412,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorShrinkToFit(ZyanVector* vector);
  *
  * @return  A zycore status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorSize(const ZyanVector* vector, ZyanUSize* size);
+ZYCORE_EXPORT ZyanStatus ZyanVectorGetSize(const ZyanVector* vector, ZyanUSize* size);
 
 /**
  * @brief   Returns the current capacity of the vector.
@@ -323,7 +422,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorSize(const ZyanVector* vector, ZyanUSize* siz
  *
  * @return  A zycore status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorCapacity(const ZyanVector* vector, ZyanUSize* capacity);
+ZYCORE_EXPORT ZyanStatus ZyanVectorGetCapacity(const ZyanVector* vector, ZyanUSize* capacity);
 
 /* ---------------------------------------------------------------------------------------------- */
 
