@@ -241,6 +241,41 @@
  */
 #define ZYAN_ABS(a) (((a) < 0) ? -(a) : (a))
 
+/**
+ * @brief   Checks, if the given value is a power of 2.
+ *
+ * @param   x   The value.
+ *
+ * @return  `ZYAN_TRUE`, if the given value is a power of 2 or `ZYAN_FALSE`, if not.
+ *
+ * Note that this macro always returns `ZYAN_TRUE` for `x == 0`.
+ */
+#define ZYAN_IS_POWER_OF_2(x) (((x) & ((x) - 1)) == 0)
+
+/**
+ * @brief   Aligns the value to the nearest given alignment boundary (by rounding it up).
+ *
+ * @param   x       The value.
+ * @param   align   The desired alignment.
+ *
+ * @return  The aligned value.
+ *
+ * Note that this macro only works for powers of 2.
+ */
+#define ZYAN_ALIGN_UP(x, align) (((x) + (align) - 1) & ~((align) - 1))
+
+/**
+ * @brief   Aligns the value to the nearest given alignment boundary (by rounding it down).
+ *
+ * @param   x       The value.
+ * @param   align   The desired alignment.
+ *
+ * @return  The aligned value.
+ *
+ * Note that this macro only works for powers of 2.
+ */
+#define ZYAN_ALIGN_DOWN(x, align) (((x) - 1) & ~((align) - 1))
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Bit operations                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
@@ -251,7 +286,7 @@
  * @param   n   The ordinal value.
  * @param   b   The bit index.
  *
- * @return  `ZYAN_TRUE`, if the bit at index `b` is required to present the ordinal value `n`, or
+ * @return  `ZYAN_TRUE`, if the bit at index `b` is required to present the ordinal value `n` or
  *          `ZYAN_FALSE`, if not.
  *
  * Note that this macro always returns `ZYAN_FALSE` for `n == 0`.
