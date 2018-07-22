@@ -51,12 +51,21 @@ endif ()
 # Library configuration                                                                           #
 # =============================================================================================== #
 
+function (zycore_set_common_flags target)
+    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
+        "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
+        "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+        target_compile_options("${target}" PRIVATE "-std=c99")
+    endif ()
+endfunction ()
+
 if (ZYCORE_BUILD_SHARED_LIB)
     add_library("Zycore" SHARED)
 else ()
     add_library("Zycore" STATIC)
 endif ()
 
+zycore_set_common_flags("Zycore")
 set_target_properties("Zycore" PROPERTIES LINKER_LANGUAGE C)
 target_include_directories("Zycore"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
@@ -106,6 +115,7 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if (ZYCORE_BUILD_EXAMPLES)
     add_executable("Vector" "examples/Vector.c")
+    zycore_set_common_flags("Vector" "Zycore")
     target_link_libraries("Vector" "Zycore")
     set_target_properties("Vector" PROPERTIES FOLDER "Examples")
     target_compile_definitions("Vector" PRIVATE "_CRT_SECURE_NO_WARNINGS")

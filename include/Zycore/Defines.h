@@ -127,6 +127,9 @@
 /* Debugging and optimization macros                                                              */
 /* ============================================================================================== */
 
+/**
+ * @brief   Runtime debug assersion.
+ */
 #if defined(ZYAN_NO_LIBC)
 #   define ZYAN_ASSERT(condition)
 #else
@@ -134,10 +137,16 @@
 #   define ZYAN_ASSERT(condition) assert(condition)
 #endif
 
+/**
+ * @brief   Compiler-time assertion.
+ */
 #if __STDC_VERSION__ >= 201112L
 #   define ZYAN_STATIC_ASSERT(x) _Static_assert(x, #x)
 #else
-#   define ZYAN_STATIC_ASSERT(x) typedef int ZYAN_SASSERT_IMPL[(x) ? 1 : -1]
+#   define ZYAN_MACRO_CONCAT2(x, y) x##y
+#   define ZYAN_MACRO_CONCAT(x, y) ZYAN_MACRO_CONCAT2(x, y)
+#   define ZYAN_STATIC_ASSERT(x) \
+        typedef int ZYAN_MACRO_CONCAT(ZYAN_SASSERT_, __COUNTER__) [(x) ? 1 : -1]
 #endif
 
 #if defined(ZYAN_RELEASE)
