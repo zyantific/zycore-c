@@ -40,7 +40,7 @@
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-typedef struct ZyanAllocator_ ZyanAllocator;
+struct ZyanAllocator_;
 
 /**
  * @brief   Defines the `ZyanAllocatorAllocate` function.
@@ -58,7 +58,7 @@ typedef struct ZyanAllocator_ ZyanAllocator;
  * The result of the `reallocate()` function is undefined, if `p` does not point to a memory block
  * previously obtained by `(re-)allocate()`.
  */
-typedef ZyanStatus (*ZyanAllocatorAllocate)(ZyanAllocator* allocator, void** p,
+typedef ZyanStatus (*ZyanAllocatorAllocate)(struct ZyanAllocator_* allocator, void** p,
     ZyanUSize element_size, ZyanUSize n);
 
 /**
@@ -71,7 +71,7 @@ typedef ZyanStatus (*ZyanAllocatorAllocate)(ZyanAllocator* allocator, void** p,
  *
   * @return  A zycore status code.
  */
-typedef ZyanStatus (*ZyanAllocatorDeallocate)(ZyanAllocator* allocator, void* p,
+typedef ZyanStatus (*ZyanAllocatorDeallocate)(struct ZyanAllocator_* allocator, void* p,
     ZyanUSize element_size, ZyanUSize n);
 
 /**
