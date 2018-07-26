@@ -139,19 +139,16 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
  * @return  `0` if the `left` element equals the `right` one, `-1` if the `left` element is smaller
  *          than the `right` one, or `1` if the `left` element is greater than the `right` one.
  */
-static ZyanI8 TestDataComparison(const void* left, const void* right)
+static ZyanI8 TestDataComparison(const TestStruct* left, const TestStruct* right)
 {
     ZYAN_ASSERT(left);
     ZYAN_ASSERT(right);
 
-    const TestStruct* l = (const TestStruct*)left;
-    const TestStruct* r = (const TestStruct*)right;
-
-    if (l->u32 < r->u32)
+    if (left->u32 < right->u32)
     {
         return -1;
     }
-    if (l->u32 > r->u32)
+    if (left->u32 > right->u32)
     {
         return  1;
     }
@@ -182,7 +179,8 @@ static ZyanStatus PerformBinarySearchTest(ZyanVector* vector)
         InitTestdata(&e_v, n);
 
         ZyanUSize found_index;
-        ZYAN_CHECK(ZyanVectorBinarySearch(vector, &e_v, &found_index, &TestDataComparison));
+        ZYAN_CHECK(ZyanVectorBinarySearch(vector, &e_v, &found_index,
+            (ZyanComparison)&TestDataComparison));
         ZYAN_CHECK(ZyanVectorInsert(vector, found_index, &e_v));
     }
 
