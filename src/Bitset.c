@@ -81,7 +81,7 @@
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   count   The number of bytes.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZyanBitsetInitVectorElements(ZyanVector* vector, ZyanUSize count)
 {

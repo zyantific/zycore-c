@@ -67,7 +67,7 @@ typedef struct ZyanBitset_
  *              desired operation.
  * @param   v2  A pointer to the second byte.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  *
  * This function is used to perform byte-wise operations on two `ZyanBitset` instances.
  */
@@ -87,7 +87,7 @@ typedef ZyanStatus (*ZyanBitsetByteOperation)(ZyanU8* v1, const ZyanU8* v2);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   count   The initial amount of bits.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  *
  * The space for the bitset is dynamically allocated by the default allocator using the default
  * growth factor of `2.0f` and the default shrink threshold of `0.5f`.
@@ -104,7 +104,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetInit(ZyanBitset* bitset, ZyanUSize count);
  * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
  * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  *
  * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
  * dynamic shrinking.
@@ -121,7 +121,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetInitEx(ZyanBitset* bitset, ZyanUSize count,
  * @param   buffer      A pointer to the buffer that is used as storage for the bits.
  * @param   capacity    The maximum capacity (number of bytes) of the buffer.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetInitBuffer(ZyanBitset* bitset, ZyanUSize count, void* buffer,
     ZyanUSize capacity);
@@ -131,7 +131,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetInitBuffer(ZyanBitset* bitset, ZyanUSize coun
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetDestroy(ZyanBitset* bitset);
 
@@ -147,7 +147,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetDestroy(ZyanBitset* bitset);
  * @param   source      A pointer to the `ZyanBitset` instance that is used as the second input.
  * @param   operation   A pointer to the function that performs the desired operation.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  *
  * The `operation` callback is invoked once for every byte in the smallest of the `ZyanBitset`
  * instances.
@@ -162,7 +162,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetPerformByteOperation(ZyanBitset* destination,
  *                      as the destination.
  * @param   source      A pointer to the `ZyanBitset` instance that is used as the second input.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  *
  * If the destination bitmask contains more bits than the source one, the state of the remaining
  * bits will be undefined.
@@ -176,7 +176,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetAND(ZyanBitset* destination, const ZyanBitset
  *                      as the destination.
  * @param   source      A pointer to the `ZyanBitset` instance that is used as the second input.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  *
  * If the destination bitmask contains more bits than the source one, the state of the remaining
  * bits will be undefined.
@@ -190,7 +190,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetOR (ZyanBitset* destination, const ZyanBitset
  *                      as the destination.
  * @param   source      A pointer to the `ZyanBitset` instance that is used as the second input.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  *
  * If the destination bitmask contains more bits than the source one, the state of the remaining
  * bits will be undefined.
@@ -202,7 +202,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetXOR(ZyanBitset* destination, const ZyanBitset
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetFlip(ZyanBitset* bitset);
 
@@ -216,7 +216,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetFlip(ZyanBitset* bitset);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   index   The bit index.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetSet(ZyanBitset* bitset, ZyanUSize index);
 
@@ -226,7 +226,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetSet(ZyanBitset* bitset, ZyanUSize index);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   index   The bit index.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetReset(ZyanBitset* bitset, ZyanUSize index);
 
@@ -237,7 +237,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetReset(ZyanBitset* bitset, ZyanUSize index);
  * @param   index   The bit index.
  * @param   value   The new value.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetAssign(ZyanBitset* bitset, ZyanUSize index, ZyanBool value);
 
@@ -247,7 +247,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetAssign(ZyanBitset* bitset, ZyanUSize index, Z
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   index   The bit index.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetToggle(ZyanBitset* bitset, ZyanUSize index);
 
@@ -257,7 +257,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetToggle(ZyanBitset* bitset, ZyanUSize index);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   index   The bit index.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not, Another zycore
+ * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not, Another zyan
  *          status code, if an error occured.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetTest(ZyanBitset* bitset, ZyanUSize index);
@@ -267,7 +267,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetTest(ZyanBitset* bitset, ZyanUSize index);
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not. Another zycore
+ * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not. Another zyan
  *          status code, if an error occured.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetTestMSB(ZyanBitset* bitset);
@@ -277,7 +277,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetTestMSB(ZyanBitset* bitset);
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not. Another zycore
+ * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not. Another zyan
  *          status code, if an error occured.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetTestLSB(ZyanBitset* bitset);
@@ -289,7 +289,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetTestLSB(ZyanBitset* bitset);
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetSetAll(ZyanBitset* bitset);
 
@@ -298,7 +298,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetSetAll(ZyanBitset* bitset);
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetResetAll(ZyanBitset* bitset);
 
@@ -312,7 +312,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetResetAll(ZyanBitset* bitset);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   value   The value of the new bit.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetPush(ZyanBitset* bitset, ZyanBool value);
 
@@ -321,7 +321,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetPush(ZyanBitset* bitset, ZyanBool value);
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetPop(ZyanBitset* bitset);
 
@@ -330,7 +330,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetPop(ZyanBitset* bitset);
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetClear(ZyanBitset* bitset);
 
@@ -344,7 +344,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetClear(ZyanBitset* bitset);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   count   The new capacity (number of bits).
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetReserve(ZyanBitset* bitset, ZyanUSize count);
 
@@ -353,7 +353,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetReserve(ZyanBitset* bitset, ZyanUSize count);
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetShrinkToFit(ZyanBitset* bitset);
 
@@ -367,7 +367,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetShrinkToFit(ZyanBitset* bitset);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   size    Receives the size of the bitset in bits.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetSize(const ZyanBitset* bitset, ZyanUSize* size);
 
@@ -377,7 +377,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetSize(const ZyanBitset* bitset, ZyanUSize* siz
  * @param   bitset      A pointer to the `ZyanBitset` instance.
  * @param   capacity    Receives the size of the bitset in bits.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetCapacity(const ZyanBitset* bitset, ZyanUSize* capacity);
 
@@ -387,7 +387,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetCapacity(const ZyanBitset* bitset, ZyanUSize*
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   size    Receives the size of the bitset in bytes.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetSizeBytes(const ZyanBitset* bitset, ZyanUSize* size);
 
@@ -397,7 +397,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetSizeBytes(const ZyanBitset* bitset, ZyanUSize
  * @param   bitset      A pointer to the `ZyanBitset` instance.
  * @param   capacity    Receives the size of the bitset in bytes.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetCapacityBytes(const ZyanBitset* bitset, ZyanUSize* capacity);
 
@@ -409,7 +409,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetCapacityBytes(const ZyanBitset* bitset, ZyanU
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  * @param   count   Receives the amount of bits set in the given bitset.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetCount(const ZyanBitset* bitset, ZyanUSize* count);
 
@@ -418,7 +418,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetCount(const ZyanBitset* bitset, ZyanUSize* co
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  `ZYAN_STATUS_TRUE`, if all bits are set, `ZYAN_STATUS_FALSE`, if not. Another zycore
+ * @return  `ZYAN_STATUS_TRUE`, if all bits are set, `ZYAN_STATUS_FALSE`, if not. Another zyan
  *          status code, if an error occured.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetAll(const ZyanBitset* bitset);
@@ -429,7 +429,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetAll(const ZyanBitset* bitset);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
  * @return  `ZYAN_STATUS_TRUE`, if at least one bit is set, `ZYAN_STATUS_FALSE`, if not. Another
- *          zycore status code, if an error occured.
+ *          zyan status code, if an error occured.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetAny(const ZyanBitset* bitset);
 
@@ -438,7 +438,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetAny(const ZyanBitset* bitset);
  *
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
- * @return  `ZYAN_STATUS_TRUE`, if none bits are set, `ZYAN_STATUS_FALSE`, if not. Another zycore
+ * @return  `ZYAN_STATUS_TRUE`, if none bits are set, `ZYAN_STATUS_FALSE`, if not. Another zyan
  *          status code, if an error occured.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetNone(const ZyanBitset* bitset);

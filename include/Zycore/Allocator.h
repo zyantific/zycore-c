@@ -51,7 +51,7 @@ struct ZyanAllocator_;
  * @param   element_size    The size of a single element.
  * @param   n               The number of elements to allocate storage for.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  *
  * This prototype is used for the `allocate()` and `reallocate()` functions.
  *
@@ -69,7 +69,7 @@ typedef ZyanStatus (*ZyanAllocatorAllocate)(struct ZyanAllocator_* allocator, vo
  * @param   element_size    The size of a single element.
  * @param   n               The number of elements earlier passed to `(re-)allocate()`.
  *
-  * @return  A zycore status code.
+  * @return  A zyan status code.
  */
 typedef ZyanStatus (*ZyanAllocatorDeallocate)(struct ZyanAllocator_* allocator, void* p,
     ZyanUSize element_size, ZyanUSize n);
@@ -110,7 +110,7 @@ typedef struct ZyanAllocator_
  * @param   reallocate  The reallocate function.
  * @param   deallocate  The deallocate function.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanAllocatorInit(ZyanAllocator* allocator, ZyanAllocatorAllocate allocate,
     ZyanAllocatorAllocate reallocate, ZyanAllocatorDeallocate deallocate);

@@ -65,7 +65,7 @@
 /**
  * @brief   Returns the offset of the element at the given `index`.
  *
- * @param   vector  A pointer to the `ZydisVector` instance.
+ * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The element index.
  *
  * @return  The offset of the element at the given `index`.
@@ -84,10 +84,10 @@
 /**
  * @brief   Reallocates the internal buffer of the vector.
  *
- * @param   vector      A pointer to the `ZydisVector` instance.
+ * @param   vector      A pointer to the `ZyanVector` instance.
  * @param   capacity    The new capacity.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZyanVectorReallocate(ZyanVector* vector, ZyanUSize capacity)
 {
@@ -130,11 +130,11 @@ static ZyanStatus ZyanVectorReallocate(ZyanVector* vector, ZyanUSize capacity)
  * @brief   Shifts all elements starting at the specified `index` by the amount of `count` to the
  *          left.
  *
- * @param   vector  A pointer to the `ZydisVector` instance.
+ * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The start index.
  * @param   count   The amount of shift operations.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZyanVectorShiftLeft(ZyanVector* vector, ZyanUSize index, ZyanUSize count)
 {
@@ -157,11 +157,11 @@ static ZyanStatus ZyanVectorShiftLeft(ZyanVector* vector, ZyanUSize index, ZyanU
  * @brief   Shifts all elements starting at the specified `index` by the amount of `count` to the
  *          right.
  *
- * @param   vector  A pointer to the `ZydisVector` instance.
+ * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The start index.
  * @param   count   The amount of shift operations.
  *
- * @return  A zycore status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZyanVectorShiftRight(ZyanVector* vector, ZyanUSize index, ZyanUSize count)
 {
