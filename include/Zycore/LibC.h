@@ -32,12 +32,12 @@
 #ifndef ZYCORE_LIBC_H
 #define ZYCORE_LIBC_H
 
-#ifndef ZYCORE_CUSTOM_LIBC
+#ifndef ZYAN_CUSTOM_LIBC
 
-// Include a custom LibC header and define `ZYCORE_CUSTOM_LIBC` to provide your own LibC
+// Include a custom LibC header and define `ZYAN_CUSTOM_LIBC` to provide your own LibC
 // replacement functions
 
-#ifndef ZYCORE_NO_LIBC
+#ifndef ZYAN_NO_LIBC
 
 /* ============================================================================================== */
 /* LibC is available                                                                              */
