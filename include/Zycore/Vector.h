@@ -34,6 +34,7 @@
 
 #include <ZycoreExportConfig.h>
 #include <Zycore/Allocator.h>
+#include <Zycore/Comparison.h>
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>
 
@@ -79,29 +80,6 @@ typedef struct ZyanVector_
     void* data;
 } ZyanVector;
 
-/**
- * @brief   Defines the `ZyanEqualityComparison` function.
- *
- * @param   left    A pointer to the first element.
- * @param   right   A pointer to the second element.
- *
- * @return  This function should return `ZYAN_TRUE` if the `left` element equals the `right` one
- *          or `ZYAN_FALSE`, if not.
- */
-typedef ZyanBool (*ZyanEqualityComparison)(const void* left, const void* right);
-
-/**
- * @brief   Defines the `ZyanComparison` function.
- *
- * @param   left    A pointer to the first element.
- * @param   right   A pointer to the second element.
- *
- * @return  This function should return `0` if the `left` element equals the `right` one, `-1` if
- *          the `left` element is less than the `right` one, or `1` if the `left` element is
- *          greater than the `right` one.
- */
-typedef ZyanI8 (*ZyanComparison)(const void* left, const void* right);
-
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
@@ -119,8 +97,10 @@ typedef ZyanI8 (*ZyanComparison)(const void* left, const void* right);
  *
  * @return  A zyan status code.
  *
- * The space for the vector elements is dynamically allocated by the default allocator using the
+ * The memory for the vector elements is dynamically allocated by the default allocator using the
  * default growth factor of `2.0f` and the default shrink threshold of `0.25f`.
+ *
+ * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorInit(ZyanVector* vector, ZyanUSize element_size,
     ZyanUSize capacity);
@@ -140,6 +120,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInit(ZyanVector* vector, ZyanUSize element_si
  *
  * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
  * dynamic shrinking.
+ *
+ * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorInitEx(ZyanVector* vector, ZyanUSize element_size,
     ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold);
@@ -154,8 +136,10 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInitEx(ZyanVector* vector, ZyanUSize element_
  * @param   capacity        The maximum capacity (number of elements) of the buffer.
  *
  * @return  A zyan status code.
+ *
+ * Finalization is not required for instances created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorInitBuffer(ZyanVector* vector, ZyanUSize element_size,
+ZYCORE_EXPORT ZyanStatus ZyanVectorInitCustomBuffer(ZyanVector* vector, ZyanUSize element_size,
     void* buffer, ZyanUSize capacity);
 
 /**
@@ -168,7 +152,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInitBuffer(ZyanVector* vector, ZyanUSize elem
 ZYCORE_EXPORT ZyanStatus ZyanVectorDestroy(ZyanVector* vector);
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Lookup                                                                                         */
+/* Element access                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -176,38 +160,36 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDestroy(ZyanVector* vector);
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The element index.
- * @param   element Receives a pointer to the desired element in the vector.
+ * @param   value Receives a pointer to the desired element in the vector.
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorGet(const ZyanVector* vector, ZyanUSize index, void** element);
+ZYCORE_EXPORT ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index,
+    void** value);
 
 /**
  * @brief   Returns a constant pointer to the element at the given `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The element index.
- * @param   element Receives a constant pointer to the desired element in the vector.
+ * @param   value   Receives a constant pointer to the desired element in the vector.
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorGetConst(const ZyanVector* vector, ZyanUSize index,
-    const void** element);
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Assignment                                                                                     */
-/* ---------------------------------------------------------------------------------------------- */
+ZYCORE_EXPORT ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSize index,
+    const void** value);
 
 /**
- * @brief   Assigns a value to the element at the given `index`.
+ * @brief   Assigns a new value to the element at the given `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
- * @param   index   The element index.
- * @param   element The value to assign.
+ * @param   index   The value index.
+ * @param   value   The value to assign.
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorAssign(ZyanVector* vector, ZyanUSize index, const void* element);
+ZYCORE_EXPORT ZyanStatus ZyanVectorSetElement(ZyanVector* vector, ZyanUSize index,
+    const void* value);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Insertion                                                                                      */
@@ -244,7 +226,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInsert(ZyanVector* vector, ZyanUSize index, c
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorInsertElements(ZyanVector* vector, ZyanUSize index,
+ZYCORE_EXPORT ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index,
     const void* elements, ZyanUSize count);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -265,13 +247,12 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDelete(ZyanVector* vector, ZyanUSize index);
  * @brief   Deletes multiple elements from the given vector, starting at `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
- * @param   index   The index of the first element.
+ * @param   index   The index of the first element to delete.
  * @param   count   The number of elements to delete.
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorDeleteElements(ZyanVector* vector, ZyanUSize index,
-    ZyanUSize count);
+ZYCORE_EXPORT ZyanStatus ZyanVectorDeleteEx(ZyanVector* vector, ZyanUSize index, ZyanUSize count);
 
 /**
  * @brief   Removes the last element of the vector.

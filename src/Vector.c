@@ -31,9 +31,9 @@
 /* Internal constants                                                                             */
 /* ============================================================================================== */
 
-#define ZYAN_VECTOR_MIN_CAPACITY     1
-#define ZYAN_VECTOR_GROWTH_FACTOR    2.00f
-#define ZYAN_VECTOR_SHRINK_THRESHOLD 0.25f
+#define ZYCORE_VECTOR_MIN_CAPACITY      1
+#define ZYCORE_VECTOR_GROWTH_FACTOR     2.00f
+#define ZYCORE_VECTOR_SHRINK_THRESHOLD  0.25f
 
 /* ============================================================================================== */
 /* Internal macros                                                                                */
@@ -47,7 +47,7 @@
  *
  * @return  `ZYAN_TRUE`, if the vector should grow or `ZYAN_FALSE`, if not.
  */
-#define ZYAN_VECTOR_SHOULD_GROW(size, capacity) \
+#define ZYCORE_VECTOR_SHOULD_GROW(size, capacity) \
     ((size) > (capacity))
 
 /**
@@ -59,7 +59,7 @@
  *
  * @return  `ZYAN_TRUE`, if the vector should shrink or `ZYAN_FALSE`, if not.
  */
-#define ZYAN_VECTOR_SHOULD_SHRINK(size, capacity, threshold) \
+#define ZYCORE_VECTOR_SHOULD_SHRINK(size, capacity, threshold) \
     ((size) < (capacity) * (threshold))
 
 /**
@@ -70,7 +70,7 @@
  *
  * @return  The offset of the element at the given `index`.
  */
-#define ZYAN_VECTOR_OFFSET(vector, index) \
+#define ZYCORE_VECTOR_OFFSET(vector, index) \
     ((void*)((ZyanU8*)(vector)->data + ((index) * (vector)->element_size)))
 
 /* ============================================================================================== */
@@ -92,7 +92,7 @@
 static ZyanStatus ZyanVectorReallocate(ZyanVector* vector, ZyanUSize capacity)
 {
     ZYAN_ASSERT(vector);
-    ZYAN_ASSERT(vector->capacity >= ZYAN_VECTOR_MIN_CAPACITY);
+    ZYAN_ASSERT(vector->capacity >= ZYCORE_VECTOR_MIN_CAPACITY);
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
 
@@ -108,11 +108,11 @@ static ZyanStatus ZyanVectorReallocate(ZyanVector* vector, ZyanUSize capacity)
     ZYAN_ASSERT(vector->allocator);
     ZYAN_ASSERT(vector->allocator->reallocate);
 
-    if (capacity < ZYAN_VECTOR_MIN_CAPACITY)
+    if (capacity < ZYCORE_VECTOR_MIN_CAPACITY)
     {
-        if (vector->capacity > ZYAN_VECTOR_MIN_CAPACITY)
+        if (vector->capacity > ZYCORE_VECTOR_MIN_CAPACITY)
         {
-            capacity = ZYAN_VECTOR_MIN_CAPACITY;
+            capacity = ZYCORE_VECTOR_MIN_CAPACITY;
         } else
         {
             return ZYAN_STATUS_SUCCESS;
@@ -141,12 +141,12 @@ static ZyanStatus ZyanVectorShiftLeft(ZyanVector* vector, ZyanUSize index, ZyanU
     ZYAN_ASSERT(vector);
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
-    ZYAN_ASSERT(index > 0);
-    ZYAN_ASSERT(count > 0);
-    ZYAN_ASSERT((ZyanISize)index - (ZyanISize)count >= 0);
+    ZYAN_ASSERT(index >= 0);
+    ZYAN_ASSERT(count >  0);
+    //ZYAN_ASSERT((ZyanISize)count - (ZyanISize)index + 1 >= 0);
 
-    void* const source   = ZYAN_VECTOR_OFFSET(vector, index + count);
-    void* const dest     = ZYAN_VECTOR_OFFSET(vector, index);
+    void* const source   = ZYCORE_VECTOR_OFFSET(vector, index + count);
+    void* const dest     = ZYCORE_VECTOR_OFFSET(vector, index);
     const ZyanUSize size = (vector->size - index) * vector->element_size;
     ZYAN_MEMMOVE(dest, source, size);
 
@@ -171,8 +171,8 @@ static ZyanStatus ZyanVectorShiftRight(ZyanVector* vector, ZyanUSize index, Zyan
     ZYAN_ASSERT(count > 0);
     ZYAN_ASSERT(vector->size + count <= vector->capacity);
 
-    void* const source   = ZYAN_VECTOR_OFFSET(vector, index);
-    void* const dest     = ZYAN_VECTOR_OFFSET(vector, index + count);
+    void* const source   = ZYCORE_VECTOR_OFFSET(vector, index);
+    void* const dest     = ZYCORE_VECTOR_OFFSET(vector, index + count);
     const ZyanUSize size = (vector->size - index) * vector->element_size;
     ZYAN_MEMMOVE(dest, source, size);
 
@@ -192,7 +192,7 @@ static ZyanStatus ZyanVectorShiftRight(ZyanVector* vector, ZyanUSize index, Zyan
 ZyanStatus ZyanVectorInit(ZyanVector* vector, ZyanUSize element_size, ZyanUSize capacity)
 {
     return ZyanVectorInitEx(vector,  element_size, capacity, ZyanAllocatorDefault(),
-        ZYAN_VECTOR_GROWTH_FACTOR, ZYAN_VECTOR_SHRINK_THRESHOLD);
+        ZYCORE_VECTOR_GROWTH_FACTOR, ZYCORE_VECTOR_SHRINK_THRESHOLD);
 }
 
 ZyanStatus ZyanVectorInitEx(ZyanVector* vector, ZyanUSize element_size, ZyanUSize capacity,
@@ -210,7 +210,7 @@ ZyanStatus ZyanVectorInitEx(ZyanVector* vector, ZyanUSize element_size, ZyanUSiz
     vector->growth_factor    = growth_factor;
     vector->shrink_threshold = shrink_threshold;
     vector->size             = 0;
-    vector->capacity         = ZYAN_MAX(ZYAN_VECTOR_MIN_CAPACITY, capacity);
+    vector->capacity         = ZYAN_MAX(ZYCORE_VECTOR_MIN_CAPACITY, capacity);
     vector->element_size     = element_size;
     vector->data             = ZYAN_NULL;
 
@@ -218,7 +218,7 @@ ZyanStatus ZyanVectorInitEx(ZyanVector* vector, ZyanUSize element_size, ZyanUSiz
         vector->capacity);
 }
 
-ZyanStatus ZyanVectorInitBuffer(ZyanVector* vector, ZyanUSize element_size,
+ZyanStatus ZyanVectorInitCustomBuffer(ZyanVector* vector, ZyanUSize element_size,
     void* buffer, ZyanUSize capacity)
 {
     if (!vector || !element_size || !buffer || !capacity)
@@ -258,12 +258,12 @@ ZyanStatus ZyanVectorDestroy(ZyanVector* vector)
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Lookup                                                                                         */
+/* Element access                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanVectorGet(const ZyanVector* vector, ZyanUSize index, void** element)
+ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index, void** value)
 {
-    if (!vector || !element)
+    if (!vector || !value)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -275,14 +275,14 @@ ZyanStatus ZyanVectorGet(const ZyanVector* vector, ZyanUSize index, void** eleme
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
 
-    *element = ZYAN_VECTOR_OFFSET(vector, index);
+    *value = ZYCORE_VECTOR_OFFSET(vector, index);
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanVectorGetConst(const ZyanVector* vector, ZyanUSize index, const void** element)
+ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSize index, const void** value)
 {
-    if (!vector || !element)
+    if (!vector || !value)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -294,18 +294,14 @@ ZyanStatus ZyanVectorGetConst(const ZyanVector* vector, ZyanUSize index, const v
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
 
-    *element = (const void*)ZYAN_VECTOR_OFFSET(vector, index);
+    *value = (const void*)ZYCORE_VECTOR_OFFSET(vector, index);
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-/* ---------------------------------------------------------------------------------------------- */
-/* Assignment                                                                                     */
-/* ---------------------------------------------------------------------------------------------- */
-
-ZyanStatus ZyanVectorAssign(ZyanVector* vector, ZyanUSize index, const void* element)
+ZyanStatus ZyanVectorSetElement(ZyanVector* vector, ZyanUSize index, const void* value)
 {
-    if (!vector || !element)
+    if (!vector || !value)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -317,8 +313,8 @@ ZyanStatus ZyanVectorAssign(ZyanVector* vector, ZyanUSize index, const void* ele
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
 
-    void* const offset = ZYAN_VECTOR_OFFSET(vector, index);
-    ZYAN_MEMCPY(offset, element, vector->element_size);
+    void* const offset = ZYCORE_VECTOR_OFFSET(vector, index);
+    ZYAN_MEMCPY(offset, value, vector->element_size);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -337,13 +333,13 @@ ZyanStatus ZyanVectorPush(ZyanVector* vector, const void* element)
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
 
-    if (ZYAN_VECTOR_SHOULD_GROW(vector->size + 1, vector->capacity))
+    if (ZYCORE_VECTOR_SHOULD_GROW(vector->size + 1, vector->capacity))
     {
         ZYAN_CHECK(ZyanVectorReallocate(vector,
             ZYAN_MAX(1, (ZyanUSize)((vector->size + 1) * vector->growth_factor))));
     }
 
-    void* const offset = ZYAN_VECTOR_OFFSET(vector, vector->size);
+    void* const offset = ZYCORE_VECTOR_OFFSET(vector, vector->size);
     ZYAN_MEMCPY(offset, element, vector->element_size);
 
     ++vector->size;
@@ -353,10 +349,10 @@ ZyanStatus ZyanVectorPush(ZyanVector* vector, const void* element)
 
 ZyanStatus ZyanVectorInsert(ZyanVector* vector, ZyanUSize index, const void* element)
 {
-    return ZyanVectorInsertElements(vector, index, element, 1);
+    return ZyanVectorInsertEx(vector, index, element, 1);
 }
 
-ZyanStatus ZyanVectorInsertElements(ZyanVector* vector, ZyanUSize index, const void* elements,
+ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index, const void* elements,
     ZyanUSize count)
 {
     if (!vector || !elements || !count)
@@ -371,7 +367,7 @@ ZyanStatus ZyanVectorInsertElements(ZyanVector* vector, ZyanUSize index, const v
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
 
-    if (ZYAN_VECTOR_SHOULD_GROW(vector->size + count, vector->capacity))
+    if (ZYCORE_VECTOR_SHOULD_GROW(vector->size + count, vector->capacity))
     {
         ZYAN_CHECK(ZyanVectorReallocate(vector,
             ZYAN_MAX(1, (ZyanUSize)((vector->size + count) * vector->growth_factor))));
@@ -382,7 +378,7 @@ ZyanStatus ZyanVectorInsertElements(ZyanVector* vector, ZyanUSize index, const v
         ZYAN_CHECK(ZyanVectorShiftRight(vector, index, count));
     }
 
-    void* const offset = ZYAN_VECTOR_OFFSET(vector, index);
+    void* const offset = ZYCORE_VECTOR_OFFSET(vector, index);
     ZYAN_MEMCPY(offset, elements, count * vector->element_size);
     vector->size += count;
 
@@ -395,10 +391,10 @@ ZyanStatus ZyanVectorInsertElements(ZyanVector* vector, ZyanUSize index, const v
 
 ZyanStatus ZyanVectorDelete(ZyanVector* vector, ZyanUSize index)
 {
-    return ZyanVectorDeleteElements(vector, index, 1);
+    return ZyanVectorDeleteEx(vector, index, 1);
 }
 
-ZyanStatus ZyanVectorDeleteElements(ZyanVector* vector, ZyanUSize index, ZyanUSize count)
+ZyanStatus ZyanVectorDeleteEx(ZyanVector* vector, ZyanUSize index, ZyanUSize count)
 {
     if (!vector || !count)
     {
@@ -411,11 +407,11 @@ ZyanStatus ZyanVectorDeleteElements(ZyanVector* vector, ZyanUSize index, ZyanUSi
 
     if (index < vector->size - 1)
     {
-        ZYAN_CHECK(ZyanVectorShiftLeft(vector, index , count));
+        ZYAN_CHECK(ZyanVectorShiftLeft(vector, index, count));
     }
 
     vector->size -= count;
-    if (ZYAN_VECTOR_SHOULD_SHRINK(vector->size, vector->capacity, vector->shrink_threshold))
+    if (ZYCORE_VECTOR_SHOULD_SHRINK(vector->size, vector->capacity, vector->shrink_threshold))
     {
         return ZyanVectorReallocate(vector,
             ZYAN_MAX(1, (ZyanUSize)(vector->size * vector->growth_factor)));
@@ -436,7 +432,7 @@ ZyanStatus ZyanVectorPop(ZyanVector* vector)
     }
 
     --vector->size;
-    if (ZYAN_VECTOR_SHOULD_SHRINK(vector->size, vector->capacity, vector->shrink_threshold))
+    if (ZYCORE_VECTOR_SHOULD_SHRINK(vector->size, vector->capacity, vector->shrink_threshold))
     {
         return ZyanVectorReallocate(vector,
             ZYAN_MAX(1, (ZyanUSize)(vector->size * vector->growth_factor)));
@@ -480,7 +476,7 @@ ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* element, ZyanI
     const void* left;
     for (ZyanUSize i = index; i < index + count; ++i)
     {
-        ZYAN_CHECK(ZyanVectorGetConst(vector, i, &left));
+        ZYAN_CHECK(ZyanVectorGetElement(vector, i, &left));
         if (comparison(left, element))
         {
             *found_index = i;
@@ -529,7 +525,7 @@ ZyanStatus ZyanVectorBinarySearchEx(const ZyanVector* vector, const void* elemen
     while (l <= h)
     {
         const ZyanUSize mid = l + ((h - l) >> 1);
-        ZYAN_CHECK(ZyanVectorGetConst(vector, mid, &element_mid));
+        ZYAN_CHECK(ZyanVectorGetElement(vector, mid, &element_mid));
         const ZyanI8 cmp = comparison(element_mid, element);
         if (cmp < 0)
         {
@@ -559,8 +555,8 @@ ZyanStatus ZyanVectorResize(ZyanVector* vector, ZyanUSize size)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (ZYAN_VECTOR_SHOULD_GROW(size, vector->capacity) ||
-        ZYAN_VECTOR_SHOULD_SHRINK(size, vector->capacity, vector->shrink_threshold))
+    if (ZYCORE_VECTOR_SHOULD_GROW(size, vector->capacity) ||
+        ZYCORE_VECTOR_SHOULD_SHRINK(size, vector->capacity, vector->shrink_threshold))
     {
         ZYAN_CHECK(ZyanVectorReallocate(vector, (ZyanUSize)(size * vector->growth_factor)));
     };
@@ -587,6 +583,11 @@ ZyanStatus ZyanVectorReserve(ZyanVector* vector, ZyanUSize capacity)
 
 ZyanStatus ZyanVectorShrinkToFit(ZyanVector* vector)
 {
+    if (!vector)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
     return ZyanVectorReallocate(vector, vector->size);
 }
 

@@ -100,7 +100,7 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
     }
 
     // Remove elements `#05..#09`
-    ZYAN_CHECK(ZyanVectorDeleteElements(vector, 5, 5));
+    ZYAN_CHECK(ZyanVectorDeleteEx(vector, 5, 5));
 
     // Insert a new element at index `#05`
     InitTestdata(&e_v, 12345678);
@@ -108,7 +108,7 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
 
     // Change value of element `#15`
     InitTestdata(&e_v, 87654321);
-    ZYAN_CHECK(ZyanVectorAssign(vector, 10, &e_v));
+    ZYAN_CHECK(ZyanVectorSetElement(vector, 10, &e_v));
 
     // Print `u64` of all vector elements
     ZyanUSize value;
@@ -116,7 +116,7 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
     puts("ELEMENTS");
     for (ZyanUSize i = 0;  i < value; ++i)
     {
-        ZYAN_CHECK(ZyanVectorGetConst(vector, i, (const void**)&e_p));
+        ZYAN_CHECK(ZyanVectorGetElement(vector, i, (const void**)&e_p));
         printf("  Element #%02llu: %08llu\n", i, e_p->u64);
     }
 
@@ -189,7 +189,7 @@ static ZyanStatus PerformBinarySearchTest(ZyanVector* vector)
     puts("ELEMENTS");
     for (ZyanUSize i = 0;  i < value; ++i)
     {
-        ZYAN_CHECK(ZyanVectorGetConst(vector, i, (const void**)&e_p));
+        ZYAN_CHECK(ZyanVectorGetElement(vector, i, (const void**)&e_p));
         printf("  Element #%02llu: %08lu\n", i, e_p->u32);
     }
 
@@ -227,7 +227,7 @@ static ZyanStatus TestStatic(void)
 
     // Initialize vector to use a static buffer with a total capacity of `20` elements.
     ZyanVector vector;
-    ZYAN_CHECK(ZyanVectorInitBuffer(&vector, sizeof(TestStruct), buffer,
+    ZYAN_CHECK(ZyanVectorInitCustomBuffer(&vector, sizeof(TestStruct), buffer,
         ZYAN_ARRAY_LENGTH(buffer)));
 
     // Compare elements
@@ -236,7 +236,7 @@ static ZyanStatus TestStatic(void)
     for (ZyanUSize i = 0;  i < size; ++i)
     {
         static TestStruct* element;
-        ZYAN_CHECK(ZyanVectorGetConst(&vector, i, (const void**)&element));
+        ZYAN_CHECK(ZyanVectorGetElement(&vector, i, (const void**)&element));
         if (element->u64 != buffer[i].u64)
         {
             return ZYAN_STATUS_INVALID_OPERATION;
