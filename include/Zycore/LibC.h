@@ -44,6 +44,29 @@
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
+/* stdarg.h                                                                                       */
+/* ---------------------------------------------------------------------------------------------- */
+
+#include <stdarg.h>
+
+/**
+ * @brief   Defines the `ZyanVAList` datatype.
+ */
+typedef va_list ZyanVAList;
+
+#define ZYAN_VA_START               va_start
+#define ZYAN_VA_ARG                 va_arg
+#define ZYAN_VA_END                 va_end
+#define ZYAN_VA_COPY(dest, source)  va_copy((dest), (source))
+
+/* ---------------------------------------------------------------------------------------------- */
+/* stdio.h                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+#include <stdio.h>
+#define ZYAN_VSNPRINTF  vsnprintf
+
+/* ---------------------------------------------------------------------------------------------- */
 /* stdlib.h                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -96,6 +119,53 @@
  * libc implementation out there. We do not aim towards providing competetive implementations here,
  * but towards providing a last resort fallback for environments without a working libc.
  */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* stdarg.h                                                                                       */
+/* ---------------------------------------------------------------------------------------------- */
+
+#if defined(ZYAN_MSVC)
+
+/**
+ * @brief   Defines the `ZyanVAList` datatype.
+ */
+typedef char* ZyanVAList;
+
+#   define ZYAN_VA_START __crt_va_start
+#   define ZYAN_VA_ARG   __crt_va_arg
+#   define ZYAN_VA_END   __crt_va_end
+#   define ZYAN_VA_COPY(destination, source) ((destination) = (source))
+
+#elif defined(ZYAN_GNUC)
+
+/**
+ * @brief   Defines the `ZyanVAList` datatype.
+ */
+typedef __gnuc_va_list  ZyanVAList;
+
+#   define ZYAN_VA_START(v, l)  __builtin_va_start(v, l)
+#   define ZYAN_VA_END(v)       __builtin_va_end(v)
+#   define ZYAN_VA_ARG(v, l)    __builtin_va_arg(v, l)
+#   define ZYAN_VA_COPY(d, s)   __builtin_va_copy(d, s)
+
+#else
+#   error "Unsupported compiler for no-libc mode."
+#endif
+
+/* ---------------------------------------------------------------------------------------------- */
+/* stdio.h                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+ZYAN_INLINE int ZYAN_VSNPRINTF (char* const buffer, ZyanUSize const count, char const* const format,
+    ZyanVAList args)
+{
+     // We cant provide a fallback implementation for this function
+    ZYAN_UNUSED(buffer);
+    ZYAN_UNUSED(count);
+    ZYAN_UNUSED(format);
+    ZYAN_UNUSED(args);
+    return ZYAN_NULL;
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 /* stdlib.h                                                                                       */
