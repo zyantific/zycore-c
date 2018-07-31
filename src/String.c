@@ -564,6 +564,7 @@ ZyanStatus ZyanStringClear(ZyanString* string)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
+
     if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
     {
         return ZYAN_STATUS_INVALID_OPERATION;
@@ -586,13 +587,76 @@ ZyanStatus ZyanStringClear(ZyanString* string)
 ZyanStatus ZyanStringLPos(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index)
 {
+    if (!haystack)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanStringLPosEx(haystack, needle, found_index, 0, haystack->data.size - 1);
+}
+
+ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanString* needle,
+    ZyanISize* found_index)
+{
     ZYAN_UNUSED(haystack);
     ZYAN_UNUSED(needle);
     ZYAN_UNUSED(found_index);
-    return ZYAN_STATUS_SUCCESS;
+    return ZYAN_STATUS_FALSE;
 }
 
 ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle,
+    ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
+{
+    if (!haystack || !needle || !found_index)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    // Don't allow access to the terminating '\0' character
+    if (index + count >= haystack->data.size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    if (haystack->data.size == 1 || needle->data.size == 1)
+    {
+        *found_index = -1;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    char* s = (char*)haystack->data.data + index;
+    char* b = (char*)needle->data.data;
+    for (; s != 0; ++s)
+    {
+        if (*s != *b)
+        {
+            continue;
+        }
+        char* a = s;
+        for (;;)
+        {
+            if ((ZyanUSize)(a - (char*)haystack->data.data) > index + count)
+            {
+                *found_index = -1;
+                return ZYAN_STATUS_FALSE;
+            }
+            if (*b == 0)
+            {
+                *found_index = (ZyanISize)(s - (char*)haystack->data.data);
+                return ZYAN_STATUS_TRUE;
+            }
+            if (*a++ != *b++)
+            {
+                break;
+            }
+        }
+        b = (char*)needle->data.data;
+    }
+
+    return ZYAN_STATUS_FALSE;
+}
+
+ZyanStatus ZyanStringLPosExI(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
     ZYAN_UNUSED(haystack);
@@ -612,6 +676,15 @@ ZyanStatus ZyanStringRPos(const ZyanString* haystack, const ZyanString* needle,
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
+    ZyanISize* found_index)
+{
+    ZYAN_UNUSED(haystack);
+    ZYAN_UNUSED(needle);
+    ZYAN_UNUSED(found_index);
+    return ZYAN_STATUS_SUCCESS;
+}
+
 ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
@@ -623,35 +696,122 @@ ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZyanStatus ZyanStringRPosExI(const ZyanString* haystack, const ZyanString* needle,
+    ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
+{
+    ZYAN_UNUSED(haystack);
+    ZYAN_UNUSED(needle);
+    ZYAN_UNUSED(found_index);
+    ZYAN_UNUSED(index);
+    ZYAN_UNUSED(count);
+    return ZYAN_STATUS_SUCCESS;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Comparing                                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
+
+ZyanStatus ZyanStringCompare(const ZyanString* s1, const ZyanString* s2, ZyanISize* result)
+{
+    ZYAN_UNUSED(s1);
+    ZYAN_UNUSED(s2);
+    ZYAN_UNUSED(result);
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringCompareI(const ZyanString* s1, const ZyanString* s2, ZyanISize* result)
+{
+    ZYAN_UNUSED(s1);
+    ZYAN_UNUSED(s2);
+    ZYAN_UNUSED(result);
+    return ZYAN_STATUS_SUCCESS;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Case conversion                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZyanStringToLowerCase(ZyanString* string)
 {
-    ZYAN_UNUSED(string);
-    return ZYAN_STATUS_SUCCESS;
+    if (!string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanStringToLowerCaseEx(string, 0, string->data.size - 1);
 }
 
 ZyanStatus ZyanStringToLowerCaseEx(ZyanString* string, ZyanUSize index, ZyanUSize count)
 {
-    ZYAN_UNUSED(string);
-    ZYAN_UNUSED(index);
-    ZYAN_UNUSED(count);
+    if (!string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
+    {
+        return ZYAN_STATUS_INVALID_OPERATION;
+    }
+
+    // Don't allow access to the terminating '\0' character
+    if (index + count >= string->data.size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    const signed char rebase = 'a' - 'A';
+    char* c = (char*)string->data.data + index;
+    for (ZyanUSize i = index; i < index + count; ++i)
+    {
+        if ((*c >= 'A') && (*c <= 'Z'))
+        {
+            *c += rebase;
+        }
+        ++c;
+    }
+
     return ZYAN_STATUS_SUCCESS;
 }
 
 ZyanStatus ZyanStringToUpperCase(ZyanString* string)
 {
-    ZYAN_UNUSED(string);
-    return ZYAN_STATUS_SUCCESS;
+    if (!string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanStringToUpperCaseEx(string, 0, string->data.size - 1);
 }
 
 ZyanStatus ZyanStringToUpperCaseEx(ZyanString* string, ZyanUSize index, ZyanUSize count)
 {
-    ZYAN_UNUSED(string);
-    ZYAN_UNUSED(index);
-    ZYAN_UNUSED(count);
+    if (!string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
+    {
+        return ZYAN_STATUS_INVALID_OPERATION;
+    }
+
+    // Don't allow access to the terminating '\0' character
+    if (index + count >= string->data.size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    const signed char rebase = 'A' - 'a';
+    char* c = (char*)string->data.data + index;
+    for (ZyanUSize i = index; i < index + count; ++i)
+    {
+        if ((*c >= 'a') && (*c <= 'z'))
+        {
+            *c += rebase;
+        }
+        ++c;
+    }
+
     return ZYAN_STATUS_SUCCESS;
 }
 
