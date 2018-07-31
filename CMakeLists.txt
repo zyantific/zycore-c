@@ -50,7 +50,7 @@ if (ZYAN_DEV_MODE)
 endif ()
 
 # =============================================================================================== #
-# Library configuration                                                                           #
+# Exported functions                                                                              #
 # =============================================================================================== #
 
 function (zyan_set_common_flags target)
@@ -76,6 +76,10 @@ function (zyan_maybe_enable_wpo_for_lib target)
     endif ()
 endfunction ()
 
+# =============================================================================================== #
+# Library configuration                                                                           #
+# =============================================================================================== #
+
 if (ZYCORE_BUILD_SHARED_LIB)
     add_library("Zycore" SHARED)
 else ()
@@ -99,13 +103,18 @@ target_sources("Zycore"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Allocator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Bitset.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Comparison.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Format.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/LibC.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/String.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Types.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Defines.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Status.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Vector.h"
         "src/Allocator.c"
         "src/Bitset.c"
+        "src/Format.c"
+        "src/String.c"
         "src/Vector.c")
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
@@ -127,13 +136,17 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # =============================================================================================== #
 
 if (ZYCORE_BUILD_EXAMPLES)
+    add_executable("String" "examples/String.c")
+    zyan_set_common_flags("String" "Zycore")
+    target_link_libraries("String" "Zycore")
+    set_target_properties("String" PROPERTIES FOLDER "Examples")
+    target_compile_definitions("String" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+    zyan_maybe_enable_wpo("String")
+
     add_executable("Vector" "examples/Vector.c")
     zyan_set_common_flags("Vector" "Zycore")
     target_link_libraries("Vector" "Zycore")
     set_target_properties("Vector" PROPERTIES FOLDER "Examples")
     target_compile_definitions("Vector" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-    if (ZYCORE_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
-        set_target_properties("Vector" PROPERTIES COMPILE_FLAGS "/GL")
-        set_target_properties("Vector" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
-    endif ()
+    zyan_maybe_enable_wpo("Vector")
 endif ()
