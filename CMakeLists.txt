@@ -30,6 +30,40 @@ option(ZYCORE_BUILD_SHARED_LIB
 option(ZYCORE_BUILD_EXAMPLES
     "Build examples"
     OFF)
+option(ZYCORE_BUILD_TESTS
+    "Build tests"
+    OFF)
+
+# =============================================================================================== #
+# GoogleTest                                                                                      #
+# =============================================================================================== #
+
+if (ZYCORE_BUILD_TESTS)
+    # Download and unpack googletest
+    configure_file(CMakeLists.txt.in gtest/download/CMakeLists.txt)
+    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
+    if (result)
+        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    endif()
+    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
+    if (result)
+        message(FATAL_ERROR "Build step for googletest failed: ${result}")
+    endif()
+    
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+    add_subdirectory("${CMAKE_BINARY_DIR}/gtest/src" "${CMAKE_BINARY_DIR}/gtest/build"
+        EXCLUDE_FROM_ALL)
+
+    if (CMAKE_VERSION VERSION_LESS 2.8.11)
+        include_directories("${gtest_SOURCE_DIR}/include")
+    endif()
+
+endif ()
 
 # =============================================================================================== #
 # Developer mode                                                                                  #
@@ -149,4 +183,26 @@ if (ZYCORE_BUILD_EXAMPLES)
     set_target_properties("Vector" PROPERTIES FOLDER "Examples")
     target_compile_definitions("Vector" PRIVATE "_CRT_SECURE_NO_WARNINGS")
     zyan_maybe_enable_wpo("Vector")
+endif ()
+
+# =============================================================================================== #
+# Tests                                                                                           #
+# =============================================================================================== #
+
+if (ZYCORE_BUILD_TESTS)
+    add_executable("TestString" "tests/String.cpp")
+    zyan_set_common_flags("TestString" "Zycore")
+    target_link_libraries("TestString" "Zycore")
+    target_link_libraries("TestString" "gtest")
+    set_target_properties("TestString" PROPERTIES FOLDER "Tests")
+    target_compile_definitions("TestString" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+    zyan_maybe_enable_wpo("TestString")
+
+    add_executable("TestVector" "tests/Vector.cpp")
+    zyan_set_common_flags("TestVector" "Zycore")
+    target_link_libraries("TestVector" "Zycore")
+    target_link_libraries("TestVector" "gtest")
+    set_target_properties("TestVector" PROPERTIES FOLDER "Tests")
+    target_compile_definitions("TestVector" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+    zyan_maybe_enable_wpo("TestVector")
 endif ()
