@@ -159,58 +159,64 @@ typedef ZyanU32 ZyanStatus;
     ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x00)
 
 /**
+ * @brief   The operation failed with an generic error.
+ */
+#define ZYAN_STATUS_FAILED \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x01)
+
+/**
  * @brief   The operation completed successfully and returned `ZYAN_TRUE`.
  */
 #define ZYAN_STATUS_TRUE \
-    ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x01)
+    ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x02)
 
 /**
  * @brief   The operation completed successfully and returned `ZYAN_FALSE`.
  */
 #define ZYAN_STATUS_FALSE \
-    ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x02)
+    ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x03)
 
 /**
  * @brief   An invalid argument was passed to a function.
  */
 #define ZYAN_STATUS_INVALID_ARGUMENT \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x03)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x04)
 
 /**
  * @brief   An attempt was made to perform an invalid operation.
  */
 #define ZYAN_STATUS_INVALID_OPERATION \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x04)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x05)
 
 /**
  * @brief   The requested entity was not found.
  */
 #define ZYAN_STATUS_NOT_FOUND \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x05)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x06)
 
 /**
  * @brief   An index passed to a function was out of bounds.
  */
 #define ZYAN_STATUS_OUT_OF_RANGE \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x06)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x07)
 
 /**
  * @brief   A buffer passed to a function was too small to complete the requested operation.
  */
 #define ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x07)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x08)
 
 /**
  * @brief   Insufficient memory to perform the operation.
  */
 #define ZYAN_STATUS_NOT_ENOUGH_MEMORY \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x08)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x09)
 
 /**
  * @brief   An error occured during a system function call.
  */
 #define ZYAN_STATUS_BAD_SYSTEMCALL \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x09)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0A)
 
 /* ---------------------------------------------------------------------------------------------- */
 

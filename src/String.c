@@ -71,7 +71,7 @@ ZyanStatus ZyanStringInit(ZyanString* string, ZyanUSize capacity)
     }
 
     string->flags = 0;
-    ZYAN_CHECK(ZyanVectorInit(&string->data, sizeof(char), capacity));
+    ZYAN_CHECK(ZyanVectorInit(&string->data, sizeof(char), capacity + 1));
     // Some of the string code relies on `sizeof(char) == 1`
     ZYAN_ASSERT(string->data.element_size == 1);
     // `ZyanVector` guarantees a minimum capacity of 1 element/character
@@ -92,7 +92,7 @@ ZyanStatus ZyanStringInitEx(ZyanString* string, ZyanUSize capacity, ZyanAllocato
     }
 
     string->flags = 0;
-    ZYAN_CHECK(ZyanVectorInitEx(&string->data, sizeof(char), capacity, allocator, growth_factor,
+    ZYAN_CHECK(ZyanVectorInitEx(&string->data, sizeof(char), capacity + 1, allocator, growth_factor,
          shrink_threshold));
     // Some of the string code relies on `sizeof(char) == 1`
     ZYAN_ASSERT(string->data.element_size == 1);
@@ -155,7 +155,7 @@ ZyanStatus ZyanStringDuplicate(ZyanString* destination, const ZyanString* source
     ZYCORE_STRING_ASSERT_NULLTERMINATION(source);
     const ZyanUSize len = source->data.size;
 
-    capacity = ZYAN_MAX(capacity, len);
+    capacity = ZYAN_MAX(capacity + 1, len);
     ZYAN_CHECK(ZyanStringInit(destination, capacity));
     ZYAN_ASSERT(destination->data.capacity >= len);
 
@@ -178,7 +178,7 @@ ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const ZyanString* sour
     ZYCORE_STRING_ASSERT_NULLTERMINATION(source);
     const ZyanUSize len = source->data.size;
 
-    capacity = ZYAN_MAX(capacity, len);
+    capacity = ZYAN_MAX(capacity + 1, len);
     ZYAN_CHECK(ZyanStringInitEx(destination, capacity, allocator, growth_factor, shrink_threshold));
     ZYAN_ASSERT(destination->data.capacity >= len);
 
@@ -234,7 +234,7 @@ ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanString* s1, const
     ZYCORE_STRING_ASSERT_NULLTERMINATION(s2);
     const ZyanUSize len = s1->data.size + s2->data.size - 1;
 
-    capacity = ZYAN_MAX(capacity, len);
+    capacity = ZYAN_MAX(capacity + 1, len);
     ZYAN_CHECK(ZyanStringInit(destination, capacity));
     ZYAN_ASSERT(destination->data.capacity >= len);
 
@@ -260,7 +260,7 @@ ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanString* s1, con
     ZYCORE_STRING_ASSERT_NULLTERMINATION(s2);
     const ZyanUSize len = s1->data.size + s2->data.size - 1;
 
-    capacity = ZYAN_MAX(capacity, len);
+    capacity = ZYAN_MAX(capacity + 1, len);
     ZYAN_CHECK(ZyanStringInitEx(destination, capacity, allocator, growth_factor, shrink_threshold));
     ZYAN_ASSERT(destination->data.capacity >= len);
 
@@ -616,15 +616,15 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
         return ZYAN_STATUS_FALSE;
     }
 
-    char* s = (char*)haystack->data.data + index;
-    char* b = (char*)needle->data.data;
+    const char* s = (char*)haystack->data.data + index;
+    const char* b = (char*)needle->data.data;
     for (; s != 0; ++s)
     {
         if (*s != *b)
         {
             continue;
         }
-        char* a = s;
+        const char* a = s;
         for (;;)
         {
             if ((ZyanUSize)(a - (char*)haystack->data.data) > index + count)
@@ -684,15 +684,15 @@ ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needl
         return ZYAN_STATUS_FALSE;
     }
 
-    char* s = (char*)haystack->data.data + index;
-    char* b = (char*)needle->data.data;
+    const char* s = (char*)haystack->data.data + index;
+    const char* b = (char*)needle->data.data;
     for (; s != 0; ++s)
     {
         if ((*s != *b) && ((*s ^ 32) != *b))
         {
             continue;
         }
-        char* a = s;
+        const char* a = s;
         for (;;)
         {
             if ((ZyanUSize)(a - (char*)haystack->data.data) > index + count)
@@ -811,8 +811,8 @@ ZyanStatus ZyanStringCompareI(const ZyanString* s1, const ZyanString* s2, ZyanI3
         return ZYAN_STATUS_FALSE;
     }
 
-    const char* a = (char*)s1->data.data;
-    const char* b = (char*)s2->data.data;
+    const char* const a = (char*)s1->data.data;
+    const char* const b = (char*)s2->data.data;
     ZyanUSize i;
     for (i = 0; a[i] && b[i]; ++i)
     {

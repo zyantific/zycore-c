@@ -115,8 +115,8 @@ typedef struct ZyanString_
             /* allocator        */ ZYAN_NULL, \
             /* growth_factor    */ 1.0f, \
             /* shrink_threshold */ 0.0f, \
-            /* size             */ sizeof(string) - 1, \
-            /* capacity         */ sizeof(string) - 1, \
+            /* size             */ sizeof(string), \
+            /* capacity         */ sizeof(string), \
             /* element_size     */ sizeof(char), \
             /* data             */ (char*)(string) \
         } \
@@ -138,13 +138,13 @@ typedef struct ZyanString_
  * @param   string          A pointer to the `ZyanString` instance.
  * @param   capacity        The initial capacity (number of characters).
  *
- *                          The effective string capacity will be decreased by one to reserve
- *                          space for the terminating '\0' character.
- *
  * @return  A zyan status code.
  *
  * The memory for the string is dynamically allocated by the default allocator using the default
  * growth factor of `2.0f` and the default shrink threshold of `0.25f`.
+ *
+ * The allocated buffer will be at least one character larger than the given `capacity`, to reserve
+ * space for the terminating '\0'.
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
@@ -156,9 +156,6 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInit(ZyanString* string, ZyanUSize capacity);
  *
  * @param   string              A pointer to the `ZyanString` instance.
  * @param   capacity            The initial capacity (number of characters).
- *
- *                              The effective string capacity will be decreased by one to reserve
- *                              space for the terminating '\0' character.
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
  * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
  * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
@@ -167,6 +164,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInit(ZyanString* string, ZyanUSize capacity);
  *
  * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
  * dynamic shrinking.
+ *
+ * The allocated buffer will be at least one character larger than the given `capacity`, to reserve
+ * space for the terminating '\0'.
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
@@ -179,7 +179,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInitEx(ZyanString* string, ZyanUSize capacity
  *
  * @param   string          A pointer to the `ZyanString` instance.
  * @param   buffer          A pointer to the buffer that is used as storage for the string.
- * @param   capacity        The maximum capacity (number of characters) of the buffer.
+ * @param   capacity        The maximum capacity (number of characters) of the buffer, including
+ *                          the terminating '\0'.
  *
  * @return  A zyan status code.
  *
@@ -209,16 +210,16 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDestroy(ZyanString* string);
  * @param   source      A pointer to the source string.
  * @param   capacity    The initial capacity (number of characters).
  *
- *                      The effective string capacity will be decreased by one to reserve space for
- *                      the terminating '\0' character.
- *
- *                      This value is automatically adjusted to the size of the source string
- *                      - including the terminating zero -, if a smaller value was passed.
+ *                      This value is automatically adjusted to the size of the source string, if
+ *                      a smaller value was passed.
  *
  * @return  A zyan status code.
  *
  * The memory for the string is dynamically allocated by the default allocator using the default
  * growth factor of `2.0f` and the default shrink threshold of `0.25f`.
+ *
+ * The allocated buffer will be at least one character larger than the given `capacity`, to reserve
+ * space for the terminating '\0'.
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
@@ -232,13 +233,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicate(ZyanString* destination, const Zyan
  * @param   destination         A pointer to the (uninitialized) destination `ZyanString` instance.
  * @param   source              A pointer to the source string.
  * @param   capacity            The initial capacity (number of characters).
- *
- *                              The effective string capacity will be decreased by one to reserve
- *                              space for the terminating '\0' character.
- *
- *                              This value is automatically adjusted to the size of the source
- *                              string - including the terminating zero -, if a smaller value was
- *                              passed.
+
+ *                              This value is automatically adjusted to the size of the source, if
+ *                              a smaller value was passed.
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
  * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
  * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
@@ -247,6 +244,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicate(ZyanString* destination, const Zyan
  *
  * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
  * dynamic shrinking.
+ *
+ * The allocated buffer will be at least one character larger than the given `capacity`, to reserve
+ * space for the terminating '\0'.
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
@@ -260,13 +260,11 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const Zy
  * @param   destination A pointer to the (uninitialized) destination `ZyanString` instance.
  * @param   source      A pointer to the source string.
  * @param   buffer      A pointer to the buffer that is used as storage for the string.
- * @param   capacity    The maximum capacity (number of characters) of the buffer.
- *
- *                      The effective string capacity will be decreased by one to reserve space for
- *                      the terminating '\0' character.
- *
- *                      This function will fail, if the capacity of the buffer is less than the
- *                      size of the source string and the terminating zero.
+ * @param   capacity    The maximum capacity (number of characters) of the buffer, including the
+ *                      terminating '\0'.
+
+ *                      This function will fail, if the capacity of the buffer is less or equal to
+ *                      the size of the source string.
  *
  * @return  A zyan status code.
  *
@@ -286,17 +284,17 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination
  * @param   s1          A pointer to the first source string.
  * @param   s2          A pointer to the second source string.
  * @param   capacity    The initial capacity (number of characters).
- *
- *                      The effective string capacity will be decreased by one to reserve space for
- *                      the terminating '\0' character.
- *
+
  *                      This value is automatically adjusted to the combined size of the source
- *                      strings - including a terminating zero -, if a smaller value was passed.
+ *                      strings, if a smaller value was passed.
  *
  * @return  A zyan status code.
  *
  * The memory for the string is dynamically allocated by the default allocator using the default
  * growth factor of `2.0f` and the default shrink threshold of `0.25f`.
+ *
+ * The allocated buffer will be at least one character larger than the given `capacity`, to reserve
+ * space for the terminating '\0'.
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
@@ -312,12 +310,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStr
  * @param   s2                  A pointer to the second source string.
  * @param   capacity            The initial capacity (number of characters).
  *
- *                              The effective string capacity will be decreased by one to reserve
- *                              space for the terminating '\0' character.
- *
  *                              This value is automatically adjusted to the combined size of the
- *                              source strings - including a terminating zero -, if a smaller value
- *                              was passed.
+ *                              source strings, if a smaller value was passed.
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
  * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
  * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
@@ -326,6 +320,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStr
  *
  * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
  * dynamic shrinking.
+ *
+ * The allocated buffer will be at least one character larger than the given `capacity`, to reserve
+ * space for the terminating '\0'.
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
@@ -343,11 +340,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanS
  * @param   buffer      A pointer to the buffer that is used as storage for the string.
  * @param   capacity    The maximum capacity (number of characters) of the buffer.
  *
- *                      The effective string capacity will be decreased by one to reserve space for
- *                      the terminating '\0' character.
- *
- *                      This function will fail, if the capacity of the buffer is less than the
- *                      combined size of the source strings and the terminating zero.
+ *                      This function will fail, if the capacity of the buffer is less or equal to
+ *                      the combined size of the source strings.
  *
  * @return  A zyan status code.
  *

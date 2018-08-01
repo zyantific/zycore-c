@@ -53,17 +53,17 @@ extern "C" {
 /**
  * @brief   Inserts formatted text in the destination string at the given `index`.
  *
- * @param   destination The destination string.
- * @param   index       The insert index.
- * @param   format      The format string.
- * @param   ...         The format arguments.
+ * @param   string  The destination string.
+ * @param   index   The insert index.
+ * @param   format  The format string.
+ * @param   ...     The format arguments.
  *
  * @return  A zyan status code.
  *
  * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
  * `ZyanString` instance.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringInsertFormat(ZyanString* destination, ZyanUSize index,
+ZYCORE_EXPORT ZyanStatus ZyanStringInsertFormat(ZyanString* string, ZyanUSize index,
     const char* format, ...);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -95,8 +95,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertDecU(ZyanString* string, ZyanUSize inde
  * @param   value           The value.
  * @param   padding_length  Padds the converted value with leading zeros, if the number of chars is
  *                          less than the `padding_length`.
- * @param   force_sign      Set to `ZYAN_TRUE`, to force printing of the `+` sign for positive
- *                          numbers.
+ * @param   force_sign      Set `ZYAN_TRUE`, to force printing of the `+` sign for positive numbers.
  * @param   prefix          The string to use as prefix or `ZYAN_NULL`, if not needed.
  *
  * @return  A zyan status code.
@@ -138,8 +137,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertHexU(ZyanString* string, ZyanUSize inde
  *                          less than the `padding_length`.
  * @param   uppercase       Set `ZYAN_TRUE` to use uppercase letters ('A'-'F') instead of lowercase
  *                          ones ('a'-'f').
- * @param   force_sign      Set to `ZYAN_TRUE`, to force printing of the `+` sign for positive
- *                          numbers.
+ * @param   force_sign      Set `ZYAN_TRUE`, to force printing of the `+` sign for positive numbers.
  * @param   prefix          The string to use as prefix or `ZYAN_NULL`, if not needed.
  *
  * @return  A zyan status code.
@@ -157,16 +155,16 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertHexS(ZyanString* string, ZyanUSize inde
 /**
  * @brief   Appends formatted text to the destination string.
  *
- * @param   destination The destination string.
- * @param   format      The format string.
- * @param   ...         The format arguments.
+ * @param   string  The destination string.
+ * @param   format  The format string.
+ * @param   ...     The format arguments.
  *
  * @return  A zyan status code.
  *
  * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
  * `ZyanString` instance.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringAppendFormat(ZyanString* destination, const char* format, ...);
+ZYCORE_EXPORT ZyanStatus ZyanStringAppendFormat(ZyanString* string, const char* format, ...);
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -195,8 +193,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppendDecU(ZyanString* string, ZyanU64 value,
  * @param   value           The value.
  * @param   padding_length  Padds the converted value with leading zeros, if the number of chars is
  *                          less than the `padding_length`.
- * @param   force_sign      Set to `ZYAN_TRUE`, to force printing of the `+` sign for positive
- *                          numbers.
+ * @param   force_sign      Set `ZYAN_TRUE`, to force printing of the `+` sign for positive numbers.
  * @param   prefix          The string to use as prefix or `ZYAN_NULL`, if not needed.
  *
  * @return  A zyan status code.
@@ -236,8 +233,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppendHexU(ZyanString* string, ZyanU64 value,
  *                          less than the `padding_length`.
  * @param   uppercase       Set `ZYAN_TRUE` to use uppercase letters ('A'-'F') instead of lowercase
  *                          ones ('a'-'f').
- * @param   force_sign      Set to `ZYAN_TRUE`, to force printing of the `+` sign for positive
- *                          numbers.
+ * @param   force_sign      Set `ZYAN_TRUE`, to force printing of the `+` sign for positive numbers.
  * @param   prefix          The string to use as prefix or `ZYAN_NULL`, if not needed.
  *
  * @return  A zyan status code.
