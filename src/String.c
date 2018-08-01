@@ -44,18 +44,6 @@
       ZYAN_ASSERT(*(char*)((ZyanU8*)(string)->data.data + (string)->data.size - 1) == '\0');
 
 /* ============================================================================================== */
-/* Internal functions                                                                             */
-/* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/*                                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
-
-
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
@@ -616,8 +604,8 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
         return ZYAN_STATUS_FALSE;
     }
 
-    const char* s = (char*)haystack->data.data + index;
-    const char* b = (char*)needle->data.data;
+    const char* s = (const char*)haystack->data.data + index;
+    const char* b = (const char*)needle->data.data;
     for (; s != 0; ++s)
     {
         if (*s != *b)
@@ -627,14 +615,14 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
         const char* a = s;
         for (;;)
         {
-            if ((ZyanUSize)(a - (char*)haystack->data.data) > index + count)
+            if ((ZyanUSize)(a - (const char*)haystack->data.data) > index + count)
             {
                 *found_index = -1;
                 return ZYAN_STATUS_FALSE;
             }
             if (*b == 0)
             {
-                *found_index = (ZyanISize)(s - (char*)haystack->data.data);
+                *found_index = (ZyanISize)(s - (const char*)haystack->data.data);
                 return ZYAN_STATUS_TRUE;
             }
             if (*a++ != *b++)
@@ -645,6 +633,7 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
         b = (char*)needle->data.data;
     }
 
+    *found_index = -1;
     return ZYAN_STATUS_FALSE;
 }
 
@@ -684,8 +673,8 @@ ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needl
         return ZYAN_STATUS_FALSE;
     }
 
-    const char* s = (char*)haystack->data.data + index;
-    const char* b = (char*)needle->data.data;
+    const char* s = (const char*)haystack->data.data + index;
+    const char* b = (const char*)needle->data.data;
     for (; s != 0; ++s)
     {
         if ((*s != *b) && ((*s ^ 32) != *b))
@@ -695,14 +684,14 @@ ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needl
         const char* a = s;
         for (;;)
         {
-            if ((ZyanUSize)(a - (char*)haystack->data.data) > index + count)
+            if ((ZyanUSize)(a - (const char*)haystack->data.data) > index + count)
             {
                 *found_index = -1;
                 return ZYAN_STATUS_FALSE;
             }
             if (*b == 0)
             {
-                *found_index = (ZyanISize)(s - (char*)haystack->data.data);
+                *found_index = (ZyanISize)(s - (const char*)haystack->data.data);
                 return ZYAN_STATUS_TRUE;
             }
             const char c1 = *a++;
@@ -715,47 +704,148 @@ ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needl
         b = (char*)needle->data.data;
     }
 
+    *found_index = -1;
     return ZYAN_STATUS_FALSE;
 }
 
 ZyanStatus ZyanStringRPos(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index)
 {
-    ZYAN_UNUSED(haystack);
-    ZYAN_UNUSED(needle);
-    ZYAN_UNUSED(found_index);
-    return ZYAN_STATUS_SUCCESS;
+    if (!haystack)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanStringRPosEx(haystack, needle, found_index, haystack->data.size - 1,
+        haystack->data.size - 1);
 }
 
 ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
-    ZYAN_UNUSED(haystack);
-    ZYAN_UNUSED(needle);
-    ZYAN_UNUSED(found_index);
-    ZYAN_UNUSED(index);
-    ZYAN_UNUSED(count);
-    return ZYAN_STATUS_SUCCESS;
+    if (!haystack || !needle || !found_index)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    // Don't allow access to the terminating '\0' character
+    if ((index >= haystack->data.size) || (count > index))
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    if (!index || !count ||
+        (haystack->data.size == 1) || (needle->data.size == 1) ||
+        (haystack->data.size < needle->data.size))
+    {
+        *found_index = -1;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    const char* s = (const char*)haystack->data.data + index - 1;
+    const char* b = (const char*)needle->data.data + needle->data.size - 2;
+    for (; s >= (char*)haystack->data.data; --s)
+    {
+        if (*s != *b)
+        {
+            continue;
+        }
+        const char* a = s;
+        for (;;)
+        {
+            if (b < (const char*)needle->data.data)
+            {
+                *found_index = (ZyanISize)(a - (const char*)haystack->data.data);
+                return ZYAN_STATUS_TRUE;
+            }
+            if (a < (const char*)haystack->data.data + index - count)
+            {
+                *found_index = -1;
+                return ZYAN_STATUS_FALSE;
+            }
+            if (*a-- != *b--)
+            {
+                break;
+            }
+        }
+        b = (char*)needle->data.data + needle->data.size - 2;
+    }
+
+    *found_index = -1;
+    return ZYAN_STATUS_FALSE;
 }
 
 ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index)
 {
-    ZYAN_UNUSED(haystack);
-    ZYAN_UNUSED(needle);
-    ZYAN_UNUSED(found_index);
-    return ZYAN_STATUS_SUCCESS;
+    if (!haystack)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanStringRPosIEx(haystack, needle, found_index, haystack->data.size - 1,
+        haystack->data.size - 1);
 }
 
 ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
-    ZYAN_UNUSED(haystack);
-    ZYAN_UNUSED(needle);
-    ZYAN_UNUSED(found_index);
-    ZYAN_UNUSED(index);
-    ZYAN_UNUSED(count);
-    return ZYAN_STATUS_SUCCESS;
+    // This solution assumes that characters are represented using ASCII representation, i.e.,
+    // codes for 'a', 'b', 'c', .. 'z' are 97, 98, 99, .. 122 respectively. And codes for 'A',
+    // 'B', 'C', .. 'Z' are 65, 66, .. 95 respectively.
+
+    if (!haystack || !needle || !found_index)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    // Don't allow access to the terminating '\0' character
+    if ((index >= haystack->data.size) || (count > index))
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    if (!index || !count ||
+        (haystack->data.size == 1) || (needle->data.size == 1) ||
+        (haystack->data.size < needle->data.size))
+    {
+        *found_index = -1;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    const char* s = (const char*)haystack->data.data + index - 1;
+    const char* b = (const char*)needle->data.data + needle->data.size - 2;
+    for (; s >= (char*)haystack->data.data; --s)
+    {
+        if ((*s != *b) && ((*s ^ 32) != *b))
+        {
+            continue;
+        }
+        const char* a = s;
+        for (;;)
+        {
+            if (b < (const char*)needle->data.data)
+            {
+                *found_index = (ZyanISize)(a - (const char*)haystack->data.data);
+                return ZYAN_STATUS_TRUE;
+            }
+            if (a < (const char*)haystack->data.data + index - count)
+            {
+                *found_index = -1;
+                return ZYAN_STATUS_FALSE;
+            }
+            const char c1 = *a--;
+            const char c2 = *b--;
+            if ((c1 != c2) && ((c1 ^ 32) != c2))
+            {
+                break;
+            }
+        }
+        b = (char*)needle->data.data + needle->data.size - 2;
+    }
+
+    *found_index = -1;
+    return ZYAN_STATUS_FALSE;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
