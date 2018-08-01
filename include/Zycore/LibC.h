@@ -156,49 +156,49 @@ typedef __gnuc_va_list  ZyanVAList;
 /* stdio.h                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZYAN_INLINE int ZYAN_VSNPRINTF (char* const buffer, ZyanUSize const count, char const* const format,
-    ZyanVAList args)
-{
-     // We cant provide a fallback implementation for this function
-    ZYAN_UNUSED(buffer);
-    ZYAN_UNUSED(count);
-    ZYAN_UNUSED(format);
-    ZYAN_UNUSED(args);
-    return ZYAN_NULL;
-}
+// ZYAN_INLINE int ZYAN_VSNPRINTF (char* const buffer, ZyanUSize const count, char const* const format,
+//     ZyanVAList args)
+// {
+//      // We cant provide a fallback implementation for this function
+//     ZYAN_UNUSED(buffer);
+//     ZYAN_UNUSED(count);
+//     ZYAN_UNUSED(format);
+//     ZYAN_UNUSED(args);
+//     return ZYAN_NULL;
+// }
 
 /* ---------------------------------------------------------------------------------------------- */
 /* stdlib.h                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZYAN_INLINE void* ZYAN_CALLOC(ZyanUSize nitems, ZyanUSize size)
-{
-     // We cant provide a fallback implementation for this function
-    ZYAN_UNUSED(nitems);
-    ZYAN_UNUSED(size);
-    return ZYAN_NULL;
-}
-
-ZYAN_INLINE void ZYAN_FREE(void *p)
-{
-     // We cant provide a fallback implementation for this function
-    ZYAN_UNUSED(p);
-}
-
-ZYAN_INLINE void* ZYAN_MALLOC(ZyanUSize n)
-{
-    // We cant provide a fallback implementation for this function
-    ZYAN_UNUSED(n);
-    return ZYAN_NULL;
-}
-
-ZYAN_INLINE void* ZYAN_REALLOC(void* p, ZyanUSize n)
-{
-     // We cant provide a fallback implementation for this function
-    ZYAN_UNUSED(p);
-    ZYAN_UNUSED(n);
-    return ZYAN_NULL;
-}
+// ZYAN_INLINE void* ZYAN_CALLOC(ZyanUSize nitems, ZyanUSize size)
+// {
+//      // We cant provide a fallback implementation for this function
+//     ZYAN_UNUSED(nitems);
+//     ZYAN_UNUSED(size);
+//     return ZYAN_NULL;
+// }
+//
+// ZYAN_INLINE void ZYAN_FREE(void *p)
+// {
+//      // We cant provide a fallback implementation for this function
+//     ZYAN_UNUSED(p);
+// }
+//
+// ZYAN_INLINE void* ZYAN_MALLOC(ZyanUSize n)
+// {
+//     // We cant provide a fallback implementation for this function
+//     ZYAN_UNUSED(n);
+//     return ZYAN_NULL;
+// }
+//
+// ZYAN_INLINE void* ZYAN_REALLOC(void* p, ZyanUSize n)
+// {
+//      // We cant provide a fallback implementation for this function
+//     ZYAN_UNUSED(p);
+//     ZYAN_UNUSED(n);
+//     return ZYAN_NULL;
+// }
 
 /* ---------------------------------------------------------------------------------------------- */
 /* string.h                                                                                       */
