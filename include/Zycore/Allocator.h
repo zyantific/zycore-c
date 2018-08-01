@@ -36,6 +36,10 @@
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ============================================================================================== */
 /* Enums and types                                                                                */
 /* ============================================================================================== */
@@ -126,5 +130,9 @@ ZYCORE_EXPORT ZyanStatus ZyanAllocatorInit(ZyanAllocator* allocator, ZyanAllocat
 ZYCORE_EXPORT ZyanAllocator* ZyanAllocatorDefault(void);
 
 /* ============================================================================================== */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ZYCORE_ALLOCATOR_H */

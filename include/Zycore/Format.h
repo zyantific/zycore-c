@@ -37,7 +37,6 @@
 #include <Zycore/String.h>
 #include <Zycore/Types.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
