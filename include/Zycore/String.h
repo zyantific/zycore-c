@@ -541,29 +541,12 @@ ZYCORE_EXPORT ZyanStatus ZyanStringClear(ZyanString* string);
  * @param   found_index A pointer to a variable that receives the index of the first occurrence of
  *                      `needle`.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ * @return  `ZYAN_STATUS_TRUE`, if the needle was found, `ZYAN_STATUS_FALSE`, if not, or another
  *          zyan status code, if an error occured.
  *
- * The `found_index` is set to `-1`, if the element was not found.
+ * The `found_index` is set to `-1`, if the needle was not found.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringLPos(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index);
-
-/**
- * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
- *          `haystack` starting from the left.
- *
- * @param   haystack    The string to search in.
- * @param   needle      The sub-string to search for.
- * @param   found_index A pointer to a variable that receives the index of the first occurrence of
- *                      `needle`.
- *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
- *          zyan status code, if an error occured.
- *
- * The `found_index` is set to `-1`, if the element was not found.
- */
-ZYCORE_EXPORT ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index);
 
 /**
@@ -578,13 +561,30 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanS
  * @param   count       The maximum number of characters to iterate, beginning from the start
  *                      `index`.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ * @return  `ZYAN_STATUS_TRUE`, if the needle was found, `ZYAN_STATUS_FALSE`, if not, or another
  *          zyan status code, if an error occured.
  *
- * The `found_index` is set to `-1`, if the element was not found.
+ * The `found_index` is set to `-1`, if the needle was not found.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
+
+/**
+ * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
+ *          `haystack` starting from the left.
+ *
+ * @param   haystack    The string to search in.
+ * @param   needle      The sub-string to search for.
+ * @param   found_index A pointer to a variable that receives the index of the first occurrence of
+ *                      `needle`.
+ *
+ * @return  `ZYAN_STATUS_TRUE`, if the needle was found, `ZYAN_STATUS_FALSE`, if not, or another
+ *          zyan status code, if an error occured.
+ *
+ * The `found_index` is set to `-1`, if the needle was not found.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanString* needle,
+    ZyanISize* found_index);
 
 /**
  * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
@@ -598,12 +598,12 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const Zyan
  * @param   count       The maximum number of characters to iterate, beginning from the start
  *                      `index`.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ * @return  `ZYAN_STATUS_TRUE`, if the needle was found, `ZYAN_STATUS_FALSE`, if not, or another
  *          zyan status code, if an error occured.
  *
- * The `found_index` is set to `-1`, if the element was not found.
+ * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringLPosExI(const ZyanString* haystack, const ZyanString* needle,
+ZYCORE_EXPORT ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /**
@@ -615,29 +615,12 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosExI(const ZyanString* haystack, const Zya
  * @param   found_index A pointer to a variable that receives the index of the first occurrence of
  *                      `needle`.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ * @return  `ZYAN_STATUS_TRUE`, if the needle was found, `ZYAN_STATUS_FALSE`, if not, or another
  *          zyan status code, if an error occured.
  *
- * The `found_index` is set to `-1`, if the element was not found.
+ * The `found_index` is set to `-1`, if the needle was not found.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringRPos(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index);
-
-/**
- * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
- *          `haystack` starting from the right.
- *
- * @param   haystack    The string to search in.
- * @param   needle      The sub-string to search for.
- * @param   found_index A pointer to a variable that receives the index of the first occurrence of
- *                      `needle`.
- *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
- *          zyan status code, if an error occured.
- *
- * The `found_index` is set to `-1`, if the element was not found.
- */
-ZYCORE_EXPORT ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index);
 
 /**
@@ -652,10 +635,10 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanS
  * @param   count       The maximum number of characters to iterate, beginning from the start
  *                      `index`.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ * @return  `ZYAN_STATUS_TRUE`, if the needle was found, `ZYAN_STATUS_FALSE`, if not, or another
  *          zyan status code, if an error occured.
  *
- * The `found_index` is set to `-1`, if the element was not found.
+ * The `found_index` is set to `-1`, if the needle was not found.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
@@ -668,16 +651,33 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const Zyan
  * @param   needle      The sub-string to search for.
  * @param   found_index A pointer to a variable that receives the index of the first occurrence of
  *                      `needle`.
+ *
+ * @return  `ZYAN_STATUS_TRUE`, if the needle was found, `ZYAN_STATUS_FALSE`, if not, or another
+ *          zyan status code, if an error occured.
+ *
+ * The `found_index` is set to `-1`, if the needle was not found.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
+    ZyanISize* found_index);
+
+/**
+ * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
+ *          `haystack` starting from the right.
+ *
+ * @param   haystack    The string to search in.
+ * @param   needle      The sub-string to search for.
+ * @param   found_index A pointer to a variable that receives the index of the first occurrence of
+ *                      `needle`.
  * @param   index       The start index.
  * @param   count       The maximum number of characters to iterate, beginning from the start
  *                      `index`.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
+ * @return  `ZYAN_STATUS_TRUE`, if the needle was found, `ZYAN_STATUS_FALSE`, if not, or another
  *          zyan status code, if an error occured.
  *
- * The `found_index` is set to `-1`, if the element was not found.
+ * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringRPosExI(const ZyanString* haystack, const ZyanString* needle,
+ZYCORE_EXPORT ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -698,10 +698,11 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosExI(const ZyanString* haystack, const Zya
  *                  - `result  > 0` -> The first character that does not match has a greater value
  *                    in `s1` than in `s2`.
  *
- * @return  A zyan status code.
+ * @return  `ZYAN_STATUS_TRUE`, if the strings are equal, `ZYAN_STATUS_FALSE`, if not, or another
+ *          zyan status code, if an error occured.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringCompare(const ZyanString* s1, const ZyanString* s2,
-    ZyanISize* result);
+    ZyanI32* result);
 
 /**
  * @brief   Performs a case-insensitive comparison of two strings.
@@ -717,10 +718,11 @@ ZYCORE_EXPORT ZyanStatus ZyanStringCompare(const ZyanString* s1, const ZyanStrin
  *                  - `result  > 0` -> The first character that does not match has a greater value
  *                    in `s1` than in `s2`.
  *
- * @return  A zyan status code.
+ * @return  `ZYAN_STATUS_TRUE`, if the strings are equal, `ZYAN_STATUS_FALSE`, if not, or another
+ *          zyan status code, if an error occured.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringCompareI(const ZyanString* s1, const ZyanString* s2,
-    ZyanISize* result);
+    ZyanI32* result);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Case conversion                                                                                */

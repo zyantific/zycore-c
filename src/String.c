@@ -595,15 +595,6 @@ ZyanStatus ZyanStringLPos(const ZyanString* haystack, const ZyanString* needle,
     return ZyanStringLPosEx(haystack, needle, found_index, 0, haystack->data.size - 1);
 }
 
-ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index)
-{
-    ZYAN_UNUSED(haystack);
-    ZYAN_UNUSED(needle);
-    ZYAN_UNUSED(found_index);
-    return ZYAN_STATUS_FALSE;
-}
-
 ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
@@ -618,7 +609,8 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    if (haystack->data.size == 1 || needle->data.size == 1)
+    if ((haystack->data.size == 1) || (needle->data.size == 1) ||
+        (haystack->data.size < needle->data.size))
     {
         *found_index = -1;
         return ZYAN_STATUS_FALSE;
@@ -656,27 +648,77 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
     return ZYAN_STATUS_FALSE;
 }
 
-ZyanStatus ZyanStringLPosExI(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanString* needle,
+    ZyanISize* found_index)
+{
+    if (!haystack)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanStringLPosIEx(haystack, needle, found_index, 0, haystack->data.size - 1);
+}
+
+ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
-    ZYAN_UNUSED(haystack);
-    ZYAN_UNUSED(needle);
-    ZYAN_UNUSED(found_index);
-    ZYAN_UNUSED(index);
-    ZYAN_UNUSED(count);
-    return ZYAN_STATUS_SUCCESS;
+    // This solution assumes that characters are represented using ASCII representation, i.e.,
+    // codes for 'a', 'b', 'c', .. 'z' are 97, 98, 99, .. 122 respectively. And codes for 'A',
+    // 'B', 'C', .. 'Z' are 65, 66, .. 95 respectively.
+
+    if (!haystack || !needle || !found_index)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    // Don't allow access to the terminating '\0' character
+    if (index + count >= haystack->data.size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    if ((haystack->data.size == 1) || (needle->data.size == 1) ||
+        (haystack->data.size < needle->data.size))
+    {
+        *found_index = -1;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    char* s = (char*)haystack->data.data + index;
+    char* b = (char*)needle->data.data;
+    for (; s != 0; ++s)
+    {
+        if ((*s != *b) && ((*s ^ 32) != *b))
+        {
+            continue;
+        }
+        char* a = s;
+        for (;;)
+        {
+            if ((ZyanUSize)(a - (char*)haystack->data.data) > index + count)
+            {
+                *found_index = -1;
+                return ZYAN_STATUS_FALSE;
+            }
+            if (*b == 0)
+            {
+                *found_index = (ZyanISize)(s - (char*)haystack->data.data);
+                return ZYAN_STATUS_TRUE;
+            }
+            const char c1 = *a++;
+            const char c2 = *b++;
+            if ((c1 != c2) && ((c1 ^ 32) != c2))
+            {
+                break;
+            }
+        }
+        b = (char*)needle->data.data;
+    }
+
+    return ZYAN_STATUS_FALSE;
 }
 
 ZyanStatus ZyanStringRPos(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index)
-{
-    ZYAN_UNUSED(haystack);
-    ZYAN_UNUSED(needle);
-    ZYAN_UNUSED(found_index);
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index)
 {
     ZYAN_UNUSED(haystack);
@@ -696,7 +738,16 @@ ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanStringRPosExI(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
+    ZyanISize* found_index)
+{
+    ZYAN_UNUSED(haystack);
+    ZYAN_UNUSED(needle);
+    ZYAN_UNUSED(found_index);
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
     ZYAN_UNUSED(haystack);
@@ -711,20 +762,81 @@ ZyanStatus ZyanStringRPosExI(const ZyanString* haystack, const ZyanString* needl
 /* Comparing                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringCompare(const ZyanString* s1, const ZyanString* s2, ZyanISize* result)
+ZyanStatus ZyanStringCompare(const ZyanString* s1, const ZyanString* s2, ZyanI32* result)
 {
-    ZYAN_UNUSED(s1);
-    ZYAN_UNUSED(s2);
-    ZYAN_UNUSED(result);
-    return ZYAN_STATUS_SUCCESS;
+    if (!s1 || !s2)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (s1->data.size < s2->data.size)
+    {
+        *result = -1;
+        return ZYAN_STATUS_FALSE;
+    }
+    if (s1->data.size > s2->data.size)
+    {
+        *result =  1;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    *result = ZYAN_STRCMP(s1->data.data, s2->data.data);
+    if (*result == 0)
+    {
+        return ZYAN_STATUS_TRUE;
+    }
+
+    return ZYAN_STATUS_FALSE;
 }
 
-ZyanStatus ZyanStringCompareI(const ZyanString* s1, const ZyanString* s2, ZyanISize* result)
+ZyanStatus ZyanStringCompareI(const ZyanString* s1, const ZyanString* s2, ZyanI32* result)
 {
-    ZYAN_UNUSED(s1);
-    ZYAN_UNUSED(s2);
-    ZYAN_UNUSED(result);
-    return ZYAN_STATUS_SUCCESS;
+    // This solution assumes that characters are represented using ASCII representation, i.e.,
+    // codes for 'a', 'b', 'c', .. 'z' are 97, 98, 99, .. 122 respectively. And codes for 'A',
+    // 'B', 'C', .. 'Z' are 65, 66, .. 95 respectively.
+
+    if (!s1 || !s2)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (s1->data.size < s2->data.size)
+    {
+        *result = -1;
+        return ZYAN_STATUS_FALSE;
+    }
+    if (s1->data.size > s2->data.size)
+    {
+        *result =  1;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    const char* a = (char*)s1->data.data;
+    const char* b = (char*)s2->data.data;
+    ZyanUSize i;
+    for (i = 0; a[i] && b[i]; ++i)
+    {
+        if ((a[i] == b[i]) || ((a[i] ^ 32) == b[i]))
+        {
+            continue;
+        }
+        break;
+    }
+
+    if (a[i] == b[i])
+    {
+        *result = 0;
+        return ZYAN_STATUS_TRUE;
+    }
+
+    if ((a[i] | 32) < (b[i] | 32))
+    {
+        *result = -1;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    *result = 1;
+    return ZYAN_STATUS_FALSE;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -743,6 +855,10 @@ ZyanStatus ZyanStringToLowerCase(ZyanString* string)
 
 ZyanStatus ZyanStringToLowerCaseEx(ZyanString* string, ZyanUSize index, ZyanUSize count)
 {
+    // This solution assumes that characters are represented using ASCII representation, i.e.,
+    // codes for 'a', 'b', 'c', .. 'z' are 97, 98, 99, .. 122 respectively. And codes for 'A',
+    // 'B', 'C', .. 'Z' are 65, 66, .. 95 respectively.
+
     if (!string)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -759,15 +875,15 @@ ZyanStatus ZyanStringToLowerCaseEx(ZyanString* string, ZyanUSize index, ZyanUSiz
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    const signed char rebase = 'a' - 'A';
-    char* c = (char*)string->data.data + index;
+    char* s = (char*)string->data.data + index;
     for (ZyanUSize i = index; i < index + count; ++i)
     {
-        if ((*c >= 'A') && (*c <= 'Z'))
+        const char c = *s;
+        if ((c >= 'A') && (c <= 'Z'))
         {
-            *c += rebase;
+            *s = c | 32;
         }
-        ++c;
+        ++s;
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -785,6 +901,10 @@ ZyanStatus ZyanStringToUpperCase(ZyanString* string)
 
 ZyanStatus ZyanStringToUpperCaseEx(ZyanString* string, ZyanUSize index, ZyanUSize count)
 {
+    // This solution assumes that characters are represented using ASCII representation, i.e.,
+    // codes for 'a', 'b', 'c', .. 'z' are 97, 98, 99, .. 122 respectively. And codes for 'A',
+    // 'B', 'C', .. 'Z' are 65, 66, .. 95 respectively.
+
     if (!string)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -801,15 +921,15 @@ ZyanStatus ZyanStringToUpperCaseEx(ZyanString* string, ZyanUSize index, ZyanUSiz
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    const signed char rebase = 'A' - 'a';
-    char* c = (char*)string->data.data + index;
+    char* s = (char*)string->data.data + index;
     for (ZyanUSize i = index; i < index + count; ++i)
     {
-        if ((*c >= 'a') && (*c <= 'z'))
+        const char c = *s;
+        if ((c >= 'a') && (c <= 'z'))
         {
-            *c += rebase;
+            *s = c & ~32;
         }
-        ++c;
+        ++s;
     }
 
     return ZYAN_STATUS_SUCCESS;

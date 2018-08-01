@@ -136,10 +136,12 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
  * @param   left    A pointer to the first element.
  * @param   right   A pointer to the second element.
  *
- * @return  `0` if the `left` element equals the `right` one, `-1` if the `left` element is smaller
- *          than the `right` one, or `1` if the `left` element is greater than the `right` one.
+ * @return  Returns values in the following range:
+ *          `left == right -> result == 0`
+ *          `left <  right -> result  < 0`
+ *          `left >  right -> result  > 0`
  */
-static ZyanI8 TestDataComparison(const TestStruct* left, const TestStruct* right)
+static ZyanI32 TestDataComparison(const TestStruct* left, const TestStruct* right)
 {
     ZYAN_ASSERT(left);
     ZYAN_ASSERT(right);

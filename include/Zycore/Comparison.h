@@ -32,6 +32,7 @@
 #ifndef ZYCORE_COMPARISON_H
 #define ZYCORE_COMPARISON_H
 
+#include <Zycore/Defines.h>
 #include <Zycore/Types.h>
 
 /* ============================================================================================== */
@@ -55,16 +56,172 @@ typedef ZyanBool (*ZyanEqualityComparison)(const void* left, const void* right);
  * @param   left    A pointer to the first element.
  * @param   right   A pointer to the second element.
  *
- * @return  This function should return `0` if the `left` element equals the `right` one, `-1` if
- *          the `left` element is less than the `right` one, or `1` if the `left` element is
- *          greater than the `right` one.
- *
- *          Example:
- *          `left == right ->  0`
- *          `left <  right -> -1`
- *          `left >  right ->  1`
+ * @return  This function should return values in the following range:
+ *          `left == right -> result == 0`
+ *          `left <  right -> result  < 0`
+ *          `left >  right -> result  > 0`
  */
-typedef ZyanI8 (*ZyanComparison)(const void* left, const void* right);
+typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
+
+/* ============================================================================================== */
+/* Macros                                                                                         */
+/* ============================================================================================== */
+
+/**
+ * @brief   Declares a generic equality comparison function for a trivial datatype.
+ */
+#define ZYAN_DECLARE_EQUALITY_COMPARISON(name, type) \
+    ZyanBool name(const type* left, const type* right) \
+    { \
+        ZYAN_ASSERT(left); \
+        ZYAN_ASSERT(right); \
+        \
+        return (*left == *right) ? ZYAN_TRUE : ZYAN_FALSE; \
+    }
+
+/**
+ * @brief   Declares a generic comparison function for a trivial datatype.
+ */
+#define ZYAN_DECLARE_COMPARISON(name, type) \
+    ZyanI32 name(const type* left, const type* right) \
+    { \
+        ZYAN_ASSERT(left); \
+        ZYAN_ASSERT(right); \
+        \
+        if (*left < *right) \
+        { \
+            return -1; \
+        } \
+        if (*left > *right) \
+        { \
+            return  1; \
+        } \
+        return 0; \
+    }
+
+/* ============================================================================================== */
+/* Exported functions                                                                             */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Default equality comparison functions                                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines a default equality comparison function for `ZyanBool` values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `ZYAN_TRUE` if the `left` value equals the `right` one or `ZYAN_FALSE`, if
+ *          not.
+ */
+ZYAN_INLINE ZYAN_DECLARE_EQUALITY_COMPARISON(ZyanEqualsBool, ZyanBool);
+
+/**
+ * @brief   Defines a default equality comparison function for 8-bit numeric values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `ZYAN_TRUE` if the `left` value equals the `right` one or `ZYAN_FALSE`, if
+ *          not.
+ */
+ZYAN_INLINE ZYAN_DECLARE_EQUALITY_COMPARISON(ZyanEqualsNumeric8, ZyanU8);
+
+/**
+ * @brief   Defines a default equality comparison function for 16-bit numeric values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `ZYAN_TRUE` if the `left` value equals the `right` one or `ZYAN_FALSE`, if
+ *          not.
+ */
+ZYAN_INLINE ZYAN_DECLARE_EQUALITY_COMPARISON(ZyanEqualsNumeric16, ZyanU16);
+
+/**
+ * @brief   Defines a default equality comparison function for 32-bit numeric values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `ZYAN_TRUE` if the `left` value equals the `right` one or `ZYAN_FALSE`, if
+ *          not.
+ */
+ZYAN_INLINE ZYAN_DECLARE_EQUALITY_COMPARISON(ZyanEqualsNumeric32, ZyanU32);
+
+/**
+ * @brief   Defines a default equality comparison function for 64-bit numeric values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `ZYAN_TRUE` if the `left` value equals the `right` one or `ZYAN_FALSE`, if
+ *          not.
+ */
+ZYAN_INLINE ZYAN_DECLARE_EQUALITY_COMPARISON(ZyanEqualsNumeric64, ZyanU64);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Default comparison functions                                                                   */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines a default comparison function for `ZyanBool` values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
+ *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
+ */
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBool, ZyanBool);
+
+/**
+ * @brief   Defines a default comparison function for 8-bit numeric values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
+ *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
+ */
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareNumeric8, ZyanU8);
+
+/**
+ * @brief   Defines a default comparison function for 16-bit numeric values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
+ *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
+ */
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBoolNumeric16, ZyanU16);
+
+/**
+ * @brief   Defines a default comparison function for 32-bit numeric values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
+ *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
+ */
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBoolNumeric32, ZyanU32);
+
+/**
+ * @brief   Defines a default comparison function for 64-bit numeric values.
+ *
+ * @param   left    A pointer to the first value.
+ * @param   right   A pointer to the second value.
+ *
+ * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
+ *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
+ */
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBoolNumeric64, ZyanU64);
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 

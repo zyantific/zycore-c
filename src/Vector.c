@@ -526,7 +526,7 @@ ZyanStatus ZyanVectorBinarySearchEx(const ZyanVector* vector, const void* elemen
     {
         const ZyanUSize mid = l + ((h - l) >> 1);
         ZYAN_CHECK(ZyanVectorGetElement(vector, mid, &element_mid));
-        const ZyanI8 cmp = comparison(element_mid, element);
+        const ZyanI32 cmp = comparison(element_mid, element);
         if (cmp < 0)
         {
             l = mid + 1;
