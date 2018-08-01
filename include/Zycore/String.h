@@ -63,10 +63,14 @@ typedef ZyanU8 ZyanStringFlags;
 /**
  * @brief   The string is immutable and can't be modified.
  *
- *          This flag is set by default for all wrapped C-style strings (created by
- *          `ZYAN_STRING_WRAP`, `ZyanStringWrap`).
+ *  This flag is set by default for all wrapped C-style strings (created by `ZYAN_STRING_WRAP`,
+ *  `ZyanStringWrap`).
  */
-#define ZYAN_STRING_IS_IMMUTABLE    0x01 // (1 << 0)
+#define ZYAN_STRING_IS_IMMUTABLE        0x01 // (1 << 0)
+/**
+ * @brief   The string uses a custom user-defined buffer with a fixed capacity.
+ */
+#define ZYAN_STRING_HAS_FIXED_CAPACITY  0x02 // (1 << 1)
 
 /* ---------------------------------------------------------------------------------------------- */
 /* String                                                                                         */

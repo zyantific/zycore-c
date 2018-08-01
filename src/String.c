@@ -112,7 +112,7 @@ ZyanStatus ZyanStringInitCustomBuffer(ZyanString* string, char* buffer, ZyanUSiz
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    string->flags = 0;
+    string->flags = ZYAN_STRING_HAS_FIXED_CAPACITY;;
     ZYAN_CHECK(ZyanVectorInitCustomBuffer(&string->data, sizeof(char), (void*)buffer, capacity));
     // Some of the string code relies on `sizeof(char) == 1`
     ZYAN_ASSERT(string->data.element_size == 1);
