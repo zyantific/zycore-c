@@ -53,22 +53,8 @@
 
 ZyanStatus ZyanStringInit(ZyanString* string, ZyanUSize capacity)
 {
-    if (!string)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    string->flags = 0;
-    ZYAN_CHECK(ZyanVectorInit(&string->data, sizeof(char), capacity + 1));
-    // Some of the string code relies on `sizeof(char) == 1`
-    ZYAN_ASSERT(string->data.element_size == 1);
-    // `ZyanVector` guarantees a minimum capacity of 1 element/character
-    ZYAN_ASSERT(string->data.capacity >= 1);
-
-    *(char*)string->data.data = '\0';
-    ++string->data.size;
-
-    return ZYAN_STATUS_SUCCESS;
+    return ZyanStringInitEx(string, capacity, ZyanAllocatorDefault(),
+        ZYAN_STRING_DEFAULT_GROWTH_FACTOR, ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD);
 }
 
 ZyanStatus ZyanStringInitEx(ZyanString* string, ZyanUSize capacity, ZyanAllocator* allocator,
@@ -80,12 +66,12 @@ ZyanStatus ZyanStringInitEx(ZyanString* string, ZyanUSize capacity, ZyanAllocato
     }
 
     string->flags = 0;
-    ZYAN_CHECK(ZyanVectorInitEx(&string->data, sizeof(char), capacity + 1, allocator, growth_factor,
-         shrink_threshold));
+    capacity = ZYAN_MAX(ZYAN_STRING_MIN_CAPACITY, capacity) + 1;
+    ZYAN_CHECK(ZyanVectorInitEx(&string->data, sizeof(char), capacity, allocator,
+        growth_factor, shrink_threshold));
+    ZYAN_ASSERT(string->data.capacity >= capacity);
     // Some of the string code relies on `sizeof(char) == 1`
     ZYAN_ASSERT(string->data.element_size == 1);
-    // `ZyanVector` guarantees a minimum capacity of 1 element/character
-    ZYAN_ASSERT(string->data.capacity >= 1);
 
     *(char*)string->data.data = '\0';
     ++string->data.size;
@@ -102,10 +88,9 @@ ZyanStatus ZyanStringInitCustomBuffer(ZyanString* string, char* buffer, ZyanUSiz
 
     string->flags = ZYAN_STRING_HAS_FIXED_CAPACITY;;
     ZYAN_CHECK(ZyanVectorInitCustomBuffer(&string->data, sizeof(char), (void*)buffer, capacity));
+    ZYAN_ASSERT(string->data.capacity >= capacity);
     // Some of the string code relies on `sizeof(char) == 1`
     ZYAN_ASSERT(string->data.element_size == 1);
-    // `ZyanVector` guarantees a minimum capacity of 1 element/character
-    ZYAN_ASSERT(string->data.capacity >= 1);
 
     *(char*)string->data.data = '\0';
     ++string->data.size;
@@ -134,24 +119,8 @@ ZyanStatus ZyanStringDestroy(ZyanString* string)
 ZyanStatus ZyanStringDuplicate(ZyanString* destination, const ZyanString* source,
     ZyanUSize capacity)
 {
-    if (!source)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    ZYAN_ASSERT(source->data.size >= 1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(source);
-    const ZyanUSize len = source->data.size;
-
-    capacity = ZYAN_MAX(capacity + 1, len);
-    ZYAN_CHECK(ZyanStringInit(destination, capacity));
-    ZYAN_ASSERT(destination->data.capacity >= len);
-
-    ZYAN_MEMCPY(destination->data.data, source->data.data, source->data.size);
-    destination->data.size = len;
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
-
-    return ZYAN_STATUS_SUCCESS;
+    return ZyanStringDuplicateEx(destination, source, capacity, ZyanAllocatorDefault(),
+        ZYAN_STRING_DEFAULT_GROWTH_FACTOR, ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD);
 }
 
 ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const ZyanString* source,
@@ -166,7 +135,7 @@ ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const ZyanString* sour
     ZYCORE_STRING_ASSERT_NULLTERMINATION(source);
     const ZyanUSize len = source->data.size;
 
-    capacity = ZYAN_MAX(capacity + 1, len);
+    capacity = ZYAN_MAX(capacity, len - 1);
     ZYAN_CHECK(ZyanStringInitEx(destination, capacity, allocator, growth_factor, shrink_threshold));
     ZYAN_ASSERT(destination->data.capacity >= len);
 
@@ -211,33 +180,14 @@ ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination, const ZyanSt
 ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanString* s1, const ZyanString* s2,
     ZyanUSize capacity)
 {
-    if (!s1 || !s2)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    ZYAN_ASSERT(s1->data.size >= 1);
-    ZYAN_ASSERT(s2->data.size >= 1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(s1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(s2);
-    const ZyanUSize len = s1->data.size + s2->data.size - 1;
-
-    capacity = ZYAN_MAX(capacity + 1, len);
-    ZYAN_CHECK(ZyanStringInit(destination, capacity));
-    ZYAN_ASSERT(destination->data.capacity >= len);
-
-    ZYAN_MEMCPY(destination->data.data, s1->data.data, s1->data.size - 1);
-    ZYAN_MEMCPY((char*)destination->data.data + s1->data.size - 1, s2->data.data, s2->data.size);
-    destination->data.size = len;
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
-
-    return ZYAN_STATUS_SUCCESS;
+    return ZyanStringConcatEx(destination, s1, s2, capacity, ZyanAllocatorDefault(),
+        ZYAN_STRING_DEFAULT_GROWTH_FACTOR, ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD);
 }
 
 ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanString* s1, const ZyanString* s2,
     ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold)
 {
-    if (!s1 || !s2)
+    if (!s1 || !s2 || (destination == s1) || (destination == s2))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -248,7 +198,7 @@ ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanString* s1, con
     ZYCORE_STRING_ASSERT_NULLTERMINATION(s2);
     const ZyanUSize len = s1->data.size + s2->data.size - 1;
 
-    capacity = ZYAN_MAX(capacity + 1, len);
+    capacity = ZYAN_MAX(capacity, len - 1);
     ZYAN_CHECK(ZyanStringInitEx(destination, capacity, allocator, growth_factor, shrink_threshold));
     ZYAN_ASSERT(destination->data.capacity >= len);
 
@@ -263,7 +213,7 @@ ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanString* s1, con
 ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination, const ZyanString* s1,
     const ZyanString* s2, char* buffer, ZyanUSize capacity)
 {
-    if (!s1 || !s2)
+    if (!s1 || !s2 || (destination == s1) || (destination == s2))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }

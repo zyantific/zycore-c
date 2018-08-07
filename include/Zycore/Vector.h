@@ -43,6 +43,26 @@ extern "C" {
 #endif
 
 /* ============================================================================================== */
+/* Constants                                                                                      */
+/* ============================================================================================== */
+
+/**
+ * @brief   The initial minimum capacity (number of elements) for all dynamically allocated vector
+ *          instances.
+ */
+#define ZYAN_VECTOR_MIN_CAPACITY                1
+
+/**
+ * @brief   The default growth factor for all vector instances.
+ */
+#define ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR       2.00f
+
+/**
+ * @brief   The default shrink threshold for all vector instances.
+ */
+#define ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD    0.25f
+
+/* ============================================================================================== */
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
@@ -154,6 +174,73 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInitCustomBuffer(ZyanVector* vector, ZyanUSiz
  * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorDestroy(ZyanVector* vector);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Duplication                                                                                    */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Initializes a new `ZyanVector` instance by duplicating an existing vector.
+ *
+ * @param   destination A pointer to the (uninitialized) destination `ZyanVector` instance.
+ * @param   source      A pointer to the source vector.
+ * @param   capacity    The initial capacity (number of elements).
+ *
+ *                      This value is automatically adjusted to the size of the source vector, if
+ *                      a smaller value was passed.
+ *
+ * @return  A zyan status code.
+ *
+ * The memory for the vector is dynamically allocated by the default allocator using the default
+ * growth factor of `2.0f` and the default shrink threshold of `0.25f`.
+ *
+ * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicate(ZyanVector* destination, const ZyanVector* source,
+    ZyanUSize capacity);
+
+/**
+ * @brief   Initializes a new `ZyanVector` instance by duplicating an existing vector and sets a
+ *          custom `allocator` and memory allocation/deallocation parameters.
+ *
+ * @param   destination         A pointer to the (uninitialized) destination `ZyanVector` instance.
+ * @param   source              A pointer to the source vector.
+ * @param   capacity            The initial capacity (number of elements).
+
+ *                              This value is automatically adjusted to the size of the source
+ *                              vector, if a smaller value was passed.
+ * @param   allocator           A pointer to a `ZyanAllocator` instance.
+ * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
+ * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
+ *
+ * @return  A zyan status code.
+ *
+ * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
+ * dynamic shrinking.
+ *
+ * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicateEx(ZyanVector* destination, const ZyanVector* source,
+    ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold);
+
+/**
+ * @brief   Initializes a new `ZyanVector` instance by duplicating an existing vector and
+ *          configures it to use a custom user defined buffer with a fixed size.
+ *
+ * @param   destination A pointer to the (uninitialized) destination `ZyanVector` instance.
+ * @param   source      A pointer to the source vector.
+ * @param   buffer      A pointer to the buffer that is used as storage for the elements.
+ * @param   capacity    The maximum capacity (number of elements) of the buffer.
+
+ *                      This function will fail, if the capacity of the buffer is less than the
+ *                      size of the source vector.
+ *
+ * @return  A zyan status code.
+ *
+ * Finalization is not required for instances created by this function.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination,
+    const ZyanVector* source, void* buffer, ZyanUSize capacity);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Element access                                                                                 */

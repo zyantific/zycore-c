@@ -48,6 +48,26 @@ extern "C" {
 #endif
 
 /* ============================================================================================== */
+/* Constants                                                                                      */
+/* ============================================================================================== */
+
+/**
+ * @brief   The initial minimum capacity (number of characters) for all dynamically allocated
+ *          string instances - not including the terminating '\0'-character.
+ */
+#define ZYAN_STRING_MIN_CAPACITY                32
+
+/**
+ * @brief   The default growth factor for all string instances.
+ */
+#define ZYAN_STRING_DEFAULT_GROWTH_FACTOR       2.00f
+
+/**
+ * @brief   The default shrink threshold for all string instances.
+ */
+#define ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD    0.25f
+
+/* ============================================================================================== */
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
@@ -238,8 +258,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicate(ZyanString* destination, const Zyan
  * @param   source              A pointer to the source string.
  * @param   capacity            The initial capacity (number of characters).
 
- *                              This value is automatically adjusted to the size of the source, if
- *                              a smaller value was passed.
+ *                              This value is automatically adjusted to the size of the source
+ *                              string, if a smaller value was passed.
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
  * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
  * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
@@ -285,6 +305,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination
  * @brief   Initializes a new `ZyanString` instance by concatenating two existing strings.
  *
  * @param   destination A pointer to the (uninitialized) destination `ZyanString` instance.
+ *
+ *                      This function will fail, if the destination `ZyanString` instance equals
+ *                      one of the source strings.
  * @param   s1          A pointer to the first source string.
  * @param   s2          A pointer to the second source string.
  * @param   capacity    The initial capacity (number of characters).
@@ -310,6 +333,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStr
  *          a custom `allocator` and memory allocation/deallocation parameters.
  *
  * @param   destination         A pointer to the (uninitialized) destination `ZyanString` instance.
+ *
+ *                              This function will fail, if the destination `ZyanString` instance
+ *                              equals one of the source strings.
  * @param   s1                  A pointer to the first source string.
  * @param   s2                  A pointer to the second source string.
  * @param   capacity            The initial capacity (number of characters).
@@ -339,6 +365,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanS
  *          configures it to use a custom user defined buffer with a fixed size.
  *
  * @param   destination A pointer to the (uninitialized) destination `ZyanString` instance.
+ *
+ *                      This function will fail, if the destination `ZyanString` instance equals
+ *                      one of the source strings.
  * @param   s1          A pointer to the first source string.
  * @param   s2          A pointer to the second source string.
  * @param   buffer      A pointer to the buffer that is used as storage for the string.
