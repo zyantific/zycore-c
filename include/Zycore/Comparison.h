@@ -201,7 +201,7 @@ ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareNumeric8, ZyanU8);
  * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
  *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
  */
-ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBoolNumeric16, ZyanU16);
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareNumeric16, ZyanU16);
 
 /**
  * @brief   Defines a default comparison function for 32-bit numeric values.
@@ -212,7 +212,7 @@ ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBoolNumeric16, ZyanU16);
  * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
  *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
  */
-ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBoolNumeric32, ZyanU32);
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareNumeric32, ZyanU32);
 
 /**
  * @brief   Defines a default comparison function for 64-bit numeric values.
@@ -223,7 +223,7 @@ ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBoolNumeric32, ZyanU32);
  * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
  *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
  */
-ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareBoolNumeric64, ZyanU64);
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanCompareNumeric64, ZyanU64);
 
 /* ---------------------------------------------------------------------------------------------- */
 

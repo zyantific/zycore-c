@@ -38,22 +38,22 @@ option(ZYCORE_BUILD_TESTS
 # GoogleTest                                                                                      #
 # =============================================================================================== #
 
-if (ZYCORE_BUILD_TESTS)
-    # Download and unpack googletest
-    configure_file(CMakeLists.txt.in gtest/download/CMakeLists.txt)
-    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
-    if (result)
-        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-    endif()
-    execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
-    if (result)
-        message(FATAL_ERROR "Build step for googletest failed: ${result}")
-    endif()
-    
+# Download and unpack googletest
+configure_file(CMakeLists.txt.in gtest/download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
+if (result)
+    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
+if (result)
+    message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
+
+if (ZYCORE_BUILD_TESTS)    
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
     add_subdirectory("${CMAKE_BINARY_DIR}/gtest/src" "${CMAKE_BINARY_DIR}/gtest/build"
@@ -62,7 +62,6 @@ if (ZYCORE_BUILD_TESTS)
     if (CMAKE_VERSION VERSION_LESS 2.8.11)
         include_directories("${gtest_SOURCE_DIR}/include")
     endif()
-
 endif ()
 
 # =============================================================================================== #

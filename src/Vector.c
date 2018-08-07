@@ -464,13 +464,18 @@ ZyanStatus ZyanVectorFind(const ZyanVector* vector, const void* element, ZyanISi
 ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* element, ZyanISize* found_index,
     ZyanEqualityComparison comparison, ZyanUSize index, ZyanUSize count)
 {
-    if (!vector || !count)
+    if (!vector)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    if (index + count >= vector->size)
+    if ((index + count > vector->size)|| (index == vector->size))
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+    if (!count)
+    {
+        *found_index = -1;
+        return ZYAN_STATUS_FALSE;
     }
 
     const void* left;
