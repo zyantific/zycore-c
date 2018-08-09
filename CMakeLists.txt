@@ -39,7 +39,7 @@ option(ZYCORE_BUILD_TESTS
 # =============================================================================================== #
 
 # Download and unpack googletest
-configure_file(CMakeLists.txt.in gtest/download/CMakeLists.txt)
+configure_file("CMakeLists.txt.in" "${CMAKE_BINARY_DIR}/gtest/download/CMakeLists.txt")
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
     RESULT_VARIABLE result
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
