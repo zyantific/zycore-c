@@ -141,7 +141,7 @@ typedef ZyanU32 ZyanStatus;
 /**
  * @brief   The zycore generic module id.
  */
-#define ZYAN_MODULE_ZYCORE  0x000
+#define ZYAN_MODULE_ZYCORE  0x001
 
 /**
  * @brief   The base module id for user-defined status codes.
