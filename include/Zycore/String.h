@@ -407,7 +407,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringWrap(ZyanString* string, const char* value);
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringUnwrap(ZyanString* string, const char** value);
+ZYCORE_EXPORT ZyanStatus ZyanStringUnwrap(const ZyanString* string, const char** value);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Character access                                                                               */

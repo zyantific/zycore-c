@@ -266,7 +266,7 @@ ZyanStatus ZyanStringWrap(ZyanString* string, const char* value)
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanStringUnwrap(ZyanString* string, const char** value)
+ZyanStatus ZyanStringUnwrap(const ZyanString* string, const char** value)
 {
     if (!string)
     {
