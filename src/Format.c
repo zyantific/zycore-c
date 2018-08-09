@@ -44,7 +44,7 @@
 /* Lookup Tables                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const char* decimal_lookup =
+static const char* const DECIMAL_LOOKUP =
     "00010203040506070809"
     "10111213141516171819"
     "20212223242526272829"
@@ -60,8 +60,8 @@ static const char* decimal_lookup =
 /* Static strings                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const ZyanString sign_add = ZYAN_STRING_WRAP("+");
-static const ZyanString sign_sub = ZYAN_STRING_WRAP("-");
+static const ZyanString STR_ADD = ZYAN_STRING_WRAP("+");
+static const ZyanString STR_SUB = ZYAN_STRING_WRAP("-");
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -104,10 +104,10 @@ ZyanStatus ZyanStringAppendDecU32(ZyanString* string, ZyanU32 value, ZyanU8 padd
         const ZyanU32 value_old = value;
         buffer_write_pointer -= 2;
         value /= 100;
-        ZYAN_MEMCPY(buffer_write_pointer, &decimal_lookup[(value_old - (value * 100)) * 2], 2);
+        ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[(value_old - (value * 100)) * 2], 2);
     }
     buffer_write_pointer -= 2;
-    ZYAN_MEMCPY(buffer_write_pointer, &decimal_lookup[value * 2], 2);
+    ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[value * 2], 2);
 
     const ZyanUSize offset_odd    = (ZyanUSize)(value < 10);
     const ZyanUSize length_number = buffer_end - buffer_write_pointer - offset_odd;
@@ -155,10 +155,10 @@ ZyanStatus ZyanStringAppendDecU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
         const ZyanU64 value_old = value;
         buffer_write_pointer -= 2;
         value /= 100;
-        ZYAN_MEMCPY(buffer_write_pointer, &decimal_lookup[(value_old - (value * 100)) * 2], 2);
+        ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[(value_old - (value * 100)) * 2], 2);
     }
     buffer_write_pointer -= 2;
-    ZYAN_MEMCPY(buffer_write_pointer, &decimal_lookup[value * 2], 2);
+    ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[value * 2], 2);
 
     const ZyanUSize offset_odd    = (ZyanUSize)(value < 10);
     const ZyanUSize length_number = buffer_end - buffer_write_pointer - offset_odd;
@@ -461,7 +461,7 @@ ZyanStatus ZyanStringAppendDecS(ZyanString* string, ZyanI64 value, ZyanU8 paddin
 {
     if (value < 0)
     {
-        ZYAN_CHECK(ZyanStringAppend(string, &sign_sub));
+        ZYAN_CHECK(ZyanStringAppend(string, &STR_SUB));
         if (prefix)
         {
             ZYAN_CHECK(ZyanStringAppend(string, prefix));
@@ -472,7 +472,7 @@ ZyanStatus ZyanStringAppendDecS(ZyanString* string, ZyanI64 value, ZyanU8 paddin
     if (force_sign)
     {
         ZYAN_ASSERT(value >= 0);
-        ZYAN_CHECK(ZyanStringAppend(string, &sign_add));
+        ZYAN_CHECK(ZyanStringAppend(string, &STR_ADD));
     }
 
     if (prefix)
@@ -502,7 +502,7 @@ ZyanStatus ZyanStringAppendHexS(ZyanString* string, ZyanI64 value, ZyanU8 paddin
 {
     if (value < 0)
     {
-        ZYAN_CHECK(ZyanStringAppend(string, &sign_sub));
+        ZYAN_CHECK(ZyanStringAppend(string, &STR_SUB));
         if (prefix)
         {
             ZYAN_CHECK(ZyanStringAppend(string, prefix));
@@ -513,7 +513,7 @@ ZyanStatus ZyanStringAppendHexS(ZyanString* string, ZyanI64 value, ZyanU8 paddin
     if (force_sign)
     {
         ZYAN_ASSERT(value >= 0);
-        ZYAN_CHECK(ZyanStringAppend(string, &sign_add));
+        ZYAN_CHECK(ZyanStringAppend(string, &STR_ADD));
     }
 
     if (prefix)
