@@ -35,6 +35,7 @@
 #include <ZycoreExportConfig.h>
 #include <Zycore/Allocator.h>
 #include <Zycore/Comparison.h>
+#include <Zycore/Object.h>
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>
 
@@ -305,7 +306,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorPush(ZyanVector* vector, const void* element)
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorInsert(ZyanVector* vector, ZyanUSize index, const void* element);
+ZYCORE_EXPORT ZyanStatus ZyanVectorInsert(ZyanVector* vector, ZyanUSize index,
+    const void* element);
 
 /**
  * @brief   Inserts multiple `elements` at the given `index` of the vector.
@@ -319,6 +321,33 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInsert(ZyanVector* vector, ZyanUSize index, c
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index,
     const void* elements, ZyanUSize count);
+
+ /**
+ * @brief   Constructs an `element` in-place and adds it at the end of the vector.
+ *
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   element     Receives a pointer to the new element.
+ * @param   constructor The constructor callback or `ZYAN_NULL`. The new element will be in
+ *                      undefined state, if no constructor was passed.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorEmplace(ZyanVector* vector, void** element,
+    ZyanObjectFunction constructor);
+
+/**
+ * @brief   Constructs an `element` in-place and inserts it at the given `index` of the vector.
+ *
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   index       The insert index.
+ * @param   element     Receives a pointer to the new element.
+ * @param   constructor The constructor callback or `ZYAN_NULL`. The new element will be in
+ *                      undefined state, if no constructor was passed.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorEmplaceEx(ZyanVector* vector, ZyanUSize index,
+    void** element, ZyanObjectFunction constructor);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Deletion                                                                                       */

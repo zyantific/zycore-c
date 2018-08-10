@@ -433,6 +433,53 @@ ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index, const void* e
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZyanStatus ZyanVectorEmplace(ZyanVector* vector, void** element, ZyanObjectFunction constructor)
+{
+    if (!vector)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZyanVectorEmplaceEx(vector, vector->size, element, constructor);
+}
+
+ZyanStatus ZyanVectorEmplaceEx(ZyanVector* vector, ZyanUSize index, void** element,
+    ZyanObjectFunction constructor)
+{
+    if (!vector)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if (index > vector->size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    ZYAN_ASSERT(vector->element_size);
+    ZYAN_ASSERT(vector->data);
+
+    if (ZYCORE_VECTOR_SHOULD_GROW(vector->size + 1, vector->capacity))
+    {
+        ZYAN_CHECK(ZyanVectorReallocate(vector,
+            ZYAN_MAX(1, (ZyanUSize)((vector->size + 1) * vector->growth_factor))));
+    }
+
+    if (index < vector->size)
+    {
+        ZYAN_CHECK(ZyanVectorShiftRight(vector, index, 1));
+    }
+
+    *element = ZYCORE_VECTOR_OFFSET(vector, index);
+    if (constructor)
+    {
+        ZYAN_CHECK(constructor(*element));
+    }
+
+    ++vector->size;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Deletion                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
@@ -448,7 +495,7 @@ ZyanStatus ZyanVectorDeleteEx(ZyanVector* vector, ZyanUSize index, ZyanUSize cou
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    if (index >= vector->size)
+    if (index + count >= vector->size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }

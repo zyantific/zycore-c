@@ -105,6 +105,23 @@ protected:
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
+/* Helper functions                                                                               */
+/* ============================================================================================== */
+
+/**
+ * @brief   A dummy constructor for `ZyanU64` objects.
+ *
+ * @param   object  A pointer to the object.
+ *
+ * @return  A zyan status code.
+ */
+static ZyanStatus InitZyanU64(ZyanU64* object)
+{
+    *object = 1337;
+    return ZYAN_STATUS_SUCCESS;
+}
+
+/* ============================================================================================== */
 /* Tests                                                                                          */
 /* ============================================================================================== */
 
@@ -279,6 +296,7 @@ TEST_P(VectorTestFilled, Insert)
 TEST_P(VectorTestFilled, Delete)
 {
     EXPECT_EQ(ZyanVectorDeleteEx(&m_vector, m_vector.size, 1), ZYAN_STATUS_OUT_OF_RANGE);
+    EXPECT_EQ(ZyanVectorDeleteEx(&m_vector, 1, m_vector.size), ZYAN_STATUS_OUT_OF_RANGE);
 
     const ZyanUSize size = m_vector.size;
     const ZyanU64 half = (size / 2);
@@ -366,6 +384,34 @@ TEST_P(VectorTestBase, BinarySearch)
     EXPECT_EQ(ZyanVectorBinarySearchEx(&m_vector, &element_in, &index,
         reinterpret_cast<ZyanComparison>(&ZyanCompareNumeric64), 1, 100),
         ZYAN_STATUS_OUT_OF_RANGE);
+}
+
+TEST_P(VectorTestBase, Emplace)
+{
+    ZyanU64* element_new;
+    const ZyanU64* element_out;
+
+    for (ZyanUSize i = 0; i < 10; ++i)
+    {
+        EXPECT_EQ(ZyanVectorEmplace(&m_vector, (void**)&element_new, (ZyanObjectFunction)ZYAN_NULL),
+            ZYAN_STATUS_SUCCESS);
+        *element_new = i;
+    }
+    EXPECT_EQ(m_vector.size, 10);
+
+    for (ZyanUSize i = 0; i < m_vector.size; ++i)
+    {
+        EXPECT_EQ(ZyanVectorGetElement(&m_vector, i, (const void**)&element_out),
+            ZYAN_STATUS_SUCCESS);
+        EXPECT_EQ(*element_out, i);
+    }
+
+    EXPECT_EQ(ZyanVectorEmplaceEx(&m_vector, 5, (void**)&element_new,
+        (ZyanObjectFunction)&InitZyanU64), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(*element_new, 1337);
+
+    EXPECT_EQ(ZyanVectorGetElement(&m_vector, 5, (const void**)&element_out), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(*element_out, 1337);
 }
 
 INSTANTIATE_TEST_CASE_P(Param, VectorTestBase, ::testing::Values(false, true));
