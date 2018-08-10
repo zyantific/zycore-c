@@ -496,6 +496,30 @@ ZyanStatus ZyanStringDelete(ZyanString* string, ZyanUSize index, ZyanUSize count
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZyanStatus ZyanStringTruncate(ZyanString* string, ZyanUSize index)
+{
+    if (!string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
+    {
+        return ZYAN_STATUS_INVALID_OPERATION;
+    }
+
+    // Don't allow removal of the terminating '\0' character
+    if (index >= string->data.size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    ZYAN_CHECK(ZyanVectorDeleteEx(&string->data, index, string->data.size - index - 1));
+    ZYCORE_STRING_NULLTERMINATE(string);
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
 ZyanStatus ZyanStringClear(ZyanString* string)
 {
     if (!string)

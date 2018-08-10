@@ -544,6 +544,19 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppendEx(ZyanString* destination, const ZyanS
 ZYCORE_EXPORT ZyanStatus ZyanStringDelete(ZyanString* string, ZyanUSize index, ZyanUSize count);
 
 /**
+ * @brief   Deletes all remaining characters from the given string, starting at `index`.
+ *
+ * @param   string  A pointer to the `ZyanString` instance.
+ * @param   index   The index of the first character to delete.
+ *
+ * @return  A zyan status code.
+ *
+ * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
+ * `ZyanString` instance.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringTruncate(ZyanString* string, ZyanUSize index);
+
+/**
  * @brief   Erases the given string.
  *
  * @param   string  A pointer to the `ZyanString` instance.
