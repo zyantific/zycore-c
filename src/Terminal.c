@@ -126,8 +126,8 @@ ZyanStatus ZyanTerminalIsTTY(ZyanStandardStream stream)
         file = STDOUT_FILENO;
         break;
     case ZYAN_STDSTREAM_ERR:
-         file = STDERR_FILENO;
-         break;
+        file = STDERR_FILENO;
+        break;
     default:
         ZYAN_UNREACHABLE;
     }

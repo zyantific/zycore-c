@@ -81,6 +81,8 @@ typedef va_list ZyanVAList;
 #define ZYAN_PRINTF     printf
 #define ZYAN_PUTC       putc
 #define ZYAN_PUTS       puts
+#define ZYAN_SCANF      scanf
+#define ZYAN_SSCANF     sscanf
 #define ZYAN_VSNPRINTF  vsnprintf
 
 /**
