@@ -44,6 +44,16 @@
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
+/* errno.h                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+#include <errno.h>
+
+// TODO: Implement fallback for `ZYAN_ERRNO` and error code defines
+
+#define ZYAN_ERRNO  errno
+
+/* ---------------------------------------------------------------------------------------------- */
 /* stdarg.h                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -64,7 +74,26 @@ typedef va_list ZyanVAList;
 /* ---------------------------------------------------------------------------------------------- */
 
 #include <stdio.h>
+
+#define ZYAN_FPUTS      fputs
+#define ZYAN_FPUTC      fputc
+#define ZYAN_FPRINTF    fprintf
+#define ZYAN_PRINTF     printf
+#define ZYAN_PUTC       putc
+#define ZYAN_PUTS       puts
 #define ZYAN_VSNPRINTF  vsnprintf
+
+/**
+ * @brief   Defines the `ZyanFile` datatype.
+ */
+typedef FILE ZyanFile;
+
+// TODO: Implement fallback for `ZyanFile`
+// TODO: Implement fallback for `ZYAN_STDIN`, `ZYAN_STDOUT` and `ZYAN_STDERR`
+
+#define ZYAN_STDIN      stdin
+#define ZYAN_STDOUT     stdout
+#define ZYAN_STDERR     stderr
 
 /* ---------------------------------------------------------------------------------------------- */
 /* stdlib.h                                                                                       */
