@@ -33,6 +33,13 @@
 #   include <unistd.h>
 #endif
 
+// Provide fallback for old SDK versions
+#ifdef ZYAN_WINDOWS
+#   ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#       define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#   endif
+#endif
+
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
