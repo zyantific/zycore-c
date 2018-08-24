@@ -413,7 +413,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringWrap(ZyanString* string, const char* value);
  *
  * The difference between this function and `ZyanStringInitCustomBuffer` is that
  * `ZyanStringInitCustomBuffer` uses the given space for storage, overriding it.
- * This function is basically turns the `string` to a view of the given memory location.
+ * This function basically turns the `string` to a view of the given memory location.
  *
  * Strings created by this function are IMMUTABLE and do not need finalization.
  */
