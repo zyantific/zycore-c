@@ -246,19 +246,24 @@ ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination, const ZyanStrin
 
 ZyanStatus ZyanStringWrap(ZyanString* string, const char* value)
 {
+    return ZyanStringWrapEx(string, value, ZYAN_STRLEN(value) + 1);
+}
+
+ZyanStatus ZyanStringWrapEx(ZyanString* string, const char* value, ZyanUSize length)
+{
     if (!string)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    string->flags                   = ZYAN_STRING_IS_IMMUTABLE;
-    string->data.allocator          = ZYAN_NULL;
-    string->data.growth_factor      = 1.0f;
-    string->data.shrink_threshold   = 0.0f;
-    string->data.size               = ZYAN_STRLEN(value) + 1;
-    string->data.capacity           = string->data.size;
-    string->data.element_size       = sizeof(char);
-    string->data.data               = (void*)value;
+    string->flags                 = ZYAN_STRING_IS_IMMUTABLE;
+    string->data.allocator        = ZYAN_NULL;
+    string->data.growth_factor    = 1.0f;
+    string->data.shrink_threshold = 0.0f;
+    string->data.size             = length;
+    string->data.capacity         = string->data.size;
+    string->data.element_size     = sizeof(char);
+    string->data.data             = (void*)value;
 
     // Some of the string code relies on `sizeof(char) == 1`
     ZYAN_ASSERT(string->data.element_size == 1);

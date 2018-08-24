@@ -400,6 +400,26 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination, c
 ZYCORE_EXPORT ZyanStatus ZyanStringWrap(ZyanString* string, const char* value);
 
 /**
+ * @brief   Initializes the given `ZyanString` instance by wrapping a given string and its length.
+ *
+ * @param   string  A pointer to the `ZyanString` instance.
+ * @param   value   The string.
+ * @param   length  The size of the string.
+ *
+ * @return  A zyan status code.
+ *
+ * The given string does not have to be '\0' terminated, since `length` is used instead of calling
+ * `strlen`.
+ *
+ * The difference between this function and `ZyanStringInitCustomBuffer` is that
+ * `ZyanStringInitCustomBuffer` uses the given space for storage, overriding it.
+ * This function is basically turns the `string` to a view of the given memory location.
+ *
+ * Strings created by this function are IMMUTABLE and do not need finalization.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringWrapEx(ZyanString* string, const char* value, ZyanUSize length);
+
+/**
  * @brief   Returns the C-style string of the given `ZyanString` instance.
  *
  * @param   string  A pointer to the `ZyanString` instance.
