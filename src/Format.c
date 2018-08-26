@@ -60,8 +60,8 @@ static const char* const DECIMAL_LOOKUP =
 /* Static strings                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const ZyanString STR_ADD = ZYAN_STRING_WRAP("+");
-static const ZyanString STR_SUB = ZYAN_STRING_WRAP("-");
+static const ZyanStringView STR_ADD = ZYAN_DECLARE_STRING_VIEW("+");
+static const ZyanStringView STR_SUB = ZYAN_DECLARE_STRING_VIEW("-");
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -73,7 +73,7 @@ static const ZyanString STR_SUB = ZYAN_STRING_WRAP("-");
  * @brief   Writes a terminating '\0' character at the end of the string data.
  */
 #define ZYCORE_STRING_NULLTERMINATE(string) \
-      *(char*)((ZyanU8*)(string)->data.data + (string)->data.size - 1) = '\0';
+      *(char*)((ZyanU8*)(string)->vector.data + (string)->vector.size - 1) = '\0';
 
 /* ============================================================================================== */
 /* Internal functions                                                                             */
@@ -112,23 +112,23 @@ ZyanStatus ZyanStringAppendDecU32(ZyanString* string, ZyanU32 value, ZyanU8 padd
     const ZyanUSize offset_odd    = (ZyanUSize)(value < 10);
     const ZyanUSize length_number = buffer_end - buffer_write_pointer - offset_odd;
     const ZyanUSize length_total  = ZYAN_MAX(length_number, padding_length);
-    const ZyanUSize length_target = string->data.size;
+    const ZyanUSize length_target = string->vector.size;
 
-    if (string->data.size + length_total > string->data.capacity)
+    if (string->vector.size + length_total > string->vector.capacity)
     {
-        ZYAN_CHECK(ZyanStringResize(string, string->data.size + length_total - 1));
+        ZYAN_CHECK(ZyanStringResize(string, string->vector.size + length_total - 1));
     }
 
     ZyanUSize offset_write = 0;
     if (padding_length > length_number)
     {
         offset_write = padding_length - length_number;
-        ZYAN_MEMSET((char*)string->data.data + length_target - 1, '0', offset_write);
+        ZYAN_MEMSET((char*)string->vector.vector + length_target - 1, '0', offset_write);
     }
 
-    ZYAN_MEMCPY((char*)string->data.data + length_target + offset_write - 1,
+    ZYAN_MEMCPY((char*)string->vector.vector + length_target + offset_write - 1,
         buffer_write_pointer + offset_odd, length_number);
-    string->data.size = length_target + length_total;
+    string->vector.size = length_target + length_total;
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -140,11 +140,6 @@ ZyanStatus ZyanStringAppendDecU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
     if (!string)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
     }
 
     char buffer[ZYCORE_MAXCHARS_DEC_64];
@@ -163,23 +158,23 @@ ZyanStatus ZyanStringAppendDecU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
     const ZyanUSize offset_odd    = (ZyanUSize)(value < 10);
     const ZyanUSize length_number = buffer_end - buffer_write_pointer - offset_odd;
     const ZyanUSize length_total  = ZYAN_MAX(length_number, padding_length);
-    const ZyanUSize length_target = string->data.size;
+    const ZyanUSize length_target = string->vector.size;
 
-    if (string->data.size + length_total > string->data.capacity)
+    if (string->vector.size + length_total > string->vector.capacity)
     {
-        ZYAN_CHECK(ZyanStringResize(string, string->data.size + length_total - 1));
+        ZYAN_CHECK(ZyanStringResize(string, string->vector.size + length_total - 1));
     }
 
     ZyanUSize offset_write = 0;
     if (padding_length > length_number)
     {
         offset_write = padding_length - length_number;
-        ZYAN_MEMSET((char*)string->data.data + length_target - 1, '0', offset_write);
+        ZYAN_MEMSET((char*)string->vector.data + length_target - 1, '0', offset_write);
     }
 
-    ZYAN_MEMCPY((char*)string->data.data + length_target + offset_write - 1,
+    ZYAN_MEMCPY((char*)string->vector.data + length_target + offset_write - 1,
         buffer_write_pointer + offset_odd, length_number);
-    string->data.size = length_target + length_total;
+    string->vector.size = length_target + length_total;
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -203,8 +198,8 @@ ZyanStatus ZyanStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 padd
         return ZYAN_STATUS_INVALID_OPERATION;
     }
 
-    const ZyanUSize len = string->data.size;
-    ZyanUSize remaining = string->data.capacity - string->data.size;
+    const ZyanUSize len = string->vector.size;
+    ZyanUSize remaining = string->vector.capacity - string->vector.size;
 
     if (remaining < (ZyanUSize)padding_length)
     {
@@ -218,11 +213,11 @@ ZyanStatus ZyanStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 padd
 
         if (remaining < (ZyanUSize)n)
         {
-            ZYAN_CHECK(ZyanStringResize(string, string->data.size + n - 1));
+            ZYAN_CHECK(ZyanStringResize(string, string->vector.size + n - 1));
         }
 
-        ZYAN_MEMSET((char*)string->data.data + len - 1, '0', n);
-        string->data.size = len + n;
+        ZYAN_MEMSET((char*)string->vector.vector + len - 1, '0', n);
+        string->vector.size = len + n;
         ZYCORE_STRING_NULLTERMINATE(string);
 
         return ZYAN_STATUS_SUCCESS;
@@ -241,9 +236,9 @@ ZyanStatus ZyanStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 padd
             }
             if (remaining <= (ZyanU8)i)
             {
-                ZYAN_CHECK(ZyanStringResize(string, string->data.size + i));
+                ZYAN_CHECK(ZyanStringResize(string, string->vector.size + i));
             }
-            buffer = (char*)string->data.data + len - 1;
+            buffer = (char*)string->vector.vector + len - 1;
             if (padding_length > i)
             {
                 n = padding_length - i - 1;
@@ -259,7 +254,7 @@ ZyanStatus ZyanStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 padd
             buffer[n++] = "0123456789abcdef"[v];
         }
     }
-    string->data.size = len + n;
+    string->vector.size = len + n;
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -274,13 +269,8 @@ ZyanStatus ZyanStringAppendHexU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
-    const ZyanUSize len = string->data.size;
-    ZyanUSize remaining = string->data.capacity - string->data.size;
+    const ZyanUSize len = string->vector.size;
+    ZyanUSize remaining = string->vector.capacity - string->vector.size;
 
     if (remaining < (ZyanUSize)padding_length)
     {
@@ -294,11 +284,11 @@ ZyanStatus ZyanStringAppendHexU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
 
         if (remaining < (ZyanUSize)n)
         {
-            ZYAN_CHECK(ZyanStringResize(string, string->data.size + n - 1));
+            ZYAN_CHECK(ZyanStringResize(string, string->vector.size + n - 1));
         }
 
-        ZYAN_MEMSET((char*)string->data.data + len - 1, '0', n);
-        string->data.size = len + n;
+        ZYAN_MEMSET((char*)string->vector.data + len - 1, '0', n);
+        string->vector.size = len + n;
         ZYCORE_STRING_NULLTERMINATE(string);
 
         return ZYAN_STATUS_SUCCESS;
@@ -318,9 +308,9 @@ ZyanStatus ZyanStringAppendHexU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
             }
             if (remaining <= (ZyanU8)i)
             {
-                ZYAN_CHECK(ZyanStringResize(string, string->data.size + i));
+                ZYAN_CHECK(ZyanStringResize(string, string->vector.size + i));
             }
-            buffer = (char*)string->data.data + len - 1;
+            buffer = (char*)string->vector.data + len - 1;
             if (padding_length > i)
             {
                 n = padding_length - i - 1;
@@ -336,7 +326,7 @@ ZyanStatus ZyanStringAppendHexU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
             buffer[n++] = "0123456789abcdef"[v];
         }
     }
-    string->data.size = len + n;
+    string->vector.size = len + n;
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -394,47 +384,42 @@ ZyanStatus ZyanStringAppendFormat(ZyanString* string, const char* format, ...)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     ZyanVAList arglist;
     ZYAN_VA_START(arglist, format);
 
-    const ZyanUSize len = string->data.size;
+    const ZyanUSize len = string->vector.size;
 
-    ZyanI32 w = ZYAN_VSNPRINTF((char*)string->data.data + len - 1, string->data.capacity - len + 1,
-        format, arglist);
+    ZyanI32 w = ZYAN_VSNPRINTF((char*)string->vector.data + len - 1,
+        string->vector.capacity - len + 1, format, arglist);
     if (w < 0)
     {
         ZYAN_VA_END(arglist);
         return ZYAN_STATUS_FAILED;
     }
-    if (w <= (ZyanI32)(string->data.capacity - len))
+    if (w <= (ZyanI32)(string->vector.capacity - len))
     {
-        string->data.size = len + w;
+        string->vector.size = len + w;
 
         ZYAN_VA_END(arglist);
         return ZYAN_STATUS_SUCCESS;
     }
 
     // The remaining capacity was not sufficent to fit the formatted string. Trying to resize ..
-    const ZyanStatus status = ZyanStringResize(string, string->data.size + w - 1);
+    const ZyanStatus status = ZyanStringResize(string, string->vector.size + w - 1);
     if (!ZYAN_SUCCESS(status))
     {
         ZYAN_VA_END(arglist);
         return status;
     }
 
-    w = ZYAN_VSNPRINTF((char*)string->data.data + len - 1,
-        string->data.capacity - string->data.size + 1, format, arglist);
+    w = ZYAN_VSNPRINTF((char*)string->vector.data + len - 1,
+        string->vector.capacity - string->vector.size + 1, format, arglist);
     if (w < 0)
     {
         ZYAN_VA_END(arglist);
         return ZYAN_STATUS_FAILED;
     }
-    ZYAN_ASSERT(w <= (ZyanI32)(string->data.capacity - string->data.size));
+    ZYAN_ASSERT(w <= (ZyanI32)(string->vector.capacity - string->vector.size));
 
     ZYAN_VA_END(arglist);
     return ZYAN_STATUS_SUCCESS;
@@ -457,7 +442,7 @@ ZyanStatus ZyanStringAppendDecU(ZyanString* string, ZyanU64 value, ZyanU8 paddin
 }
 
 ZyanStatus ZyanStringAppendDecS(ZyanString* string, ZyanI64 value, ZyanU8 padding_length,
-    ZyanBool force_sign, const ZyanString* prefix)
+    ZyanBool force_sign, const ZyanStringView* prefix)
 {
     if (value < 0)
     {
@@ -498,7 +483,7 @@ ZyanStatus ZyanStringAppendHexU(ZyanString* string, ZyanU64 value, ZyanU8 paddin
 }
 
 ZyanStatus ZyanStringAppendHexS(ZyanString* string, ZyanI64 value, ZyanU8 padding_length,
-    ZyanBool uppercase, ZyanBool force_sign, const ZyanString* prefix)
+    ZyanBool uppercase, ZyanBool force_sign, const ZyanStringView* prefix)
 {
     if (value < 0)
     {

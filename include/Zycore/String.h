@@ -26,12 +26,7 @@
 
 /**
  * @file
- * @brief   Implements the string type.
- *
- * The `ZyanString` type is implemented as a size-prefixed string - which allows for a lot of
- * performance optimizations in different situations.
- * Nevertheless null-termination is guaranteed at all times to provide maximum compatibility with
- * default C-style strings (use `ZyanStringUnwrap` to access the C-style string).
+ * @brief   Implements a string type.
  */
 
 #ifndef ZYCORE_STRING_H
@@ -81,16 +76,9 @@ extern "C" {
 typedef ZyanU8 ZyanStringFlags;
 
 /**
- * @brief   The string is immutable and can't be modified.
- *
- *  This flag is set by default for all wrapped C-style strings (created by `ZYAN_STRING_WRAP`,
- *  `ZyanStringWrap`).
- */
-#define ZYAN_STRING_IS_IMMUTABLE        0x01 // (1 << 0)
-/**
  * @brief   The string uses a custom user-defined buffer with a fixed capacity.
  */
-#define ZYAN_STRING_HAS_FIXED_CAPACITY  0x02 // (1 << 1)
+#define ZYAN_STRING_HAS_FIXED_CAPACITY  0x01 // (1 << 0)
 
 /* ---------------------------------------------------------------------------------------------- */
 /* String                                                                                         */
@@ -98,6 +86,11 @@ typedef ZyanU8 ZyanStringFlags;
 
 /**
  * @brief   Defines the `ZyanString` struct.
+ *
+ * The `ZyanString` type is implemented as a size-prefixed string - which allows for a lot of
+ * performance optimizations in different situations.
+ * Nevertheless null-termination is guaranteed at all times to provide maximum compatibility with
+ * default C-style strings (use `ZyanStringGetData` to access the C-style string).
  *
  * All fields in this struct should be considered as "private". Any changes may lead to unexpected
  * behavior.
@@ -109,10 +102,43 @@ typedef struct ZyanString_
      */
     ZyanStringFlags flags;
     /**
-     * @brief   The string that contains the actual string.
+     * @brief   The vector that contains the actual string.
      */
-    ZyanVector data;
+    ZyanVector vector;
 } ZyanString;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* View                                                                                           */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the `ZyanStringView` struct.
+ *
+ * The `ZyanStringView` struct provides a view inside a string (`ZyanString` instances,
+ * null-terminated C-style strings, or even not-null-terminated custom strings). A view is
+ * immutable by design and can't be directly converted to a C-style string.
+ *
+ * Views might become invalid (e.g. pointing to invalid memory), if the underlying string gets
+ * destroyed or resized.
+ *
+ * The `ZYAN_STRING_TO_VIEW` macro can be used to cast a `ZyanString` to a `ZyanStringView` pointer
+ * without any runtime overhead.
+ * Casting a view to a normal string is not supported and will lead to unexpected behavior (instead
+ * create a new empty string and just append the view).
+ *
+ * All fields in this struct should be considered as "private". Any changes may lead to unexpected
+ * behavior.
+ */
+typedef struct ZyanStringView_
+{
+    /**
+     * @brief   The string data.
+     *
+     * The view internally re-uses the normal string struct to allow casts without any runtime
+     * overhead.
+     */
+    ZyanString string;
+} ZyanStringView;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -125,24 +151,31 @@ typedef struct ZyanString_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Declares a `ZyanString` struct by wrapping a static C-style string.
- *
- * @param   string  The C-string.
- *
- * Strings declared with this macro are IMMUTABLE and do not need finalization.
+ * @brief   Casts a `ZyanString` pointer to a constant `ZyanStringView` pointer.
  */
-#define ZYAN_STRING_WRAP(string) \
+#define ZYAN_STRING_TO_VIEW(string) \
+    (const ZyanStringView*)(string)
+
+/**
+ * @brief   Declares a `ZyanStringView` struct by wrapping a static C-style string.
+ *
+ * @param   string  The C-style string.
+ */
+#define ZYAN_DECLARE_STRING_VIEW(string) \
     { \
-        /* flags */ ZYAN_STRING_IS_IMMUTABLE, \
-        /* data  */ \
+        /* string */ \
         { \
-            /* allocator        */ ZYAN_NULL, \
-            /* growth_factor    */ 1.0f, \
-            /* shrink_threshold */ 0.0f, \
-            /* size             */ sizeof(string), \
-            /* capacity         */ sizeof(string), \
-            /* element_size     */ sizeof(char), \
-            /* data             */ (char*)(string) \
+            /* vector */ 0, \
+            /* data  */ \
+            { \
+                /* allocator        */ ZYAN_NULL, \
+                /* growth_factor    */ 1.0f, \
+                /* shrink_threshold */ 0.0f, \
+                /* size             */ sizeof(string) + 1, \
+                /* capacity         */ sizeof(string) + 1, \
+                /* element_size     */ sizeof(char), \
+                /* data             */ (char*)(string) \
+            } \
         } \
     }
 
@@ -247,7 +280,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDestroy(ZyanString* string);
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringDuplicate(ZyanString* destination, const ZyanString* source,
+ZYCORE_EXPORT ZyanStatus ZyanStringDuplicate(ZyanString* destination, const ZyanStringView* source,
     ZyanUSize capacity);
 
 /**
@@ -274,8 +307,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicate(ZyanString* destination, const Zyan
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const ZyanString* source,
-    ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold);
+ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateEx(ZyanString* destination,
+    const ZyanStringView* source, ZyanUSize capacity, ZyanAllocator* allocator,
+    float growth_factor, float shrink_threshold);
 
 /**
  * @brief   Initializes a new `ZyanString` instance by duplicating an existing string and
@@ -295,7 +329,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const Zy
  * Finalization is not required for strings created by this function.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination,
-    const ZyanString* source, char* buffer, ZyanUSize capacity);
+    const ZyanStringView* source, char* buffer, ZyanUSize capacity);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Concatenation                                                                                  */
@@ -325,8 +359,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanString* s1,
-    const ZyanString* s2, ZyanUSize capacity);
+ZYCORE_EXPORT ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStringView* s1,
+    const ZyanStringView* s2, ZyanUSize capacity);
 
 /**
  * @brief   Initializes a new `ZyanString` instance by concatenating two existing strings and sets
@@ -356,8 +390,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStr
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanString* s1,
-    const ZyanString* s2, ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor,
+ZYCORE_EXPORT ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanStringView* s1,
+    const ZyanStringView* s2, ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor,
     float shrink_threshold);
 
 /**
@@ -380,38 +414,83 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanS
  *
  * Finalization is not required for strings created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination, const ZyanString* s1,
-    const ZyanString* s2, char* buffer, ZyanUSize capacity);
+ZYCORE_EXPORT ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination,
+    const ZyanStringView* s1, const ZyanStringView* s2, char* buffer, ZyanUSize capacity);
 
 /* ---------------------------------------------------------------------------------------------- */
-/* C-String helper                                                                                */
+/* Views                                                                                          */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Initializes the given `ZyanString` instance by wrapping a C-style string.
+ * @brief   Creates a new view into a null-terminated C-style string.
  *
- * @param   string  A pointer to the `ZyanString` instance.
- * @param   value   The C-style string.
+ * @param   view    A pointer to the `ZyanStringView` instance.
+ * @param   string  The C-style string.
  *
  * @return  A zyan status code.
- *
- * Strings created by this function are IMMUTABLE and do not need finalization.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringWrap(ZyanString* string, const char* value);
+ZYCORE_EXPORT ZyanStatus ZyanStringViewInit(ZyanStringView* view, const char* string);
 
 /**
- * @brief   Returns the C-style string of the given `ZyanString` instance.
+ * @brief   Creates a new view into a character buffer with custom length.
  *
- * @param   string  A pointer to the `ZyanString` instance.
- * @param   value   Receives a pointer to the C-style string.
+ * @param   view    A pointer to the `ZyanStringView` instance.
+ * @param   buffer  A pointer to the buffer containing the string characters.
+ * @param   length  The length of the string (in characters).
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringUnwrap(const ZyanString* string, const char** value);
+ZYCORE_EXPORT ZyanStatus ZyanStringViewInitEx(ZyanStringView* view, const char* buffer,
+    ZyanUSize length);
+
+/**
+ * @brief   Creates a new view into an existing string.
+ *
+ * @param   view    A pointer to the `ZyanStringView` instance.
+ * @param   string  A pointer to the `ZyanString` instance.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringViewFromString(ZyanStringView* view, const ZyanString* string);
+
+/**
+ * @brief   Creates a new view into an existing string starting from the given index `index`.
+ *
+ * @param   view    A pointer to the `ZyanStringView` instance.
+ * @param   string  A pointer to the `ZyanString` instance.
+ * @param   index   The start index.
+ * @param   count   The number of characters.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringViewFromStringEx(ZyanStringView* view, const ZyanString* string,
+    ZyanUSize index, ZyanUSize count);
+
+/**
+ * @brief   Returns the length of the view.
+ *
+ * @param   view    A pointer to the `ZyanStringView` instance.
+ * @param   size    Receives the size of the view.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringViewGetSize(const ZyanStringView* view, ZyanUSize* size);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Character access                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Returns the character at the given `index`.
+ *
+ * @param   string  A pointer to the `ZyanStringView` instance.
+ * @param   index   The character index.
+ * @param   value   Receives the desired character of the string.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringGetChar(const ZyanStringView* string, ZyanUSize index,
+    char* value);
 
 /**
  * @brief   Returns a pointer to the character at the given `index`.
@@ -421,24 +500,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringUnwrap(const ZyanString* string, const char**
  * @param   value   Receives a pointer to the desired character in the string.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringGetCharMutable(const ZyanString* string, ZyanUSize index,
+ZYCORE_EXPORT ZyanStatus ZyanStringGetCharMutable(ZyanString* string, ZyanUSize index,
     char** value);
-
-/**
- * @brief   Returns the character at the given `index`.
- *
- * @param   string  A pointer to the `ZyanString` instance.
- * @param   index   The character index.
- * @param   value   Receives the desired character of the string.
- *
- * @return  A zyan status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanStringGetChar(const ZyanString* string, ZyanUSize index,
-    char* value);
 
 /**
  * @brief   Assigns a new value to the character at the given `index`.
@@ -448,9 +512,6 @@ ZYCORE_EXPORT ZyanStatus ZyanStringGetChar(const ZyanString* string, ZyanUSize i
  * @param   value   The character to assign.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringSetChar(ZyanString* string, ZyanUSize index, char value);
 
@@ -466,12 +527,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringSetChar(ZyanString* string, ZyanUSize index, 
  * @param   source      The source string.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringInsert(ZyanString* destination, ZyanUSize index,
-    const ZyanString* source);
+    const ZyanStringView* source);
 
 /**
  * @brief   Inserts `count` characters of the source string in the destination string at the given
@@ -485,12 +543,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsert(ZyanString* destination, ZyanUSize ind
  * @param   count               The number of chars to insert from the source string.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringInsertEx(ZyanString* destination, ZyanUSize destination_index,
-    const ZyanString* source, ZyanUSize source_index, ZyanUSize count);
+    const ZyanStringView* source, ZyanUSize source_index, ZyanUSize count);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Appending                                                                                      */
@@ -503,11 +558,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertEx(ZyanString* destination, ZyanUSize d
  * @param   source      The source string.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringAppend(ZyanString* destination, const ZyanString* source);
+ZYCORE_EXPORT ZyanStatus ZyanStringAppend(ZyanString* destination, const ZyanStringView* source);
 
 /**
  * @brief   Appends `count` characters of the source string to the end of the destination string.
@@ -518,11 +570,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppend(ZyanString* destination, const ZyanStr
  * @param   count           The number of chars to append from the source string.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringAppendEx(ZyanString* destination, const ZyanString* source,
+ZYCORE_EXPORT ZyanStatus ZyanStringAppendEx(ZyanString* destination, const ZyanStringView* source,
     ZyanUSize source_index, ZyanUSize count);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -537,9 +586,6 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppendEx(ZyanString* destination, const ZyanS
  * @param   count   The number of characters to delete.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringDelete(ZyanString* string, ZyanUSize index, ZyanUSize count);
 
@@ -550,9 +596,6 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDelete(ZyanString* string, ZyanUSize index, Z
  * @param   index   The index of the first character to delete.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringTruncate(ZyanString* string, ZyanUSize index);
 
@@ -562,9 +605,6 @@ ZYCORE_EXPORT ZyanStatus ZyanStringTruncate(ZyanString* string, ZyanUSize index)
  * @param   string  A pointer to the `ZyanString` instance.
  *
  * @return  A zyan status code.
- *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
- * `ZyanString` instance.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringClear(ZyanString* string);
 
@@ -586,8 +626,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringClear(ZyanString* string);
  *
  * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringLPos(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index);
+ZYCORE_EXPORT ZyanStatus ZyanStringLPos(const ZyanStringView* haystack,
+    const ZyanStringView* needle, ZyanISize* found_index);
 
 /**
  * @brief   Searches for the first occurrence of `needle` in the given `haystack` starting from the
@@ -606,8 +646,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPos(const ZyanString* haystack, const ZyanSt
  *
  * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
+ZYCORE_EXPORT ZyanStatus ZyanStringLPosEx(const ZyanStringView* haystack,
+    const ZyanStringView* needle, ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /**
  * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
@@ -623,8 +663,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const Zyan
  *
  * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index);
+ZYCORE_EXPORT ZyanStatus ZyanStringLPosI(const ZyanStringView* haystack,
+    const ZyanStringView* needle, ZyanISize* found_index);
 
 /**
  * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
@@ -643,8 +683,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanS
  *
  * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
+ZYCORE_EXPORT ZyanStatus ZyanStringLPosIEx(const ZyanStringView* haystack,
+    const ZyanStringView* needle, ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /**
  * @brief   Searches for the first occurrence of `needle` in the given `haystack` starting from the
@@ -660,8 +700,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const Zya
  *
  * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringRPos(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index);
+ZYCORE_EXPORT ZyanStatus ZyanStringRPos(const ZyanStringView* haystack,
+    const ZyanStringView* needle, ZyanISize* found_index);
 
 /**
  * @brief   Searches for the first occurrence of `needle` in the given `haystack` starting from the
@@ -680,8 +720,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPos(const ZyanString* haystack, const ZyanSt
  *
  * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
+ZYCORE_EXPORT ZyanStatus ZyanStringRPosEx(const ZyanStringView* haystack,
+    const ZyanStringView* needle, ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /**
  * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
@@ -697,8 +737,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const Zyan
  *
  * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index);
+ZYCORE_EXPORT ZyanStatus ZyanStringRPosI(const ZyanStringView* haystack,
+    const ZyanStringView* needle, ZyanISize* found_index);
 
 /**
  * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
@@ -717,8 +757,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanS
  *
  * The `found_index` is set to `-1`, if the needle was not found.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needle,
-    ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
+ZYCORE_EXPORT ZyanStatus ZyanStringRPosIEx(const ZyanStringView* haystack,
+    const ZyanStringView* needle, ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Comparing                                                                                      */
@@ -741,7 +781,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const Zya
  * @return  `ZYAN_STATUS_TRUE`, if the strings are equal, `ZYAN_STATUS_FALSE`, if not, or another
  *          zyan status code, if an error occured.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringCompare(const ZyanString* s1, const ZyanString* s2,
+ZYCORE_EXPORT ZyanStatus ZyanStringCompare(const ZyanStringView* s1, const ZyanStringView* s2,
     ZyanI32* result);
 
 /**
@@ -761,7 +801,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringCompare(const ZyanString* s1, const ZyanStrin
  * @return  `ZYAN_STATUS_TRUE`, if the strings are equal, `ZYAN_STATUS_FALSE`, if not, or another
  *          zyan status code, if an error occured.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringCompareI(const ZyanString* s1, const ZyanString* s2,
+ZYCORE_EXPORT ZyanStatus ZyanStringCompareI(const ZyanStringView* s1, const ZyanStringView* s2,
     ZyanI32* result);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -897,6 +937,16 @@ ZYCORE_EXPORT ZyanStatus ZyanStringGetSize(const ZyanString* string, ZyanUSize* 
  * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringGetCapacity(const ZyanString* string, ZyanUSize* capacity);
+
+/**
+ * @brief   Returns the C-style string of the given `ZyanString` instance.
+ *
+ * @param   string  A pointer to the `ZyanString` instance.
+ * @param   value   Receives a pointer to the C-style string.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringGetData(const ZyanString* string, const char** value);
 
 /* ---------------------------------------------------------------------------------------------- */
 

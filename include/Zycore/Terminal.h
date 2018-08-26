@@ -131,6 +131,12 @@ typedef enum ZyanStandardStream_
  * @param   stream  Either `ZYAN_STDSTREAM_OUT` or `ZYAN_STDSTREAM_ERR`.
  *
  * @return  A zyan status code.
+ *
+ * This functions returns `ZYAN_STATUS_SUCCESS` on all non-Windows systems without performing any
+ * operations, assuming that VT100 is supported by default.
+ *
+ * On Windows systems, VT100 functionality is only supported on Windows 10 build 1607 (anniversary
+ * update) and later.
  */
 ZYCORE_EXPORT ZyanStatus ZyanTerminalEnableVT100(ZyanStandardStream stream);
 

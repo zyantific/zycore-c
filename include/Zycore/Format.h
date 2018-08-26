@@ -201,7 +201,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppendDecU(ZyanString* string, ZyanU64 value,
  * `ZyanString` instance.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringAppendDecS(ZyanString* string, ZyanI64 value,
-    ZyanU8 padding_length, ZyanBool force_sign, const ZyanString* prefix);
+    ZyanU8 padding_length, ZyanBool force_sign, const ZyanStringView* prefix);
 
 /**
  * @brief   Formats the given unsigned ordinal `value` to its hexadecimal text-representation and
@@ -241,7 +241,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppendHexU(ZyanString* string, ZyanU64 value,
  * `ZyanString` instance.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringAppendHexS(ZyanString* string, ZyanI64 value,
-    ZyanU8 padding_length, ZyanBool uppercase, ZyanBool force_sign, const ZyanString* prefix);
+    ZyanU8 padding_length, ZyanBool uppercase, ZyanBool force_sign, const ZyanStringView* prefix);
 
 /* ---------------------------------------------------------------------------------------------- */
 

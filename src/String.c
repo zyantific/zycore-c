@@ -25,7 +25,7 @@
 ***************************************************************************************************/
 
 #include <Zycore/String.h>
-#include "Zycore/LibC.h"
+#include <Zycore/LibC.h>
 
 /* ============================================================================================== */
 /* Internal macros                                                                                */
@@ -35,13 +35,13 @@
  * @brief   Writes a terminating '\0' character at the end of the string data.
  */
 #define ZYCORE_STRING_NULLTERMINATE(string) \
-      *(char*)((ZyanU8*)(string)->data.data + (string)->data.size - 1) = '\0';
+      *(char*)((ZyanU8*)(string)->vector.data + (string)->vector.size - 1) = '\0';
 
 /**
  * @brief   Checks for a terminating '\0' character at the end of the string data.
  */
 #define ZYCORE_STRING_ASSERT_NULLTERMINATION(string) \
-      ZYAN_ASSERT(*(char*)((ZyanU8*)(string)->data.data + (string)->data.size - 1) == '\0');
+      ZYAN_ASSERT(*(char*)((ZyanU8*)(string)->vector.data + (string)->vector.size - 1) == '\0');
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -67,33 +67,33 @@ ZyanStatus ZyanStringInitEx(ZyanString* string, ZyanUSize capacity, ZyanAllocato
 
     string->flags = 0;
     capacity = ZYAN_MAX(ZYAN_STRING_MIN_CAPACITY, capacity) + 1;
-    ZYAN_CHECK(ZyanVectorInitEx(&string->data, sizeof(char), capacity, allocator,
+    ZYAN_CHECK(ZyanVectorInitEx(&string->vector, sizeof(char), capacity, allocator,
         growth_factor, shrink_threshold));
-    ZYAN_ASSERT(string->data.capacity >= capacity);
+    ZYAN_ASSERT(string->vector.capacity >= capacity);
     // Some of the string code relies on `sizeof(char) == 1`
-    ZYAN_ASSERT(string->data.element_size == 1);
+    ZYAN_ASSERT(string->vector.element_size == 1);
 
-    *(char*)string->data.data = '\0';
-    ++string->data.size;
+    *(char*)string->vector.data = '\0';
+    ++string->vector.size;
 
     return ZYAN_STATUS_SUCCESS;
 }
 
 ZyanStatus ZyanStringInitCustomBuffer(ZyanString* string, char* buffer, ZyanUSize capacity)
 {
-    if (!string)
+    if (!string || !capacity)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    string->flags = ZYAN_STRING_HAS_FIXED_CAPACITY;;
-    ZYAN_CHECK(ZyanVectorInitCustomBuffer(&string->data, sizeof(char), (void*)buffer, capacity));
-    ZYAN_ASSERT(string->data.capacity >= capacity);
+    string->flags = ZYAN_STRING_HAS_FIXED_CAPACITY;
+    ZYAN_CHECK(ZyanVectorInitCustomBuffer(&string->vector, sizeof(char), (void*)buffer, capacity));
+    ZYAN_ASSERT(string->vector.capacity == capacity);
     // Some of the string code relies on `sizeof(char) == 1`
-    ZYAN_ASSERT(string->data.element_size == 1);
+    ZYAN_ASSERT(string->vector.element_size == 1);
 
-    *(char*)string->data.data = '\0';
-    ++string->data.size;
+    *(char*)string->vector.data = '\0';
+    ++string->vector.size;
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -104,71 +104,67 @@ ZyanStatus ZyanStringDestroy(ZyanString* string)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
+    if (string->flags & ZYAN_STRING_HAS_FIXED_CAPACITY)
     {
         return ZYAN_STATUS_SUCCESS;
     }
 
-    return ZyanVectorDestroy(&string->data);
+    return ZyanVectorDestroy(&string->vector);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Duplication                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringDuplicate(ZyanString* destination, const ZyanString* source,
+ZyanStatus ZyanStringDuplicate(ZyanString* destination, const ZyanStringView* source,
     ZyanUSize capacity)
 {
     return ZyanStringDuplicateEx(destination, source, capacity, ZyanAllocatorDefault(),
         ZYAN_STRING_DEFAULT_GROWTH_FACTOR, ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD);
 }
 
-ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const ZyanString* source,
+ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const ZyanStringView* source,
     ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold)
 {
-    if (!source)
+    if (!source || !source->string.vector.size)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZYAN_ASSERT(source->data.size >= 1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(source);
-    const ZyanUSize len = source->data.size;
-
+    const ZyanUSize len = source->string.vector.size;
     capacity = ZYAN_MAX(capacity, len - 1);
     ZYAN_CHECK(ZyanStringInitEx(destination, capacity, allocator, growth_factor, shrink_threshold));
-    ZYAN_ASSERT(destination->data.capacity >= len);
+    ZYAN_ASSERT(destination->vector.capacity >= len);
 
-    ZYAN_MEMCPY(destination->data.data, source->data.data, source->data.size);
-    destination->data.size = len;
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
+    ZYAN_MEMCPY(destination->vector.data, source->string.vector.data,
+        source->string.vector.size - 1);
+    destination->vector.size = len;
+    ZYCORE_STRING_NULLTERMINATE(destination);
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination, const ZyanString* source,
+ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination, const ZyanStringView* source,
     char* buffer, ZyanUSize capacity)
 {
-    if (!source)
+    if (!source || !source->string.vector.size)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZYAN_ASSERT(source->data.size >= 1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(source);
-    const ZyanUSize len = source->data.size;
-
+    const ZyanUSize len = source->string.vector.size;
     if (capacity < len)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     ZYAN_CHECK(ZyanStringInitCustomBuffer(destination, buffer, capacity));
-    ZYAN_ASSERT(destination->data.capacity >= len);
+    ZYAN_ASSERT(destination->vector.capacity >= len);
 
-    ZYAN_MEMCPY(destination->data.data, source->data.data, source->data.size);
-    destination->data.size = len;
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
+    ZYAN_MEMCPY(destination->vector.data, source->string.vector.data,
+        source->string.vector.size - 1);
+    destination->vector.size = len;
+    ZYCORE_STRING_NULLTERMINATE(destination);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -177,103 +173,133 @@ ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination, const ZyanSt
 /* Concatenation                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanString* s1, const ZyanString* s2,
-    ZyanUSize capacity)
+ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStringView* s1,
+    const ZyanStringView* s2, ZyanUSize capacity)
 {
     return ZyanStringConcatEx(destination, s1, s2, capacity, ZyanAllocatorDefault(),
         ZYAN_STRING_DEFAULT_GROWTH_FACTOR, ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD);
 }
 
-ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanString* s1, const ZyanString* s2,
-    ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold)
+ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanStringView* s1,
+    const ZyanStringView* s2, ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor,
+    float shrink_threshold)
 {
-    if (!s1 || !s2 || (destination == s1) || (destination == s2))
+    if (!s1 || !s2 || !s1->string.vector.size || !s2->string.vector.size)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZYAN_ASSERT(s1->data.size >= 1);
-    ZYAN_ASSERT(s2->data.size >= 1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(s1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(s2);
-    const ZyanUSize len = s1->data.size + s2->data.size - 1;
-
-    capacity = ZYAN_MAX(capacity, len - 1);
+    const ZyanUSize len = s1->string.vector.size + s2->string.vector.size - 2;
+    capacity = ZYAN_MAX(capacity, len);
     ZYAN_CHECK(ZyanStringInitEx(destination, capacity, allocator, growth_factor, shrink_threshold));
-    ZYAN_ASSERT(destination->data.capacity >= len);
+    ZYAN_ASSERT(destination->vector.capacity >= len);
 
-    ZYAN_MEMCPY(destination->data.data, s1->data.data, s1->data.size - 1);
-    ZYAN_MEMCPY((char*)destination->data.data + s1->data.size - 1, s2->data.data, s2->data.size);
-    destination->data.size = len;
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
+    ZYAN_MEMCPY(destination->vector.data, s1->string.vector.data, s1->string.vector.size - 1);
+    ZYAN_MEMCPY((char*)destination->vector.data + s1->string.vector.size - 1,
+        s2->string.vector.data, s2->string.vector.size - 1);
+    destination->vector.size = len;
+    ZYCORE_STRING_NULLTERMINATE(destination);
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination, const ZyanString* s1,
-    const ZyanString* s2, char* buffer, ZyanUSize capacity)
+ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination, const ZyanStringView* s1,
+    const ZyanStringView* s2, char* buffer, ZyanUSize capacity)
 {
-    if (!s1 || !s2 || (destination == s1) || (destination == s2))
+    if (!s1 || !s2 || !s1->string.vector.size || !s2->string.vector.size)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZYAN_ASSERT(s1->data.size >= 1);
-    ZYAN_ASSERT(s2->data.size >= 1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(s1);
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(s2);
-    const ZyanUSize len = s1->data.size + s2->data.size - 1;
-
+    const ZyanUSize len = s1->string.vector.size + s2->string.vector.size - 2;
     if (capacity < len)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     ZYAN_CHECK(ZyanStringInitCustomBuffer(destination, buffer, capacity));
-    ZYAN_ASSERT(destination->data.capacity >= len);
+    ZYAN_ASSERT(destination->vector.capacity >= len);
 
-    ZYAN_MEMCPY(destination->data.data, s1->data.data, s1->data.size - 1);
-    ZYAN_MEMCPY((char*)destination->data.data + s1->data.size - 1, s2->data.data, s2->data.size);
-    destination->data.size = len;
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
+    ZYAN_MEMCPY(destination->vector.data, s1->string.vector.data, s1->string.vector.size - 1);
+    ZYAN_MEMCPY((char*)destination->vector.data + s1->string.vector.size - 1,
+        s2->string.vector.data, s2->string.vector.size - 1);
+    destination->vector.size = len;
+    ZYCORE_STRING_NULLTERMINATE(destination);
 
     return ZYAN_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-/* C-String helper                                                                                */
+/* Views                                                                                          */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringWrap(ZyanString* string, const char* value)
+ZyanStatus ZyanStringViewInit(ZyanStringView* view, const char* string)
 {
-    if (!string)
+    if (!view || !string)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    string->flags                   = ZYAN_STRING_IS_IMMUTABLE;
-    string->data.allocator          = ZYAN_NULL;
-    string->data.growth_factor      = 1.0f;
-    string->data.shrink_threshold   = 0.0f;
-    string->data.size               = ZYAN_STRLEN(value) + 1;
-    string->data.capacity           = string->data.size;
-    string->data.element_size       = sizeof(char);
-    string->data.data               = (void*)value;
-
-    // Some of the string code relies on `sizeof(char) == 1`
-    ZYAN_ASSERT(string->data.element_size == 1);
+    view->string.vector.data = (void*)string;
+    view->string.vector.size = ZYAN_STRLEN(string) + 1;
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanStringUnwrap(const ZyanString* string, const char** value)
+ZyanStatus ZyanStringViewInitEx(ZyanStringView* view, const char* buffer, ZyanUSize length)
 {
-    if (!string)
+    if (!view || !buffer || !length)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    *value = string->data.data;
+    view->string.vector.data = (void*)buffer;
+    view->string.vector.size = length + 1;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringViewFromString(ZyanStringView* view, const ZyanString* string)
+{
+    if (!view || !string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    view->string.vector.data = string->vector.data;
+    view->string.vector.size = string->vector.size;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringViewFromStringEx(ZyanStringView* view, const ZyanString* string,
+    ZyanUSize index, ZyanUSize count)
+{
+    if (!view || !string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (index + count >= string->vector.size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    view->string.vector.data = (void*)((char*)string->vector.data + index);
+    view->string.vector.size = count;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringViewGetSize(const ZyanStringView* view, ZyanUSize* size)
+{
+    if (!view || !size)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    ZYAN_ASSERT(view->string.vector.size >= 1);
+    *size = view->string.vector.size - 1;
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -282,28 +308,7 @@ ZyanStatus ZyanStringUnwrap(const ZyanString* string, const char** value)
 /* Character access                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringGetCharMutable(const ZyanString* string, ZyanUSize index, char** value)
-{
-    if (!string)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
-    // Don't allow direct access to the terminating '\0' character
-    if (index + 1 >= string->data.size)
-    {
-        return ZYAN_STATUS_OUT_OF_RANGE;
-    }
-
-    return ZyanVectorGetElementMutable(&string->data, index, (void**)value);
-}
-
-ZyanStatus ZyanStringGetChar(const ZyanString* string, ZyanUSize index, char* value)
+ZyanStatus ZyanStringGetChar(const ZyanStringView* string, ZyanUSize index, char* value)
 {
     if (!string)
     {
@@ -311,16 +316,32 @@ ZyanStatus ZyanStringGetChar(const ZyanString* string, ZyanUSize index, char* va
     }
 
     // Don't allow direct access to the terminating '\0' character
-    if (index + 1 >= string->data.size)
+    if (index + 1 >= string->string.vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
     const char* c;
-    ZYAN_CHECK(ZyanVectorGetElement(&string->data, index, (const void**)&c));
+    ZYAN_CHECK(ZyanVectorGetElement(&string->string.vector, index, (const void**)&c));
     *value = *c;
 
     return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringGetCharMutable(ZyanString* string, ZyanUSize index, char** value)
+{
+    if (!string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    // Don't allow direct access to the terminating '\0' character
+    if (index + 1 >= string->vector.size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    return ZyanVectorGetElementMutable(&string->vector, index, (void**)value);
 }
 
 ZyanStatus ZyanStringSetChar(ZyanString* string, ZyanUSize index, char value)
@@ -330,86 +351,71 @@ ZyanStatus ZyanStringSetChar(ZyanString* string, ZyanUSize index, char value)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     // Don't allow direct access to the terminating '\0' character
-    if (index + 1 >= string->data.size)
+    if (index + 1 >= string->vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    return ZyanVectorSetElement(&string->data, index, (void*)&value);
+    return ZyanVectorSetElement(&string->vector, index, (void*)&value);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Insertion                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringInsert(ZyanString* destination, ZyanUSize index, const ZyanString* source)
+ZyanStatus ZyanStringInsert(ZyanString* destination, ZyanUSize index, const ZyanStringView* source)
 {
-    if (!destination || !source)
+    if (!destination || !source || !source->string.vector.size)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (index == destination->data.size)
+    if (index == destination->vector.size)
     {
         return ZyanStringAppend(destination, source);
     }
 
-    if (destination->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     // Don't allow insertion after the terminating '\0' character
-    if (index >= destination->data.size)
+    if (index >= destination->vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorInsertEx(&destination->data, index, source->data.data,
-        source->data.size - 1));
+    ZYAN_CHECK(ZyanVectorInsertEx(&destination->vector, index, source->string.vector.data,
+        source->string.vector.size - 1));
     ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
 
     return ZYAN_STATUS_SUCCESS;
 }
 
 ZyanStatus ZyanStringInsertEx(ZyanString* destination, ZyanUSize destination_index,
-    const ZyanString* source, ZyanUSize source_index, ZyanUSize count)
+    const ZyanStringView* source, ZyanUSize source_index, ZyanUSize count)
 {
-    if (!destination || !source)
+    if (!destination || !source || !source->string.vector.size)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (destination_index == destination->data.size)
+    if (destination_index == destination->vector.size)
     {
         return ZyanStringAppendEx(destination, source, source_index, count);
     }
 
-    if (destination->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     // Don't allow insertion after the terminating '\0' character
-    if (destination_index >= destination->data.size)
+    if (destination_index >= destination->vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
     // Don't allow access to the terminating '\0' character
-    if (source_index + count >= source->data.size)
+    if (source_index + count >= source->string.vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorInsertEx(&destination->data, destination_index,
-        (char*)source->data.data + source_index, count));
+    ZYAN_CHECK(ZyanVectorInsertEx(&destination->vector, destination_index,
+        (char*)source->string.vector.data + source_index, count));
     ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
 
     return ZYAN_STATUS_SUCCESS;
@@ -419,50 +425,40 @@ ZyanStatus ZyanStringInsertEx(ZyanString* destination, ZyanUSize destination_ind
 /* Appending                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringAppend(ZyanString* destination, const ZyanString* source)
+ZyanStatus ZyanStringAppend(ZyanString* destination, const ZyanStringView* source)
 {
-    if (!destination || !source)
+    if (!destination || !source || !source->string.vector.size)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (destination->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
-    // Decrease the size of the vector to avoid shifting and copy the terminating '\0' from the
-    // source string instead
-    ZYAN_CHECK(ZyanVectorInsertEx(&destination->data, --destination->data.size, source->data.data,
-        source->data.size));
-    ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
+    const ZyanUSize len = destination->vector.size;
+    ZYAN_CHECK(ZyanVectorResize(&destination->vector, len + source->string.vector.size - 1));
+    ZYAN_MEMCPY((char*)destination->vector.data + len - 1, source->string.vector.data,
+        source->string.vector.size - 1);
+    ZYCORE_STRING_NULLTERMINATE(destination);
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanStringAppendEx(ZyanString* destination, const ZyanString* source,
+ZyanStatus ZyanStringAppendEx(ZyanString* destination, const ZyanStringView* source,
     ZyanUSize source_index, ZyanUSize count)
 {
-    if (!destination || !source)
+    if (!destination || !source || !source->string.vector.size)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (destination->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     // Don't allow access to the terminating '\0' character
-    if (source_index + count >= source->data.size)
+    if (source_index + count >= source->string.vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    // Decrease the size of the vector to avoid shifting and add the terminating '\0' later. We
-    // insert one additional character from the source stream to make sure we have enough space.
-    ZYAN_CHECK(ZyanVectorInsertEx(&destination->data, --destination->data.size,
-        (char*)source->data.data + source_index, count + 1));
+    const ZyanUSize len = destination->vector.size;
+    ZYAN_CHECK(ZyanVectorResize(&destination->vector, len + count));
+    ZYAN_MEMCPY((char*)destination->vector.data + len - 1,
+        (const char*)source->string.vector.data + source_index, count);
     ZYCORE_STRING_NULLTERMINATE(destination);
 
     return ZYAN_STATUS_SUCCESS;
@@ -479,18 +475,13 @@ ZyanStatus ZyanStringDelete(ZyanString* string, ZyanUSize index, ZyanUSize count
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     // Don't allow removal of the terminating '\0' character
-    if (index + count >= string->data.size)
+    if (index + count >= string->vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorDeleteEx(&string->data, index, count));
+    ZYAN_CHECK(ZyanVectorDeleteEx(&string->vector, index, count));
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -503,18 +494,13 @@ ZyanStatus ZyanStringTruncate(ZyanString* string, ZyanUSize index)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     // Don't allow removal of the terminating '\0' character
-    if (index >= string->data.size)
+    if (index >= string->vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorDeleteEx(&string->data, index, string->data.size - index - 1));
+    ZYAN_CHECK(ZyanVectorDeleteEx(&string->vector, index, string->vector.size - index - 1));
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -527,17 +513,12 @@ ZyanStatus ZyanStringClear(ZyanString* string)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
-    ZYAN_CHECK(ZyanVectorClear(&string->data));
+    ZYAN_CHECK(ZyanVectorClear(&string->vector));
     // `ZyanVector` guarantees a minimum capacity of 1 element/character
-    ZYAN_ASSERT(string->data.capacity >= 1);
+    ZYAN_ASSERT(string->vector.capacity >= 1);
 
-    *(char*)string->data.data = '\0';
-    string->data.size++;
+    *(char*)string->vector.data = '\0';
+    string->vector.size++;
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -546,7 +527,7 @@ ZyanStatus ZyanStringClear(ZyanString* string)
 /* Searching                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringLPos(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringLPos(const ZyanStringView* haystack, const ZyanStringView* needle,
     ZyanISize* found_index)
 {
     if (!haystack)
@@ -554,10 +535,10 @@ ZyanStatus ZyanStringLPos(const ZyanString* haystack, const ZyanString* needle,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanStringLPosEx(haystack, needle, found_index, 0, haystack->data.size - 1);
+    return ZyanStringLPosEx(haystack, needle, found_index, 0, haystack->string.vector.size - 1);
 }
 
-ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringLPosEx(const ZyanStringView* haystack, const ZyanStringView* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
     if (!haystack || !needle || !found_index)
@@ -566,21 +547,21 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
     }
 
     // Don't allow access to the terminating '\0' character
-    if (index + count >= haystack->data.size)
+    if (index + count >= haystack->string.vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    if ((haystack->data.size == 1) || (needle->data.size == 1) ||
-        (haystack->data.size < needle->data.size))
+    if ((haystack->string.vector.size == 1) || (needle->string.vector.size == 1) ||
+        (haystack->string.vector.size < needle->string.vector.size))
     {
         *found_index = -1;
         return ZYAN_STATUS_FALSE;
     }
 
-    const char* s = (const char*)haystack->data.data + index;
-    const char* b = (const char*)needle->data.data;
-    for (; s != 0; ++s)
+    const char* s = (const char*)haystack->string.vector.data + index;
+    const char* b = (const char*)needle->string.vector.data;
+    for (; s + 1 < (const char*)haystack->string.vector.data + haystack->string.vector.size; ++s)
     {
         if (*s != *b)
         {
@@ -589,14 +570,14 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
         const char* a = s;
         for (;;)
         {
-            if ((ZyanUSize)(a - (const char*)haystack->data.data) > index + count)
+            if ((ZyanUSize)(a - (const char*)haystack->string.vector.data) > index + count)
             {
                 *found_index = -1;
                 return ZYAN_STATUS_FALSE;
             }
             if (*b == 0)
             {
-                *found_index = (ZyanISize)(s - (const char*)haystack->data.data);
+                *found_index = (ZyanISize)(s - (const char*)haystack->string.vector.data);
                 return ZYAN_STATUS_TRUE;
             }
             if (*a++ != *b++)
@@ -604,14 +585,14 @@ ZyanStatus ZyanStringLPosEx(const ZyanString* haystack, const ZyanString* needle
                 break;
             }
         }
-        b = (char*)needle->data.data;
+        b = (char*)needle->string.vector.data;
     }
 
     *found_index = -1;
     return ZYAN_STATUS_FALSE;
 }
 
-ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringLPosI(const ZyanStringView* haystack, const ZyanStringView* needle,
     ZyanISize* found_index)
 {
     if (!haystack)
@@ -619,10 +600,10 @@ ZyanStatus ZyanStringLPosI(const ZyanString* haystack, const ZyanString* needle,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanStringLPosIEx(haystack, needle, found_index, 0, haystack->data.size - 1);
+    return ZyanStringLPosIEx(haystack, needle, found_index, 0, haystack->string.vector.size - 1);
 }
 
-ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringLPosIEx(const ZyanStringView* haystack, const ZyanStringView* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
     // This solution assumes that characters are represented using ASCII representation, i.e.,
@@ -635,21 +616,21 @@ ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needl
     }
 
     // Don't allow access to the terminating '\0' character
-    if (index + count >= haystack->data.size)
+    if (index + count >= haystack->string.vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    if ((haystack->data.size == 1) || (needle->data.size == 1) ||
-        (haystack->data.size < needle->data.size))
+    if ((haystack->string.vector.size == 1) || (needle->string.vector.size == 1) ||
+        (haystack->string.vector.size < needle->string.vector.size))
     {
         *found_index = -1;
         return ZYAN_STATUS_FALSE;
     }
 
-    const char* s = (const char*)haystack->data.data + index;
-    const char* b = (const char*)needle->data.data;
-    for (; s != 0; ++s)
+    const char* s = (const char*)haystack->string.vector.data + index;
+    const char* b = (const char*)needle->string.vector.data;
+    for (; s + 1 < (const char*)haystack->string.vector.data + haystack->string.vector.size; ++s)
     {
         if ((*s != *b) && ((*s ^ 32) != *b))
         {
@@ -658,14 +639,14 @@ ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needl
         const char* a = s;
         for (;;)
         {
-            if ((ZyanUSize)(a - (const char*)haystack->data.data) > index + count)
+            if ((ZyanUSize)(a - (const char*)haystack->string.vector.data) > index + count)
             {
                 *found_index = -1;
                 return ZYAN_STATUS_FALSE;
             }
             if (*b == 0)
             {
-                *found_index = (ZyanISize)(s - (const char*)haystack->data.data);
+                *found_index = (ZyanISize)(s - (const char*)haystack->string.vector.data);
                 return ZYAN_STATUS_TRUE;
             }
             const char c1 = *a++;
@@ -675,14 +656,14 @@ ZyanStatus ZyanStringLPosIEx(const ZyanString* haystack, const ZyanString* needl
                 break;
             }
         }
-        b = (char*)needle->data.data;
+        b = (char*)needle->string.vector.data;
     }
 
     *found_index = -1;
     return ZYAN_STATUS_FALSE;
 }
 
-ZyanStatus ZyanStringRPos(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringRPos(const ZyanStringView* haystack, const ZyanStringView* needle,
     ZyanISize* found_index)
 {
     if (!haystack)
@@ -690,11 +671,11 @@ ZyanStatus ZyanStringRPos(const ZyanString* haystack, const ZyanString* needle,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanStringRPosEx(haystack, needle, found_index, haystack->data.size - 1,
-        haystack->data.size - 1);
+    return ZyanStringRPosEx(haystack, needle, found_index, haystack->string.vector.size - 1,
+        haystack->string.vector.size - 1);
 }
 
-ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringRPosEx(const ZyanStringView* haystack, const ZyanStringView* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
     if (!haystack || !needle || !found_index)
@@ -703,22 +684,22 @@ ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle
     }
 
     // Don't allow access to the terminating '\0' character
-    if ((index >= haystack->data.size) || (count > index))
+    if ((index >= haystack->string.vector.size) || (count > index))
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
     if (!index || !count ||
-        (haystack->data.size == 1) || (needle->data.size == 1) ||
-        (haystack->data.size < needle->data.size))
+        (haystack->string.vector.size == 1) || (needle->string.vector.size == 1) ||
+        (haystack->string.vector.size < needle->string.vector.size))
     {
         *found_index = -1;
         return ZYAN_STATUS_FALSE;
     }
 
-    const char* s = (const char*)haystack->data.data + index - 1;
-    const char* b = (const char*)needle->data.data + needle->data.size - 2;
-    for (; s >= (char*)haystack->data.data; --s)
+    const char* s = (const char*)haystack->string.vector.data + index - 1;
+    const char* b = (const char*)needle->string.vector.data + needle->string.vector.size - 2;
+    for (; s >= (const char*)haystack->string.vector.data; --s)
     {
         if (*s != *b)
         {
@@ -727,12 +708,12 @@ ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle
         const char* a = s;
         for (;;)
         {
-            if (b < (const char*)needle->data.data)
+            if (b < (const char*)needle->string.vector.data)
             {
-                *found_index = (ZyanISize)(a - (const char*)haystack->data.data);
+                *found_index = (ZyanISize)(a - (const char*)haystack->string.vector.data + 1);
                 return ZYAN_STATUS_TRUE;
             }
-            if (a < (const char*)haystack->data.data + index - count)
+            if (a < (const char*)haystack->string.vector.data + index - count)
             {
                 *found_index = -1;
                 return ZYAN_STATUS_FALSE;
@@ -742,14 +723,14 @@ ZyanStatus ZyanStringRPosEx(const ZyanString* haystack, const ZyanString* needle
                 break;
             }
         }
-        b = (char*)needle->data.data + needle->data.size - 2;
+        b = (char*)needle->string.vector.data + needle->string.vector.size - 2;
     }
 
     *found_index = -1;
     return ZYAN_STATUS_FALSE;
 }
 
-ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringRPosI(const ZyanStringView* haystack, const ZyanStringView* needle,
     ZyanISize* found_index)
 {
     if (!haystack)
@@ -757,11 +738,11 @@ ZyanStatus ZyanStringRPosI(const ZyanString* haystack, const ZyanString* needle,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanStringRPosIEx(haystack, needle, found_index, haystack->data.size - 1,
-        haystack->data.size - 1);
+    return ZyanStringRPosIEx(haystack, needle, found_index, haystack->string.vector.size - 1,
+        haystack->string.vector.size - 1);
 }
 
-ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needle,
+ZyanStatus ZyanStringRPosIEx(const ZyanStringView* haystack, const ZyanStringView* needle,
     ZyanISize* found_index, ZyanUSize index, ZyanUSize count)
 {
     // This solution assumes that characters are represented using ASCII representation, i.e.,
@@ -774,22 +755,22 @@ ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needl
     }
 
     // Don't allow access to the terminating '\0' character
-    if ((index >= haystack->data.size) || (count > index))
+    if ((index >= haystack->string.vector.size) || (count > index))
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
     if (!index || !count ||
-        (haystack->data.size == 1) || (needle->data.size == 1) ||
-        (haystack->data.size < needle->data.size))
+        (haystack->string.vector.size == 1) || (needle->string.vector.size == 1) ||
+        (haystack->string.vector.size < needle->string.vector.size))
     {
         *found_index = -1;
         return ZYAN_STATUS_FALSE;
     }
 
-    const char* s = (const char*)haystack->data.data + index - 1;
-    const char* b = (const char*)needle->data.data + needle->data.size - 2;
-    for (; s >= (char*)haystack->data.data; --s)
+    const char* s = (const char*)haystack->string.vector.data + index - 1;
+    const char* b = (const char*)needle->string.vector.data + needle->string.vector.size - 2;
+    for (; s >= (const char*)haystack->string.vector.data; --s)
     {
         if ((*s != *b) && ((*s ^ 32) != *b))
         {
@@ -798,12 +779,12 @@ ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needl
         const char* a = s;
         for (;;)
         {
-            if (b < (const char*)needle->data.data)
+            if (b < (const char*)needle->string.vector.data)
             {
-                *found_index = (ZyanISize)(a - (const char*)haystack->data.data);
+                *found_index = (ZyanISize)(a - (const char*)haystack->string.vector.data + 1);
                 return ZYAN_STATUS_TRUE;
             }
-            if (a < (const char*)haystack->data.data + index - count)
+            if (a < (const char*)haystack->string.vector.data + index - count)
             {
                 *found_index = -1;
                 return ZYAN_STATUS_FALSE;
@@ -815,7 +796,7 @@ ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needl
                 break;
             }
         }
-        b = (char*)needle->data.data + needle->data.size - 2;
+        b = (char*)needle->string.vector.data + needle->string.vector.size - 2;
     }
 
     *found_index = -1;
@@ -826,34 +807,53 @@ ZyanStatus ZyanStringRPosIEx(const ZyanString* haystack, const ZyanString* needl
 /* Comparing                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringCompare(const ZyanString* s1, const ZyanString* s2, ZyanI32* result)
+ZyanStatus ZyanStringCompare(const ZyanStringView* s1, const ZyanStringView* s2, ZyanI32* result)
 {
     if (!s1 || !s2)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (s1->data.size < s2->data.size)
+    if (s1->string.vector.size < s2->string.vector.size)
     {
         *result = -1;
         return ZYAN_STATUS_FALSE;
     }
-    if (s1->data.size > s2->data.size)
+    if (s1->string.vector.size > s2->string.vector.size)
     {
         *result =  1;
         return ZYAN_STATUS_FALSE;
     }
 
-    *result = ZYAN_STRCMP(s1->data.data, s2->data.data);
-    if (*result == 0)
+    const char* const a = (char*)s1->string.vector.data;
+    const char* const b = (char*)s2->string.vector.data;
+    ZyanUSize i;
+    for (i = 0; (i + 1 < s1->string.vector.size) && (i + 1 < s2->string.vector.size); ++i)
     {
+        if (a[i] == b[i])
+        {
+            continue;
+        }
+        break;
+    }
+
+    if (a[i] == b[i])
+    {
+        *result = 0;
         return ZYAN_STATUS_TRUE;
     }
 
+    if ((a[i] | 32) < (b[i] | 32))
+    {
+        *result = -1;
+        return ZYAN_STATUS_FALSE;
+    }
+
+    *result = 1;
     return ZYAN_STATUS_FALSE;
 }
 
-ZyanStatus ZyanStringCompareI(const ZyanString* s1, const ZyanString* s2, ZyanI32* result)
+ZyanStatus ZyanStringCompareI(const ZyanStringView* s1, const ZyanStringView* s2, ZyanI32* result)
 {
     // This solution assumes that characters are represented using ASCII representation, i.e.,
     // codes for 'a', 'b', 'c', .. 'z' are 97, 98, 99, .. 122 respectively. And codes for 'A',
@@ -864,21 +864,21 @@ ZyanStatus ZyanStringCompareI(const ZyanString* s1, const ZyanString* s2, ZyanI3
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (s1->data.size < s2->data.size)
+    if (s1->string.vector.size < s2->string.vector.size)
     {
         *result = -1;
         return ZYAN_STATUS_FALSE;
     }
-    if (s1->data.size > s2->data.size)
+    if (s1->string.vector.size > s2->string.vector.size)
     {
         *result =  1;
         return ZYAN_STATUS_FALSE;
     }
 
-    const char* const a = (char*)s1->data.data;
-    const char* const b = (char*)s2->data.data;
+    const char* const a = (char*)s1->string.vector.data;
+    const char* const b = (char*)s2->string.vector.data;
     ZyanUSize i;
-    for (i = 0; a[i] && b[i]; ++i)
+    for (i = 0; (i + 1 < s1->string.vector.size) && (i + 1 < s2->string.vector.size); ++i)
     {
         if ((a[i] == b[i]) || ((a[i] ^ 32) == b[i]))
         {
@@ -914,7 +914,7 @@ ZyanStatus ZyanStringToLowerCase(ZyanString* string)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanStringToLowerCaseEx(string, 0, string->data.size - 1);
+    return ZyanStringToLowerCaseEx(string, 0, string->vector.size - 1);
 }
 
 ZyanStatus ZyanStringToLowerCaseEx(ZyanString* string, ZyanUSize index, ZyanUSize count)
@@ -928,18 +928,13 @@ ZyanStatus ZyanStringToLowerCaseEx(ZyanString* string, ZyanUSize index, ZyanUSiz
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     // Don't allow access to the terminating '\0' character
-    if (index + count >= string->data.size)
+    if (index + count >= string->vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    char* s = (char*)string->data.data + index;
+    char* s = (char*)string->vector.data + index;
     for (ZyanUSize i = index; i < index + count; ++i)
     {
         const char c = *s;
@@ -960,7 +955,7 @@ ZyanStatus ZyanStringToUpperCase(ZyanString* string)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanStringToUpperCaseEx(string, 0, string->data.size - 1);
+    return ZyanStringToUpperCaseEx(string, 0, string->vector.size - 1);
 }
 
 ZyanStatus ZyanStringToUpperCaseEx(ZyanString* string, ZyanUSize index, ZyanUSize count)
@@ -974,18 +969,13 @@ ZyanStatus ZyanStringToUpperCaseEx(ZyanString* string, ZyanUSize index, ZyanUSiz
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
     // Don't allow access to the terminating '\0' character
-    if (index + count >= string->data.size)
+    if (index + count >= string->vector.size)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    char* s = (char*)string->data.data + index;
+    char* s = (char*)string->vector.data + index;
     for (ZyanUSize i = index; i < index + count; ++i)
     {
         const char c = *s;
@@ -1010,12 +1000,7 @@ ZyanStatus ZyanStringResize(ZyanString* string, ZyanUSize size)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
-    ZYAN_CHECK(ZyanVectorResize(&string->data, size + 1));
+    ZYAN_CHECK(ZyanVectorResize(&string->vector, size + 1));
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -1028,12 +1013,7 @@ ZyanStatus ZyanStringReserve(ZyanString* string, ZyanUSize capacity)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
-    return ZyanVectorReserve(&string->data, capacity);
+    return ZyanVectorReserve(&string->vector, capacity);
 }
 
 ZyanStatus ZyanStringShrinkToFit(ZyanString* string)
@@ -1043,12 +1023,7 @@ ZyanStatus ZyanStringShrinkToFit(ZyanString* string)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (string->flags & ZYAN_STRING_IS_IMMUTABLE)
-    {
-        return ZYAN_STATUS_INVALID_OPERATION;
-    }
-
-    return ZyanVectorShrinkToFit(&string->data);
+    return ZyanVectorShrinkToFit(&string->vector);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -1074,8 +1049,8 @@ ZyanStatus ZyanStringGetSize(const ZyanString* string, ZyanUSize* size)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZYAN_ASSERT(string->data.size >= 1);
-    *size = string->data.size - 1;
+    ZYAN_ASSERT(string->vector.size >= 1);
+    *size = string->vector.size - 1;
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -1087,8 +1062,20 @@ ZyanStatus ZyanStringGetCapacity(const ZyanString* string, ZyanUSize* capacity)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZYAN_ASSERT(string->data.capacity >= 1);
-    *capacity = string->data.capacity - 1;
+    ZYAN_ASSERT(string->vector.capacity >= 1);
+    *capacity = string->vector.capacity - 1;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringGetData(const ZyanString* string, const char** value)
+{
+    if (!string)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    *value = string->vector.data;
 
     return ZYAN_STATUS_SUCCESS;
 }
