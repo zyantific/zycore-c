@@ -189,8 +189,8 @@ ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanStringView* s1,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    const ZyanUSize len = s1->string.vector.size + s2->string.vector.size - 2;
-    capacity = ZYAN_MAX(capacity, len);
+    const ZyanUSize len = s1->string.vector.size + s2->string.vector.size - 1;
+    capacity = ZYAN_MAX(capacity, len - 1);
     ZYAN_CHECK(ZyanStringInitEx(destination, capacity, allocator, growth_factor, shrink_threshold));
     ZYAN_ASSERT(destination->vector.capacity >= len);
 
@@ -211,7 +211,7 @@ ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination, const ZyanStrin
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    const ZyanUSize len = s1->string.vector.size + s2->string.vector.size - 2;
+    const ZyanUSize len = s1->string.vector.size + s2->string.vector.size - 1;
     if (capacity < len)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
@@ -1030,14 +1030,15 @@ ZyanStatus ZyanStringShrinkToFit(ZyanString* string)
 /* Information                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringGetFlags(const ZyanString* string, ZyanStringFlags* flags)
+ZyanStatus ZyanStringGetCapacity(const ZyanString* string, ZyanUSize* capacity)
 {
     if (!string)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    *flags = string->flags;
+    ZYAN_ASSERT(string->vector.capacity >= 1);
+    *capacity = string->vector.capacity - 1;
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -1051,19 +1052,6 @@ ZyanStatus ZyanStringGetSize(const ZyanString* string, ZyanUSize* size)
 
     ZYAN_ASSERT(string->vector.size >= 1);
     *size = string->vector.size - 1;
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZyanStringGetCapacity(const ZyanString* string, ZyanUSize* capacity)
-{
-    if (!string)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    ZYAN_ASSERT(string->vector.capacity >= 1);
-    *capacity = string->vector.capacity - 1;
 
     return ZYAN_STATUS_SUCCESS;
 }

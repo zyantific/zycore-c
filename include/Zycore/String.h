@@ -88,7 +88,7 @@ typedef ZyanU8 ZyanStringFlags;
  * @brief   Defines the `ZyanString` struct.
  *
  * The `ZyanString` type is implemented as a size-prefixed string - which allows for a lot of
- * performance optimizations in different situations.
+ * performance optimizations.
  * Nevertheless null-termination is guaranteed at all times to provide maximum compatibility with
  * default C-style strings (use `ZyanStringGetData` to access the C-style string).
  *
@@ -114,17 +114,17 @@ typedef struct ZyanString_
 /**
  * @brief   Defines the `ZyanStringView` struct.
  *
- * The `ZyanStringView` struct provides a view inside a string (`ZyanString` instances,
- * null-terminated C-style strings, or even not-null-terminated custom strings). A view is
- * immutable by design and can't be directly converted to a C-style string.
+ * The `ZyanStringView` type provides a view inside a string (`ZyanString` instances, null-
+ * terminated C-style strings, or even not-null-terminated custom strings). A view is immutable
+ * by design and can't be directly converted to a C-style string.
  *
  * Views might become invalid (e.g. pointing to invalid memory), if the underlying string gets
  * destroyed or resized.
  *
  * The `ZYAN_STRING_TO_VIEW` macro can be used to cast a `ZyanString` to a `ZyanStringView` pointer
  * without any runtime overhead.
- * Casting a view to a normal string is not supported and will lead to unexpected behavior (instead
- * create a new empty string and just append the view).
+ * Casting a view to a normal string is not supported and will lead to unexpected behavior (use
+ * `ZyanStringDuplicate` to create a deep-copy instead).
  *
  * All fields in this struct should be considered as "private". Any changes may lead to unexpected
  * behavior.
@@ -153,11 +153,10 @@ typedef struct ZyanStringView_
 /**
  * @brief   Casts a `ZyanString` pointer to a constant `ZyanStringView` pointer.
  */
-#define ZYAN_STRING_TO_VIEW(string) \
-    (const ZyanStringView*)(string)
+#define ZYAN_STRING_TO_VIEW(string) (const ZyanStringView*)(string)
 
 /**
- * @brief   Declares a `ZyanStringView` struct by wrapping a static C-style string.
+ * @brief   Declares a `ZyanStringView` struct that provides a view into a static C-style string.
  *
  * @param   string  The C-style string.
  */
@@ -272,6 +271,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDestroy(ZyanString* string);
  *
  * @return  A zyan status code.
  *
+ * The behavior of this function is undefined, if `source` is a view into the `destination`
+ * string or `destination` points to an already initialized `ZyanString` instance.
+ *
  * The memory for the string is dynamically allocated by the default allocator using the default
  * growth factor of `2.0f` and the default shrink threshold of `0.25f`.
  *
@@ -298,6 +300,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicate(ZyanString* destination, const Zyan
  * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
  *
  * @return  A zyan status code.
+ *
+ * The behavior of this function is undefined, if `source` is a view into the `destination`
+ * string or `destination` points to an already initialized `ZyanString` instance.
  *
  * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
  * dynamic shrinking.
@@ -326,6 +331,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateEx(ZyanString* destination,
  *
  * @return  A zyan status code.
  *
+ * The behavior of this function is undefined, if `source` is a view into the `destination`
+ * string or `destination` points to an already initialized `ZyanString` instance.
+ *
  * Finalization is not required for strings created by this function.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination,
@@ -350,6 +358,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination
  *                      strings, if a smaller value was passed.
  *
  * @return  A zyan status code.
+ *
+ * The behavior of this function is undefined, if `s1` or `s2` are views into the `destination`
+ * string or `destination` points to an already initialized `ZyanString` instance.
  *
  * The memory for the string is dynamically allocated by the default allocator using the default
  * growth factor of `2.0f` and the default shrink threshold of `0.25f`.
@@ -382,6 +393,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStr
  *
  * @return  A zyan status code.
  *
+ * The behavior of this function is undefined, if `s1` or `s2` are views into the `destination`
+ * string or `destination` points to an already initialized `ZyanString` instance.
+ *
  * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
  * dynamic shrinking.
  *
@@ -412,6 +426,9 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanS
  *
  * @return  A zyan status code.
  *
+ * The behavior of this function is undefined, if `s1` or `s2` are views into the `destination`
+ * string or `destination` points to an already initialized `ZyanString` instance.
+ *
  * Finalization is not required for strings created by this function.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination,
@@ -436,7 +453,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInit(ZyanStringView* view, const char* st
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   buffer  A pointer to the buffer containing the string characters.
- * @param   length  The length of the string (in characters).
+ * @param   length  The length of the string (number of characters).
  *
  * @return  A zyan status code.
  */
@@ -454,7 +471,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInitEx(ZyanStringView* view, const char* 
 ZYCORE_EXPORT ZyanStatus ZyanStringViewFromString(ZyanStringView* view, const ZyanString* string);
 
 /**
- * @brief   Creates a new view into an existing string starting from the given index `index`.
+ * @brief   Creates a new view into an existing string starting from the given `index`.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   string  A pointer to the `ZyanString` instance.
@@ -467,10 +484,10 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewFromStringEx(ZyanStringView* view, const 
     ZyanUSize index, ZyanUSize count);
 
 /**
- * @brief   Returns the length of the view.
+ * @brief   Returns the size (number of characters) of the view.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
- * @param   size    Receives the size of the view.
+ * @param   size    Receives the size (number of characters) of the view.
  *
  * @return  A zyan status code.
  */
@@ -909,27 +926,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringShrinkToFit(ZyanString* string);
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the flags of the string.
- *
- * @param   string  A pointer to the `ZyanString` instance.
- * @param   flags   Receives the flags of the string.
- *
- * @return  A zyan status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanStringGetFlags(const ZyanString* string, ZyanStringFlags* flags);
-
-/**
- * @brief   Returns the current length of the string (excluding the terminating zero character).
- *
- * @param   string  A pointer to the `ZyanString` instance.
- * @param   size    Receives the size of the string.
- *
- * @return  A zyan status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanStringGetSize(const ZyanString* string, ZyanUSize* size);
-
-/**
- * @brief   Returns the current capacity of the string (excluding the terminating zero character).
+ * @brief   Returns the current capacity of the string.
  *
  * @param   string      A pointer to the `ZyanString` instance.
  * @param   capacity    Receives the size of the string.
@@ -937,6 +934,17 @@ ZYCORE_EXPORT ZyanStatus ZyanStringGetSize(const ZyanString* string, ZyanUSize* 
  * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringGetCapacity(const ZyanString* string, ZyanUSize* capacity);
+
+/**
+ * @brief   Returns the current size (number of characters) of the string (excluding the
+ *          terminating zero character).
+ *
+ * @param   string  A pointer to the `ZyanString` instance.
+ * @param   size    Receives the size (number of characters) of the string.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringGetSize(const ZyanString* string, ZyanUSize* size);
 
 /**
  * @brief   Returns the C-style string of the given `ZyanString` instance.
