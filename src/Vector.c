@@ -309,25 +309,6 @@ ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination, const ZyanVe
 /* Element access                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index, void** value)
-{
-    if (!vector || !value)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-    if (index >= vector->size)
-    {
-        return ZYAN_STATUS_OUT_OF_RANGE;
-    }
-
-    ZYAN_ASSERT(vector->element_size);
-    ZYAN_ASSERT(vector->data);
-
-    *value = ZYCORE_VECTOR_OFFSET(vector, index);
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
 ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSize index, const void** value)
 {
     if (!vector || !value)
@@ -343,6 +324,25 @@ ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSize index, const
     ZYAN_ASSERT(vector->data);
 
     *value = (const void*)ZYCORE_VECTOR_OFFSET(vector, index);
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index, void** value)
+{
+    if (!vector || !value)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if (index >= vector->size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    ZYAN_ASSERT(vector->element_size);
+    ZYAN_ASSERT(vector->data);
+
+    *value = ZYCORE_VECTOR_OFFSET(vector, index);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -695,18 +695,6 @@ ZyanStatus ZyanVectorShrinkToFit(ZyanVector* vector)
 /* Information                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanVectorGetSize(const ZyanVector* vector, ZyanUSize* size)
-{
-    if (!vector)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    *size = vector->size;
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
 ZyanStatus ZyanVectorGetCapacity(const ZyanVector* vector, ZyanUSize* capacity)
 {
     if (!vector)
@@ -715,6 +703,18 @@ ZyanStatus ZyanVectorGetCapacity(const ZyanVector* vector, ZyanUSize* capacity)
     }
 
     *capacity = vector->capacity;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanVectorGetSize(const ZyanVector* vector, ZyanUSize* size)
+{
+    if (!vector)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    *size = vector->size;
 
     return ZYAN_STATUS_SUCCESS;
 }

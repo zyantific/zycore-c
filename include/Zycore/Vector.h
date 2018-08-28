@@ -248,18 +248,6 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns a pointer to the element at the given `index`.
- *
- * @param   vector  A pointer to the `ZyanVector` instance.
- * @param   index   The element index.
- * @param   value Receives a pointer to the desired element in the vector.
- *
- * @return  A zyan status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index,
-    void** value);
-
-/**
  * @brief   Returns a constant pointer to the element at the given `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
@@ -270,6 +258,18 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, Z
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSize index,
     const void** value);
+
+/**
+ * @brief   Returns a pointer to the element at the given `index`.
+ *
+ * @param   vector  A pointer to the `ZyanVector` instance.
+ * @param   index   The element index.
+ * @param   value Receives a pointer to the desired element in the vector.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index,
+    void** value);
 
 /**
  * @brief   Assigns a new value to the element at the given `index`.
@@ -506,16 +506,6 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorShrinkToFit(ZyanVector* vector);
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the current size of the vector.
- *
- * @param   vector  A pointer to the `ZyanVector` instance.
- * @param   size    Receives the size of the vector.
- *
- * @return  A zyan status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanVectorGetSize(const ZyanVector* vector, ZyanUSize* size);
-
-/**
  * @brief   Returns the current capacity of the vector.
  *
  * @param   vector      A pointer to the `ZyanVector` instance.
@@ -524,6 +514,16 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorGetSize(const ZyanVector* vector, ZyanUSize* 
  * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorGetCapacity(const ZyanVector* vector, ZyanUSize* capacity);
+
+/**
+ * @brief   Returns the current size of the vector.
+ *
+ * @param   vector  A pointer to the `ZyanVector` instance.
+ * @param   size    Receives the size of the vector.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorGetSize(const ZyanVector* vector, ZyanUSize* size);
 
 /* ---------------------------------------------------------------------------------------------- */
 

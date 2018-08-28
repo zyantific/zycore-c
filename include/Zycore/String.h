@@ -170,8 +170,8 @@ typedef struct ZyanStringView_
                 /* allocator        */ ZYAN_NULL, \
                 /* growth_factor    */ 1.0f, \
                 /* shrink_threshold */ 0.0f, \
-                /* size             */ sizeof(string) + 1, \
-                /* capacity         */ sizeof(string) + 1, \
+                /* size             */ sizeof(string), \
+                /* capacity         */ sizeof(string), \
                 /* element_size     */ sizeof(char), \
                 /* data             */ (char*)(string) \
             } \
@@ -439,17 +439,47 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Creates a new view into a null-terminated C-style string.
+ * @brief   Returns a view inside an existing view/string.
+ *
+ * @param   view    A pointer to the `ZyanStringView` instance.
+ * @param   source  A pointer to the source string.
+ *
+ * @return  A zyan status code.
+ *
+ * The `ZYAN_STRING_TO_VEW` macro can be used to pass any `ZyanString` instance as value for the
+ * `source` string.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideView(ZyanStringView* view,
+    const ZyanStringView* source);
+
+/**
+ * @brief   Returns a view inside an existing view/string starting from the given `index`.
+ *
+ * @param   view    A pointer to the `ZyanStringView` instance.
+ * @param   source  A pointer to the source string.
+ * @param   index   The start index.
+ * @param   count   The number of characters.
+ *
+ * @return  A zyan status code.
+ *
+ * The `ZYAN_STRING_TO_VEW` macro can be used to pass any `ZyanString` instance as value for the
+ * `source` string.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideViewEx(ZyanStringView* view,
+    const ZyanStringView* source, ZyanUSize index, ZyanUSize count);
+
+/**
+ * @brief   Returns a view inside a null-terminated C-style string.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   string  The C-style string.
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringViewInit(ZyanStringView* view, const char* string);
+ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideBuffer(ZyanStringView* view, const char* string);
 
 /**
- * @brief   Creates a new view into a character buffer with custom length.
+ * @brief   Returns a view inside a character buffer with custom length.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   buffer  A pointer to the buffer containing the string characters.
@@ -457,31 +487,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInit(ZyanStringView* view, const char* st
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringViewInitEx(ZyanStringView* view, const char* buffer,
+ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideBufferEx(ZyanStringView* view, const char* buffer,
     ZyanUSize length);
-
-/**
- * @brief   Creates a new view into an existing string.
- *
- * @param   view    A pointer to the `ZyanStringView` instance.
- * @param   string  A pointer to the `ZyanString` instance.
- *
- * @return  A zyan status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanStringViewFromString(ZyanStringView* view, const ZyanString* string);
-
-/**
- * @brief   Creates a new view into an existing string starting from the given `index`.
- *
- * @param   view    A pointer to the `ZyanStringView` instance.
- * @param   string  A pointer to the `ZyanString` instance.
- * @param   index   The start index.
- * @param   count   The number of characters.
- *
- * @return  A zyan status code.
- */
-ZYCORE_EXPORT ZyanStatus ZyanStringViewFromStringEx(ZyanStringView* view, const ZyanString* string,
-    ZyanUSize index, ZyanUSize count);
 
 /**
  * @brief   Returns the size (number of characters) of the view.

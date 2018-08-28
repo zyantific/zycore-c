@@ -141,7 +141,7 @@ TEST(VectorTest, InitBasic)
 
     // Custom capacity
     EXPECT_EQ(ZyanVectorInit(&vector, sizeof(ZyanU16), 10), ZYAN_STATUS_SUCCESS);
-    EXPECT_EQ(vector.capacity, 10);
+    EXPECT_EQ(vector.capacity, ZYAN_MAX(ZYAN_VECTOR_MIN_CAPACITY, 10));
     EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
 }
 
@@ -163,7 +163,7 @@ TEST(VectorTest, InitAdvanced)
     // Custom capacity
     EXPECT_EQ(ZyanVectorInitEx(&vector, sizeof(ZyanU16), 10, ZyanAllocatorDefault(), 1.0f, 0.0f),
         ZYAN_STATUS_SUCCESS);
-    EXPECT_EQ(vector.capacity, 10);
+    EXPECT_EQ(vector.capacity, ZYAN_MAX(ZYAN_VECTOR_MIN_CAPACITY, 10));
     EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
 }
 

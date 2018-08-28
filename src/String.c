@@ -233,7 +233,39 @@ ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination, const ZyanStrin
 /* Views                                                                                          */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanStringViewInit(ZyanStringView* view, const char* string)
+ZyanStatus ZyanStringViewInsideView(ZyanStringView* view, const ZyanStringView* source)
+{
+    if (!view || !source)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    view->string.vector.data = source->string.vector.data;
+    view->string.vector.size = source->string.vector.size;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringViewInsideViewEx(ZyanStringView* view, const ZyanStringView* source,
+    ZyanUSize index, ZyanUSize count)
+{
+    if (!view || !source)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (index + count >= source->string.vector.size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    view->string.vector.data = (void*)((char*)source->string.vector.data + index);
+    view->string.vector.size = count;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanStringViewInsideBuffer(ZyanStringView* view, const char* string)
 {
     if (!view || !string)
     {
@@ -246,7 +278,7 @@ ZyanStatus ZyanStringViewInit(ZyanStringView* view, const char* string)
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanStringViewInitEx(ZyanStringView* view, const char* buffer, ZyanUSize length)
+ZyanStatus ZyanStringViewInsideBufferEx(ZyanStringView* view, const char* buffer, ZyanUSize length)
 {
     if (!view || !buffer || !length)
     {
@@ -255,38 +287,6 @@ ZyanStatus ZyanStringViewInitEx(ZyanStringView* view, const char* buffer, ZyanUS
 
     view->string.vector.data = (void*)buffer;
     view->string.vector.size = length + 1;
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZyanStringViewFromString(ZyanStringView* view, const ZyanString* string)
-{
-    if (!view || !string)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    view->string.vector.data = string->vector.data;
-    view->string.vector.size = string->vector.size;
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZyanStringViewFromStringEx(ZyanStringView* view, const ZyanString* string,
-    ZyanUSize index, ZyanUSize count)
-{
-    if (!view || !string)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    if (index + count >= string->vector.size)
-    {
-        return ZYAN_STATUS_OUT_OF_RANGE;
-    }
-
-    view->string.vector.data = (void*)((char*)string->vector.data + index);
-    view->string.vector.size = count;
 
     return ZYAN_STATUS_SUCCESS;
 }

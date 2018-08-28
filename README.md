@@ -12,6 +12,11 @@ Internal library providing platform independent types, macros and a fallback for
   - Compiler/Platform/Architecture detection
   - Asserts and static asserts
   - Utils (`ARRAY_LENGTH`, `FALLTHROUGH`, `UNUSED`, ...)
+- Common types
+  - `ZyanBitset`
+  - `ZyanString`/`ZyanStringView`
+- Container types
+  - `ZyanVector`
 - LibC abstraction (WiP)
 
 ## License
