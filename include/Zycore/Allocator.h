@@ -47,7 +47,7 @@ extern "C" {
 struct ZyanAllocator_;
 
 /**
- * @brief   Defines the `ZyanAllocatorAllocate` function.
+ * @brief   Defines the `ZyanAllocatorAllocate` function prototype.
  *
  * @param   allocator       A pointer to the `ZyanAllocator` instance.
  * @param   p               Receives a pointer to the first memory block sufficient to hold an
@@ -66,7 +66,7 @@ typedef ZyanStatus (*ZyanAllocatorAllocate)(struct ZyanAllocator_* allocator, vo
     ZyanUSize element_size, ZyanUSize n);
 
 /**
- * @brief   Defines the `ZyanAllocatorDeallocate` function.
+ * @brief   Defines the `ZyanAllocatorDeallocate` function prototype.
  *
  * @param   allocator       A pointer to the `ZyanAllocator` instance.
  * @param   p               The pointer obtained from `(re-)allocate()`.

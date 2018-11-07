@@ -65,7 +65,7 @@ typedef struct ZyanBitset_
 } ZyanBitset;
 
 /**
- * @brief   Defines the `ZyanBitsetByteOperation` function.
+ * @brief   Defines the `ZyanBitsetByteOperation` function prototype.
  *
  * @param   v1  A pointer to the first byte. This value receives the result after performing the
  *              desired operation.

@@ -393,7 +393,7 @@ TEST_P(VectorTestBase, Emplace)
 
     for (ZyanUSize i = 0; i < 10; ++i)
     {
-        EXPECT_EQ(ZyanVectorEmplace(&m_vector, (void**)&element_new, (ZyanObjectFunction)ZYAN_NULL),
+        EXPECT_EQ(ZyanVectorEmplace(&m_vector, (void**)&element_new, (ZyanMemberFunction)ZYAN_NULL),
             ZYAN_STATUS_SUCCESS);
         *element_new = i;
     }
@@ -407,7 +407,7 @@ TEST_P(VectorTestBase, Emplace)
     }
 
     EXPECT_EQ(ZyanVectorEmplaceEx(&m_vector, 5, (void**)&element_new,
-        (ZyanObjectFunction)&InitZyanU64), ZYAN_STATUS_SUCCESS);
+        (ZyanMemberFunction)&InitZyanU64), ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(*element_new, 1337);
 
     EXPECT_EQ(ZyanVectorGetElement(&m_vector, 5, (const void**)&element_out), ZYAN_STATUS_SUCCESS);

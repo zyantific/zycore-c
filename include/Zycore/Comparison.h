@@ -44,7 +44,7 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZyanEqualityComparison` function.
+ * @brief   Defines the `ZyanEqualityComparison` function prototype.
  *
  * @param   left    A pointer to the first element.
  * @param   right   A pointer to the second element.
@@ -55,7 +55,7 @@ extern "C" {
 typedef ZyanBool (*ZyanEqualityComparison)(const void* left, const void* right);
 
 /**
- * @brief   Defines the `ZyanComparison` function.
+ * @brief   Defines the `ZyanComparison` function prototype.
  *
  * @param   left    A pointer to the first element.
  * @param   right   A pointer to the second element.

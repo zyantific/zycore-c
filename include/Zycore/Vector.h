@@ -333,7 +333,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index,
  * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorEmplace(ZyanVector* vector, void** element,
-    ZyanObjectFunction constructor);
+    ZyanMemberFunction constructor);
 
 /**
  * @brief   Constructs an `element` in-place and inserts it at the given `index` of the vector.
@@ -347,7 +347,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorEmplace(ZyanVector* vector, void** element,
  * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorEmplaceEx(ZyanVector* vector, ZyanUSize index,
-    void** element, ZyanObjectFunction constructor);
+    void** element, ZyanMemberFunction constructor);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Deletion                                                                                       */

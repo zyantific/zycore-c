@@ -433,7 +433,7 @@ ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index, const void* e
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanVectorEmplace(ZyanVector* vector, void** element, ZyanObjectFunction constructor)
+ZyanStatus ZyanVectorEmplace(ZyanVector* vector, void** element, ZyanMemberFunction constructor)
 {
     if (!vector)
     {
@@ -444,7 +444,7 @@ ZyanStatus ZyanVectorEmplace(ZyanVector* vector, void** element, ZyanObjectFunct
 }
 
 ZyanStatus ZyanVectorEmplaceEx(ZyanVector* vector, ZyanUSize index, void** element,
-    ZyanObjectFunction constructor)
+    ZyanMemberFunction constructor)
 {
     if (!vector)
     {

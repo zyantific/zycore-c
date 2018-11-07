@@ -44,40 +44,40 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZyanObjectProcedure` function.
+ * @brief   Defines the `ZyanMemberProcedure` function prototype.
  *
  * @param   object  A pointer to the object.
  *
  * @return  A zyan status code.
  */
-typedef void (*ZyanObjectProcedure)(void* object);
+typedef void (*ZyanMemberProcedure)(void* object);
 
 /**
- * @brief   Defines the `ZyanObjectProcedureConst` function.
+ * @brief   Defines the `ZyanConstMemberProcedure` function prototype.
  *
  * @param   object  A pointer to the object.
  *
  * @return  A zyan status code.
  */
-typedef void (*ZyanObjectProcedureConst)(const void* object);
+typedef void (*ZyanConstMemberProcedure)(const void* object);
 
 /**
- * @brief   Defines the `ZyanObjectFunction` function.
+ * @brief   Defines the `ZyanMemberFunction` function prototype.
  *
  * @param   object  A pointer to the object.
  *
  * @return  A zyan status code.
  */
-typedef ZyanStatus (*ZyanObjectFunction)(void* object);
+typedef ZyanStatus (*ZyanMemberFunction)(void* object);
 
 /**
- * @brief   Defines the `ZyanObjectFunctionConst` function.
+ * @brief   Defines the `ZyanConstMemberFunction` function prototype.
  *
  * @param   object  A pointer to the object.
  *
  * @return  A zyan status code.
  */
-typedef ZyanStatus (*ZyanObjectFunctionConst)(const void* object);
+typedef ZyanStatus (*ZyanConstMemberFunction)(const void* object);
 
 /* ============================================================================================== */
 
