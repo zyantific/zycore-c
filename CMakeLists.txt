@@ -128,8 +128,8 @@ target_compile_definitions("Zycore" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYCORE_EX
 zyan_maybe_enable_wpo_for_lib("Zycore")
 generate_export_header("Zycore" BASE_NAME "ZYCORE" EXPORT_FILE_NAME "ZycoreExportConfig.h")
 
-if (ZYCORE_NO_LIBC)
-    target_compile_definitions("Zycore" PUBLIC "ZYCORE_NO_LIBC")
+if (ZYAN_NO_LIBC)
+    target_compile_definitions("Zycore" PUBLIC "ZYAN_NO_LIBC")
 endif ()
 
 target_sources("Zycore"
