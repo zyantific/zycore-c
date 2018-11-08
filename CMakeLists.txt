@@ -191,20 +191,23 @@ endif ()
 # Tests                                                                                           #
 # =============================================================================================== #
 
-if (ZYCORE_BUILD_TESTS)
-    add_executable("TestString" "tests/String.cpp")
-    zyan_set_common_flags("TestString" "Zycore")
-    target_link_libraries("TestString" "Zycore")
-    target_link_libraries("TestString" "gtest")
-    set_target_properties("TestString" PROPERTIES FOLDER "Tests")
-    target_compile_definitions("TestString" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-    zyan_maybe_enable_wpo("TestString")
+function (zyan_add_test test)
+    add_executable("Test${test}" "tests/${test}.cpp")
 
-    add_executable("TestVector" "tests/Vector.cpp")
-    zyan_set_common_flags("TestVector" "Zycore")
-    target_link_libraries("TestVector" "Zycore")
-    target_link_libraries("TestVector" "gtest")
-    set_target_properties("TestVector" PROPERTIES FOLDER "Tests")
-    target_compile_definitions("TestVector" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-    zyan_maybe_enable_wpo("TestVector")
+    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
+        "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
+        "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+        target_compile_options("Test${test}" PRIVATE "-std=c++14")
+    endif ()
+
+    target_link_libraries("Test${test}" "Zycore")
+    target_link_libraries("Test${test}" "gtest")
+    set_target_properties("Test${test}" PROPERTIES FOLDER "Tests")
+    target_compile_definitions("Test${test}" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+    zyan_maybe_enable_wpo("Test${test}")
+endfunction ()
+
+if (ZYCORE_BUILD_TESTS)
+    zyan_add_test("String")
+    zyan_add_test("Vector")
 endif ()
