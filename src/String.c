@@ -109,7 +109,7 @@ ZyanStatus ZyanStringDestroy(ZyanString* string)
         return ZYAN_STATUS_SUCCESS;
     }
 
-    return ZyanVectorDestroy(&string->vector);
+    return ZyanVectorDestroy(&string->vector, ZYAN_NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

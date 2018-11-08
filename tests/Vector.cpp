@@ -72,7 +72,7 @@ protected:
 
     void TearDown() override
     {
-        EXPECT_EQ(ZyanVectorDestroy(&m_vector), ZYAN_STATUS_SUCCESS);
+        EXPECT_EQ(ZyanVectorDestroy(&m_vector, (ZyanMemberProcedure)ZYAN_NULL), ZYAN_STATUS_SUCCESS);
     }
 };
 
@@ -137,12 +137,12 @@ TEST(VectorTest, InitBasic)
     EXPECT_EQ(vector.capacity, ZYAN_VECTOR_MIN_CAPACITY);
     EXPECT_EQ(vector.element_size, sizeof(ZyanU64));
     EXPECT_NE(vector.data, ZYAN_NULL);
-    EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(ZyanVectorDestroy(&vector, (ZyanMemberProcedure)ZYAN_NULL), ZYAN_STATUS_SUCCESS);
 
     // Custom capacity
     EXPECT_EQ(ZyanVectorInit(&vector, sizeof(ZyanU16), 10), ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(vector.capacity, ZYAN_MAX(ZYAN_VECTOR_MIN_CAPACITY, 10));
-    EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(ZyanVectorDestroy(&vector, (ZyanMemberProcedure)ZYAN_NULL), ZYAN_STATUS_SUCCESS);
 }
 
 TEST(VectorTest, InitAdvanced)
@@ -158,13 +158,13 @@ TEST(VectorTest, InitAdvanced)
     EXPECT_EQ(vector.capacity, ZYAN_VECTOR_MIN_CAPACITY);
     EXPECT_EQ(vector.element_size, sizeof(ZyanU16));
     EXPECT_NE(vector.data, ZYAN_NULL);
-    EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(ZyanVectorDestroy(&vector, (ZyanMemberProcedure)ZYAN_NULL), ZYAN_STATUS_SUCCESS);
 
     // Custom capacity
     EXPECT_EQ(ZyanVectorInitEx(&vector, sizeof(ZyanU16), 10, ZyanAllocatorDefault(), 1.0f, 0.0f),
         ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(vector.capacity, ZYAN_MAX(ZYAN_VECTOR_MIN_CAPACITY, 10));
-    EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(ZyanVectorDestroy(&vector, (ZyanMemberProcedure)ZYAN_NULL), ZYAN_STATUS_SUCCESS);
 }
 
 TEST(VectorTest, InitCustomBuffer)
@@ -183,7 +183,7 @@ TEST(VectorTest, InitCustomBuffer)
     EXPECT_EQ(vector.capacity, ZYAN_ARRAY_LENGTH(buffer));
     EXPECT_EQ(vector.element_size, sizeof(ZyanU16));
     EXPECT_EQ(vector.data, &buffer);
-    EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(ZyanVectorDestroy(&vector, (ZyanMemberProcedure)ZYAN_NULL), ZYAN_STATUS_SUCCESS);
 }
 
 TEST_P(VectorTestFilled, ElementAccess)

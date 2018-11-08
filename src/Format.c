@@ -60,8 +60,8 @@ static const char* const DECIMAL_LOOKUP =
 /* Static strings                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const ZyanStringView STR_ADD = ZYAN_DECLARE_STRING_VIEW("+");
-static const ZyanStringView STR_SUB = ZYAN_DECLARE_STRING_VIEW("-");
+static const ZyanStringView STR_ADD = ZYAN_DEFINE_STRING_VIEW("+");
+static const ZyanStringView STR_SUB = ZYAN_DEFINE_STRING_VIEW("-");
 
 /* ---------------------------------------------------------------------------------------------- */
 

@@ -229,7 +229,7 @@ ZyanStatus ZyanVectorInitCustomBuffer(ZyanVector* vector, ZyanUSize element_size
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanVectorDestroy(ZyanVector* vector)
+ZyanStatus ZyanVectorDestroy(ZyanVector* vector, ZyanMemberProcedure destructor)
 {
     if (!vector)
     {
@@ -238,6 +238,14 @@ ZyanStatus ZyanVectorDestroy(ZyanVector* vector)
 
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
+
+    if (destructor)
+    {
+        for (ZyanUSize i = 0; i < vector->size; ++i)
+        {
+            destructor(ZYCORE_VECTOR_OFFSET(vector, i));
+        }
+    }
 
     if (vector->allocator && vector->capacity)
     {

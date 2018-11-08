@@ -170,11 +170,13 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInitCustomBuffer(ZyanVector* vector, ZyanUSiz
 /**
  * @brief   Destroys the given `ZyanVector` instance.
  *
- * @param   vector  A pointer to the `ZyanVector` instance.
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   destructor  A destructor callback that is invoked for every element in the vector, or
+ *                      `ZYAN_NULL`.
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorDestroy(ZyanVector* vector);
+ZYCORE_EXPORT ZyanStatus ZyanVectorDestroy(ZyanVector* vector, ZyanMemberProcedure destructor);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Duplication                                                                                    */

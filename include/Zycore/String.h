@@ -156,11 +156,11 @@ typedef struct ZyanStringView_
 #define ZYAN_STRING_TO_VIEW(string) (const ZyanStringView*)(string)
 
 /**
- * @brief   Declares a `ZyanStringView` struct that provides a view into a static C-style string.
+ * @brief   Defines a `ZyanStringView` struct that provides a view into a static C-style string.
  *
  * @param   string  The C-style string.
  */
-#define ZYAN_DECLARE_STRING_VIEW(string) \
+#define ZYAN_DEFINE_STRING_VIEW(string) \
     { \
         /* string */ \
         { \

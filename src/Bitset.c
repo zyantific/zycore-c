@@ -180,7 +180,7 @@ ZyanStatus ZyanBitsetDestroy(ZyanBitset* bitset)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanVectorDestroy(&bitset->bits);
+    return ZyanVectorDestroy(&bitset->bits, ZYAN_NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
