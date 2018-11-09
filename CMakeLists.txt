@@ -174,6 +174,7 @@ target_sources("Zycore"
         "src/String.c"
         "src/Vector.c"
         "src/Zycore.c")
+        "src/ArgParse.c")
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zycore" PRIVATE "resources/VersionInfo.rc")
