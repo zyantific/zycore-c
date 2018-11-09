@@ -31,30 +31,70 @@
 
 #include <gtest/gtest.h>
 #include <Zycore/ArgParse.h>
-
-/* ============================================================================================== */
-/* Enums and types                                                                                */
-/* ============================================================================================== */
-
-
-
-/* ============================================================================================== */
-/* Helper functions                                                                               */
-/* ============================================================================================== */
-
-
+#include <Zycore/LibC.h>
 
 /* ============================================================================================== */
 /* Tests                                                                                          */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/*                                                                                                */
+/* Unnamed args                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
+static auto UnnamedArgTest(ZyanU64 min, ZyanU64 max)
+{
+    const char* argv[] = {
+        "test", "a", "xxx"
+    };
 
+    ZyanArgParseConfig cfg = {
+        argv, // argv
+        3,    // argc
+        min,  // min_unnamed_args
+        max,  // max_unnamed_args
+        {}    // args
+    };
+
+    ZyanVector parsed;
+    ZYAN_MEMSET(&parsed, 0, sizeof(parsed));
+    auto status = ZyanArgParse(&cfg, &parsed);
+    return std::make_tuple(status, parsed);
+}
+
+TEST(UnnamedArgs, TooFew)
+{
+    auto [status, parsed] = UnnamedArgTest(5, 5);
+    ASSERT_FALSE(ZYAN_SUCCESS(status));
+}
+
+TEST(UnnamedArgs, TooMany)
+{
+    auto [status, parsed] = UnnamedArgTest(1, 1);
+    ASSERT_FALSE(ZYAN_SUCCESS(status));
+}
+
+TEST(UnnamedArgs, PerfectFit)
+{
+    auto [status, parsed] = UnnamedArgTest(2, 2);
+    ASSERT_TRUE(ZYAN_SUCCESS(status));
+
+    ZyanUSize size;
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetSize(&parsed, &size)));
+    ASSERT_EQ(size, 2);
+
+    ZyanArgParseArg* arg = nullptr;
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetElement(&parsed, 0, (const void**)&arg)));
+    ASSERT_STREQ((const char*)arg->value.string.vector.data /* hax! */, "a");
+
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetElement(&parsed, 1, (const void**)&arg)));
+    ASSERT_STREQ((const char*)arg->value.string.vector.data /* hax! */, "xxx");
+}
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Dash args                                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
+
+// TODO ...
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */
@@ -62,8 +102,8 @@
 
 int main(int argc, char **argv)
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
 
 /* ============================================================================================== */

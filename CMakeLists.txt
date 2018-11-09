@@ -249,6 +249,7 @@ endfunction ()
 if (ZYCORE_BUILD_TESTS)
     zyan_add_test("String")
     zyan_add_test("Vector")
+    zyan_add_test("ArgParse")
 endif ()
 
 # =============================================================================================== #
