@@ -45,40 +45,34 @@ extern "C" {
 /* Structs and other types                                                                        */
 /* ============================================================================================== */
 
-typedef struct ZyanArgument_
+typedef struct ZyanArgParseDefinition_
 {
     const char* name;
-    const char* help;
-    ZyanBool optional;
     ZyanBool boolean;
-} ZyanArgument;
+    const char* help;
+} ZyanArgParseDefinition;
 
-typedef struct ZyanParsedArgument_
+typedef struct ZyanArgParseConfig_
 {
-    const ZyanArgument* arg;  // NULL = unnamed argument
+    const char** argv;
+    ZyanUSize argc;
+    ZyanUSize min_unnamed_args;
+    ZyanUSize max_unnamed_args;
+    ZyanArgParseDefinition args[];
+} ZyanArgParseConfig;
+
+typedef struct ZyanArgParseArg_
+{
+    const ZyanArgParseDefinition* arg;  // NULL = unnamed argument
     ZyanStringView value;
-} ZyanParsedArgument;
+} ZyanArgParseArg;
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZyanStatus ZyanArgParse(
-    const ZyanArgument* accepted_args,
-    ZyanUSize min_unnamed_args,
-    ZyanUSize max_unnamed_args,
-    const char** argv,
-    ZyanUSize argc,
-    ZyanVector/*<ZyanParsedArgument>*/* parsed,
-    ZyanString** error_string
-);
-
-ZyanStatus ZyanArgParseHelpText(
-    const ZyanVector/*<ZyanArgument>*/* accepted_args,
-    ZyanUSize min_unnamed_args,
-    ZyanUSize max_unnamed_args,
-    ZyanString* help_text
-);
+ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector/*<ZyanArgParseArg>*/* parsed);
+ZyanStatus ZyanArgParseHelpText(const ZyanArgParseConfig *cfg, ZyanString* help_text);
 
 /* ============================================================================================== */
 

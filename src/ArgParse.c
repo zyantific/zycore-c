@@ -31,33 +31,28 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZyanStatus ZyanArgParse(
-    const ZyanArgument* accepted_args,
-    ZyanUSize min_unnamed_args,
-    ZyanUSize max_unnamed_args,
-    const char** argv,
-    ZyanUSize argc,
-    ZyanVector/*<ZyanParsedArgument>*/* parsed,
-    ZyanString** error_string
-)
+ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector/*<ZyanArgParseArg>*/* parsed)
 {
-    ZYAN_ASSERT(accepted_args);
-    ZYAN_ASSERT(argv);
+    ZYAN_ASSERT(cfg);
     ZYAN_ASSERT(parsed);
+
+    if (cfg->min_unnamed_args > cfg->max_unnamed_args) {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
 
     // TODO: Consider sanity sweep of accepted args.
 
     ZyanStatus err;
 
     // Initialize output vector.
-    ZYAN_CHECK(ZyanVectorInit(parsed, sizeof(ZyanParsedArgument), argc));
+    ZYAN_CHECK(ZyanVectorInit(parsed, sizeof(ZyanArgParseArg), cfg->argc));
 
     ZyanBool accept_dash_args = ZYAN_TRUE;
     ZyanUSize num_unnamed_args = 0;
-    for (ZyanUSize i = 0; i < argc; ++i)
+    for (ZyanUSize i = 1; i < cfg->argc; ++i)
     {
-        const char* cur_arg = argv[i];
-        ZyanUSize arg_len = ZYAN_STRLEN(argv[i]);
+        const char* cur_arg = cfg->argv[i];
+        ZyanUSize arg_len = ZYAN_STRLEN(cfg->argv[i]);
 
         // Double-dash argument?
         if (accept_dash_args && arg_len >= 2 && ZYAN_MEMCMP(cur_arg, "--", 2) == 0) {
@@ -68,12 +63,12 @@ ZyanStatus ZyanArgParse(
             // Regular double-dash argument.
             else {
                 // Allocate parsed argument struct.
-                ZyanParsedArgument* parsed_arg;
+                ZyanArgParseArg* parsed_arg;
                 ZYAN_CHECK(ZyanVectorEmplace(parsed, (void**)&parsed_arg, ZYAN_NULL));
                 ZYAN_MEMSET(parsed_arg, 0, sizeof(*parsed_arg));
 
                 // Find corresponding argument definition.
-                for (const ZyanArgument* arg = accepted_args; arg->name; ++arg) {
+                for (const ZyanArgParseDefinition* arg = cfg->args; arg->name; ++arg) {
                     if (ZYAN_STRCMP(arg->name, cur_arg) == 0) {
                         parsed_arg->arg = arg;
                         break;
@@ -88,11 +83,11 @@ ZyanStatus ZyanArgParse(
 
                 // Does the argument expect a value? If yes, consume next token.
                 if (!parsed_arg->arg->boolean) {
-                    if (i == argc - 1) {
+                    if (i == cfg->argc - 1) {
                         err = ZYAN_STATUS_INVALID_ARGUMENT; // TODO: code
                         goto failure;
                     }
-                    ZYAN_CHECK(ZyanStringViewInsideBuffer(&parsed_arg->value, argv[++i]));
+                    ZYAN_CHECK(ZyanStringViewInsideBuffer(&parsed_arg->value, cfg->argv[++i]));
                 }
             }
 
@@ -108,12 +103,12 @@ ZyanStatus ZyanArgParse(
             // remaining chars as its value.
             for (const char* read_ptr = cur_arg + 1; *read_ptr; ++read_ptr) {
                 // Allocate parsed argument struct.
-                ZyanParsedArgument* parsed_arg;
+                ZyanArgParseArg* parsed_arg;
                 ZYAN_CHECK(ZyanVectorEmplace(parsed, (void**)&parsed_arg, ZYAN_NULL));
                 ZYAN_MEMSET(parsed_arg, 0, sizeof(*parsed_arg));
 
                 // Find corresponding argument definition.
-                for (const ZyanArgument* arg = accepted_args; arg->name; ++arg) {
+                for (const ZyanArgParseDefinition* arg = cfg->args; arg->name; ++arg) {
                     if (ZYAN_STRLEN(arg->name) == 2 &&
                         arg->name[0] == '-' &&
                         arg->name[1] == *read_ptr
@@ -137,11 +132,11 @@ ZyanStatus ZyanArgParse(
                     }
                     // If not, consume next token (e.g. `-n 1000`).
                     else {
-                        if (i == argc - 1) {
+                        if (i == cfg->argc - 1) {
                             err = ZYAN_STATUS_INVALID_ARGUMENT; // TODO: Code
                             goto failure;
                         }
-                        ZYAN_CHECK(ZyanStringViewInsideBuffer(&parsed_arg->value, argv[++i]));
+                        ZYAN_CHECK(ZyanStringViewInsideBuffer(&parsed_arg->value, cfg->argv[++i]));
                     }
 
                     // Either way, continue with next token.
@@ -152,20 +147,20 @@ ZyanStatus ZyanArgParse(
 
         // Still here? We're looking at an unnamed argument.
         ++num_unnamed_args;
-        if (num_unnamed_args > max_unnamed_args) {
+        if (num_unnamed_args > cfg->max_unnamed_args) {
             err = ZYAN_STATUS_INVALID_ARGUMENT; // TODO: Code
             goto failure;
         }
 
         // Allocate parsed argument struct.
-        ZyanParsedArgument* parsed_arg;
+        ZyanArgParseArg* parsed_arg;
         ZYAN_CHECK(ZyanVectorEmplace(parsed, (void**)&parsed_arg, ZYAN_NULL));
         ZYAN_MEMSET(parsed_arg, 0, sizeof(*parsed_arg));
         ZYAN_CHECK(ZyanStringViewInsideBuffer(&parsed_arg->value, cur_arg));
     }
 
     // All tokens processed. Do we have enough unnamed arguments?
-    if (num_unnamed_args < min_unnamed_args) {
+    if (num_unnamed_args < cfg->min_unnamed_args) {
         err = ZYAN_STATUS_INVALID_ARGUMENT; // TODO: Status
         goto failure;
     }
