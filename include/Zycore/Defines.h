@@ -188,7 +188,11 @@
 /**
  * @brief   Intentional fallthrough.
  */
-#define ZYAN_FALLTHROUGH
+#ifdef ZYAN_GCC
+#   define ZYAN_FALLTHROUGH __attribute__ ((fallthrough))
+#else
+#   define ZYAN_FALLTHROUGH
+#endif
 
 /**
  * @brief   Declares a bitfield.
