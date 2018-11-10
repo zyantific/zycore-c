@@ -53,7 +53,7 @@ if (result)
     message(FATAL_ERROR "Build step for googletest failed: ${result}")
 endif()
 
-if (ZYCORE_BUILD_TESTS)    
+if (ZYCORE_BUILD_TESTS)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
     add_subdirectory("${CMAKE_BINARY_DIR}/gtest/src" "${CMAKE_BINARY_DIR}/gtest/build"
@@ -78,8 +78,18 @@ if (ZYAN_DEV_MODE)
     elseif (MSVC)
         set(compiler_specific "/WX /W4 /TC")
     endif ()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
-        CACHE STRING "Flags used by the compiler during all build types." FORCE)
+    if (NOT ZYAN_DEV_OLD_CFLAGS)
+        set(ZYAN_DEV_OLD_CFLAGS "${CMAKE_C_FLAGS}" CACHE STRING "")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
+            CACHE STRING "Flags used by the compiler during all build types." FORCE)
+        mark_as_advanced(ZYAN_DEV_OLD_CFLAGS)
+    endif ()
+else ()
+    if (DEFINED ZYAN_DEV_OLD_CFLAGS)
+        set(CMAKE_C_FLAGS "${ZYAN_DEV_OLD_CFLAGS}"
+            CACHE STRING "Flags used by the compiler during all build types." FORCE)
+        unset(ZYAN_DEV_OLD_CFLAGS)
+    endif ()
 endif ()
 
 # =============================================================================================== #
