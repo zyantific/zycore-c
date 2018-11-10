@@ -66,34 +66,6 @@ if (ZYCORE_BUILD_TESTS)
 endif ()
 
 # =============================================================================================== #
-# Developer mode                                                                                  #
-# =============================================================================================== #
-
-# If in developer mode, hack global compiler flags.
-if (ZYAN_DEV_MODE)
-    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
-        set(compiler_specific "-pedantic -Wextra -Werror")
-    elseif (MSVC)
-        set(compiler_specific "/WX /W4 /TC")
-    endif ()
-    if (NOT ZYAN_DEV_OLD_CFLAGS)
-        set(ZYAN_DEV_OLD_CFLAGS "${CMAKE_C_FLAGS}" CACHE STRING "")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
-            CACHE STRING "Flags used by the compiler during all build types." FORCE)
-        mark_as_advanced(ZYAN_DEV_OLD_CFLAGS)
-    endif ()
-else ()
-    if (DEFINED ZYAN_DEV_OLD_CFLAGS)
-        set(CMAKE_C_FLAGS "${ZYAN_DEV_OLD_CFLAGS}"
-            CACHE STRING "Flags used by the compiler during all build types." FORCE)
-        unset(ZYAN_DEV_OLD_CFLAGS)
-    endif ()
-endif ()
-
-# =============================================================================================== #
 # Exported functions                                                                              #
 # =============================================================================================== #
 
@@ -177,6 +149,23 @@ install(FILES
     "${PROJECT_BINARY_DIR}/ZycoreExportConfig.h"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# =============================================================================================== #
+# Developer mode                                                                                  #
+# =============================================================================================== #
+
+# If in developer mode, be pedantic.
+if (ZYAN_DEV_MODE)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
+            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
+            "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+        target_compile_options("Zycore" PUBLIC "-pedantic" "-Wextra" "-Werror")
+    elseif (MSVC)
+        target_compile_options("Zycore" PUBLIC "/WX" "/W4" "/TC")
+    endif ()
+endif ()
 
 # =============================================================================================== #
 # Examples                                                                                        #
