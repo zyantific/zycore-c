@@ -133,7 +133,6 @@ static ZyanStatus ZyanVectorShiftLeft(ZyanVector* vector, ZyanUSize index, ZyanU
     ZYAN_ASSERT(vector);
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
-    ZYAN_ASSERT(index >= 0);
     ZYAN_ASSERT(count >  0);
     //ZYAN_ASSERT((ZyanISize)count - (ZyanISize)index + 1 >= 0);
 
