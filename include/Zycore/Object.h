@@ -47,8 +47,6 @@ extern "C" {
  * @brief   Defines the `ZyanMemberProcedure` function prototype.
  *
  * @param   object  A pointer to the object.
- *
- * @return  A zyan status code.
  */
 typedef void (*ZyanMemberProcedure)(void* object);
 
@@ -56,8 +54,6 @@ typedef void (*ZyanMemberProcedure)(void* object);
  * @brief   Defines the `ZyanConstMemberProcedure` function prototype.
  *
  * @param   object  A pointer to the object.
- *
- * @return  A zyan status code.
  */
 typedef void (*ZyanConstMemberProcedure)(const void* object);
 
