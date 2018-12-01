@@ -267,7 +267,7 @@ ZYAN_INLINE int ZYAN_MEMCMP(const void* s1, const void* s2, ZyanUSize n)
 
 ZYAN_INLINE void* ZYAN_MEMCPY(void* dst, const void* src, ZyanUSize n)
 {
-    ZyanU8* dp = dst;
+    volatile ZyanU8* dp = dst;
     const ZyanU8* sp = src;
     while (n--)
     {
@@ -278,7 +278,7 @@ ZYAN_INLINE void* ZYAN_MEMCPY(void* dst, const void* src, ZyanUSize n)
 
 ZYAN_INLINE void* ZYAN_MEMMOVE(void* dst, const void* src, ZyanUSize n)
 {
-    ZyanU8* pd = dst;
+    volatile ZyanU8* pd = dst;
     const ZyanU8* ps = src;
     if (ps < pd)
     {
@@ -298,7 +298,7 @@ ZYAN_INLINE void* ZYAN_MEMMOVE(void* dst, const void* src, ZyanUSize n)
 
 ZYAN_INLINE void* ZYAN_MEMSET(void* dst, int val, ZyanUSize n)
 {
-    ZyanU8* p = dst;
+    volatile ZyanU8* p = dst;
     while (n--)
     {
         *p++ = (unsigned char)val;
