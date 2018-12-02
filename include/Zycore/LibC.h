@@ -172,7 +172,7 @@ typedef char* ZyanVAList;
 /**
  * @brief   Defines the `ZyanVAList` datatype.
  */
-typedef __gnuc_va_list  ZyanVAList;
+typedef __builtin_va_list  ZyanVAList;
 
 #   define ZYAN_VA_START(v, l)  __builtin_va_start(v, l)
 #   define ZYAN_VA_END(v)       __builtin_va_end(v)
@@ -313,7 +313,7 @@ ZYAN_INLINE char* ZYAN_STRCAT(char* dest, const char* src)
     {
         dest++;
     }
-    while (*dest++ = *src++);
+    while ((*dest++ = *src++));
     return ret;
 }
 
@@ -351,7 +351,7 @@ ZYAN_INLINE int ZYAN_STRCOLL(const char *s1, const char *s2)
 ZYAN_INLINE char* ZYAN_STRCPY(char* dest, const char* src)
 {
     char* ret = dest;
-    while (*dest++ = *src++);
+    while ((*dest++ = *src++));
     return ret;
 }
 
@@ -418,7 +418,7 @@ ZYAN_INLINE char* ZYAN_STRNCPY(char* dest, const char* src, ZyanUSize n)
         {
             return ret;
         }
-    } while (*dest++ = *src++);
+    } while ((*dest++ = *src++));
     while (n--)
     {
         *dest++ = 0;
