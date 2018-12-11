@@ -113,6 +113,8 @@ typedef struct ZyanVector_
 /* Constructor and destructor                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief   Initializes the given `ZyanVector` instance.
  *
@@ -127,8 +129,10 @@ typedef struct ZyanVector_
  *
  * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorInit(ZyanVector* vector, ZyanUSize element_size,
-    ZyanUSize capacity);
+ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanVectorInit(ZyanVector* vector,
+    ZyanUSize element_size, ZyanUSize capacity);
+
+#endif // ZYAN_NO_LIBC
 
 /**
  * @brief   Initializes the given `ZyanVector` instance and sets a custom `allocator` and memory
@@ -182,6 +186,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDestroy(ZyanVector* vector, ZyanMemberProcedu
 /* Duplication                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief   Initializes a new `ZyanVector` instance by duplicating an existing vector.
  *
@@ -199,8 +205,10 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDestroy(ZyanVector* vector, ZyanMemberProcedu
  *
  * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicate(ZyanVector* destination, const ZyanVector* source,
-    ZyanUSize capacity);
+ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanVectorDuplicate(ZyanVector* destination,
+    const ZyanVector* source, ZyanUSize capacity);
+
+#endif // ZYAN_NO_LIBC
 
 /**
  * @brief   Initializes a new `ZyanVector` instance by duplicating an existing vector and sets a

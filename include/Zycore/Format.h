@@ -151,6 +151,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertHexS(ZyanString* string, ZyanUSize inde
 /* Appending                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief   Appends formatted text to the destination string.
  *
@@ -163,7 +165,10 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertHexS(ZyanString* string, ZyanUSize inde
  * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
  * `ZyanString` instance.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringAppendFormat(ZyanString* string, const char* format, ...);
+ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringAppendFormat(
+    ZyanString* string, const char* format, ...);
+
+#endif // ZYAN_NO_LIBC
 
 /* ---------------------------------------------------------------------------------------------- */
 

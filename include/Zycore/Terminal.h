@@ -40,6 +40,8 @@
 extern "C" {
 #endif
 
+#ifndef ZYAN_NO_LIBC
+
 /* ============================================================================================== */
 /* VT100 CSI SGR sequences                                                                        */
 /* ============================================================================================== */
@@ -151,6 +153,8 @@ ZYCORE_EXPORT ZyanStatus ZyanTerminalEnableVT100(ZyanStandardStream stream);
 ZYCORE_EXPORT ZyanStatus ZyanTerminalIsTTY(ZyanStandardStream stream);
 
 /* ============================================================================================== */
+
+#endif // ZYAN_NO_LIBC
 
 #ifdef __cplusplus
 }

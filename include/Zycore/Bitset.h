@@ -85,6 +85,8 @@ typedef ZyanStatus (*ZyanBitsetByteOperation)(ZyanU8* v1, const ZyanU8* v2);
 /* Constructor and destructor                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief   Initializes the given `ZyanBitset` instance.
  *
@@ -96,7 +98,9 @@ typedef ZyanStatus (*ZyanBitsetByteOperation)(ZyanU8* v1, const ZyanU8* v2);
  * The space for the bitset is dynamically allocated by the default allocator using the default
  * growth factor of `2.0f` and the default shrink threshold of `0.5f`.
  */
-ZYCORE_EXPORT ZyanStatus ZyanBitsetInit(ZyanBitset* bitset, ZyanUSize count);
+ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanBitsetInit(ZyanBitset* bitset, ZyanUSize count);
+
+#endif // ZYAN_NO_LIBC
 
 /**
  * @brief   Initializes the given `ZyanBitset` instance and sets a custom `allocator` and memory

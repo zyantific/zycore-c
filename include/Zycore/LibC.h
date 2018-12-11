@@ -49,8 +49,6 @@
 
 #include <errno.h>
 
-// TODO: Implement fallback for `ZYAN_ERRNO` and error code defines
-
 #define ZYAN_ERRNO  errno
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -89,9 +87,6 @@ typedef va_list ZyanVAList;
  * @brief   Defines the `ZyanFile` datatype.
  */
 typedef FILE ZyanFile;
-
-// TODO: Implement fallback for `ZyanFile`
-// TODO: Implement fallback for `ZYAN_STDIN`, `ZYAN_STDOUT` and `ZYAN_STDERR`
 
 #define ZYAN_STDIN      stdin
 #define ZYAN_STDOUT     stdout
@@ -136,7 +131,7 @@ typedef FILE ZyanFile;
 
 /* ---------------------------------------------------------------------------------------------- */
 
-#else
+#else  // if ZYAN_NO_LIBC
 
 /* ============================================================================================== */
 /* No LibC available, use our own functions                                                       */

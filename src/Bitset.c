@@ -128,11 +128,15 @@ static ZyanStatus ZyanBitsetOperationXOR(ZyanU8* b1, const ZyanU8* b2)
 /* Constructor and destructor                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanStatus ZyanBitsetInit(ZyanBitset* bitset, ZyanUSize count)
 {
     return ZyanBitsetInitEx(bitset, count, ZyanAllocatorDefault(), ZYAN_BITSET_GROWTH_FACTOR,
         ZYAN_BITSET_SHRINK_THRESHOLD);
 }
+
+#endif // ZYAN_NO_LIBC
 
 ZyanStatus ZyanBitsetInitEx(ZyanBitset* bitset, ZyanUSize count, ZyanAllocator* allocator,
     float growth_factor, float shrink_threshold)

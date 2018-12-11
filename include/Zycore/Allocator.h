@@ -118,6 +118,9 @@ typedef struct ZyanAllocator_
  */
 ZYCORE_EXPORT ZyanStatus ZyanAllocatorInit(ZyanAllocator* allocator, ZyanAllocatorAllocate allocate,
     ZyanAllocatorAllocate reallocate, ZyanAllocatorDeallocate deallocate);
+
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief   Returns the default `ZyanAllocator` instance.
  *
@@ -127,7 +130,9 @@ ZYCORE_EXPORT ZyanStatus ZyanAllocatorInit(ZyanAllocator* allocator, ZyanAllocat
  *
  * You should in no case modify the returned allocator instance to avoid unexpected behavior.
  */
-ZYCORE_EXPORT ZyanAllocator* ZyanAllocatorDefault(void);
+ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanAllocator* ZyanAllocatorDefault(void);
+
+#endif // ZYAN_NO_LIBC
 
 /* ============================================================================================== */
 

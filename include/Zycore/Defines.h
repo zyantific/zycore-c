@@ -208,6 +208,11 @@
  */
 #define ZYAN_UNUSED(x) (void)(x)
 
+/**
+ * @brief   Marks functions that require libc (cannot be used with `ZYAN_NO_LIBC`).
+ */
+#define ZYAN_REQUIRES_LIBC
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Arrays                                                                                         */
 /* ---------------------------------------------------------------------------------------------- */

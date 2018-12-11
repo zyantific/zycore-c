@@ -35,6 +35,8 @@
 /* Default allocator                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 static ZyanStatus ZyanAllocatorDefaultAllocate(ZyanAllocator* allocator, void** p,
     ZyanUSize element_size, ZyanUSize n)
 {
@@ -91,6 +93,8 @@ static ZyanStatus ZyanAllocatorDefaultDeallocate(ZyanAllocator* allocator, void*
     return ZYAN_STATUS_SUCCESS;
 }
 
+#endif // ZYAN_NO_LIBC
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
@@ -112,6 +116,8 @@ ZyanStatus ZyanAllocatorInit(ZyanAllocator* allocator, ZyanAllocatorAllocate all
     return ZYAN_STATUS_SUCCESS;
 }
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanAllocator* ZyanAllocatorDefault(void)
 {
     static ZyanAllocator allocator =
@@ -122,5 +128,7 @@ ZyanAllocator* ZyanAllocatorDefault(void)
     };
     return &allocator;
 }
+
+#endif
 
 /* ============================================================================================== */

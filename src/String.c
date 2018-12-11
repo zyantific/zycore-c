@@ -51,11 +51,15 @@
 /* Constructor and destructor                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanStatus ZyanStringInit(ZyanString* string, ZyanUSize capacity)
 {
     return ZyanStringInitEx(string, capacity, ZyanAllocatorDefault(),
         ZYAN_STRING_DEFAULT_GROWTH_FACTOR, ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD);
 }
+
+#endif // ZYAN_NO_LIBC
 
 ZyanStatus ZyanStringInitEx(ZyanString* string, ZyanUSize capacity, ZyanAllocator* allocator,
     float growth_factor, float shrink_threshold)
@@ -116,12 +120,16 @@ ZyanStatus ZyanStringDestroy(ZyanString* string)
 /* Duplication                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanStatus ZyanStringDuplicate(ZyanString* destination, const ZyanStringView* source,
     ZyanUSize capacity)
 {
     return ZyanStringDuplicateEx(destination, source, capacity, ZyanAllocatorDefault(),
         ZYAN_STRING_DEFAULT_GROWTH_FACTOR, ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD);
 }
+
+#endif // ZYAN_NO_LIBC
 
 ZyanStatus ZyanStringDuplicateEx(ZyanString* destination, const ZyanStringView* source,
     ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold)
@@ -173,12 +181,16 @@ ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination, const ZyanSt
 /* Concatenation                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStringView* s1,
     const ZyanStringView* s2, ZyanUSize capacity)
 {
     return ZyanStringConcatEx(destination, s1, s2, capacity, ZyanAllocatorDefault(),
         ZYAN_STRING_DEFAULT_GROWTH_FACTOR, ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD);
 }
+
+#endif // ZYAN_NO_LIBC
 
 ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanStringView* s1,
     const ZyanStringView* s2, ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor,

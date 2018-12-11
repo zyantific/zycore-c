@@ -188,6 +188,8 @@ typedef struct ZyanStringView_
 /* Constructor and destructor                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief   Initializes the given `ZyanString` instance.
  *
@@ -204,7 +206,9 @@ typedef struct ZyanStringView_
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringInit(ZyanString* string, ZyanUSize capacity);
+ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringInit(ZyanString* string, ZyanUSize capacity);
+
+#endif // ZYAN_NO_LIBC
 
 /**
  * @brief   Initializes the given `ZyanString` instance and sets a custom `allocator` and memory
@@ -259,6 +263,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDestroy(ZyanString* string);
 /* Duplication                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief   Initializes a new `ZyanString` instance by duplicating an existing string.
  *
@@ -282,8 +288,10 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDestroy(ZyanString* string);
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringDuplicate(ZyanString* destination, const ZyanStringView* source,
-    ZyanUSize capacity);
+ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringDuplicate(ZyanString* destination,
+    const ZyanStringView* source, ZyanUSize capacity);
+
+#endif // ZYAN_NO_LIBC
 
 /**
  * @brief   Initializes a new `ZyanString` instance by duplicating an existing string and sets a
@@ -343,6 +351,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination
 /* Concatenation                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief   Initializes a new `ZyanString` instance by concatenating two existing strings.
  *
@@ -370,8 +380,10 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination
  *
  * Finalization with `ZyanStringDestroy` is required for all strings created by this function.
  */
-ZYCORE_EXPORT ZyanStatus ZyanStringConcat(ZyanString* destination, const ZyanStringView* s1,
-    const ZyanStringView* s2, ZyanUSize capacity);
+ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringConcat(ZyanString* destination,
+    const ZyanStringView* s1, const ZyanStringView* s2, ZyanUSize capacity);
+
+#endif // ZYAN_NO_LIBC
 
 /**
  * @brief   Initializes a new `ZyanString` instance by concatenating two existing strings and sets

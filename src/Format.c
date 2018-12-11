@@ -367,6 +367,8 @@ ZyanStatus ZyanStringAppendHexU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
 /* Appending                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanStatus ZyanStringAppendFormat(ZyanString* string, const char* format, ...)
 {
     if (!string || !format)
@@ -414,6 +416,8 @@ ZyanStatus ZyanStringAppendFormat(ZyanString* string, const char* format, ...)
     ZYAN_VA_END(arglist);
     return ZYAN_STATUS_SUCCESS;
 }
+
+#endif // ZYAN_NO_LIBC
 
 /* ---------------------------------------------------------------------------------------------- */
 

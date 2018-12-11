@@ -180,11 +180,15 @@ static ZyanStatus ZyanVectorShiftRight(ZyanVector* vector, ZyanUSize index, Zyan
 /* Constructor and destructor                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanStatus ZyanVectorInit(ZyanVector* vector, ZyanUSize element_size, ZyanUSize capacity)
 {
     return ZyanVectorInitEx(vector,  element_size, capacity, ZyanAllocatorDefault(),
         ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR, ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD);
 }
+
+#endif // ZYAN_NO_LIBC
 
 ZyanStatus ZyanVectorInitEx(ZyanVector* vector, ZyanUSize element_size, ZyanUSize capacity,
     ZyanAllocator* allocator, float growth_factor, float shrink_threshold)
@@ -260,12 +264,16 @@ ZyanStatus ZyanVectorDestroy(ZyanVector* vector, ZyanMemberProcedure destructor)
 /* Duplication                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanStatus ZyanVectorDuplicate(ZyanVector* destination, const ZyanVector* source,
     ZyanUSize capacity)
 {
     return ZyanVectorDuplicateEx(destination, source, capacity, ZyanAllocatorDefault(),
         ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR, ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD);
 }
+
+#endif // ZYAN_NO_LIBC
 
 ZyanStatus ZyanVectorDuplicateEx(ZyanVector* destination, const ZyanVector* source,
     ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold)
