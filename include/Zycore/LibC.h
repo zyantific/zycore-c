@@ -32,6 +32,8 @@
 #ifndef ZYCORE_LIBC_H
 #define ZYCORE_LIBC_H
 
+#include <Zycore/Defines.h>
+
 #ifndef ZYAN_CUSTOM_LIBC
 
 // Include a custom LibC header and define `ZYAN_CUSTOM_LIBC` to provide your own LibC
@@ -82,6 +84,11 @@ typedef va_list ZyanVAList;
 #define ZYAN_SCANF      scanf
 #define ZYAN_SSCANF     sscanf
 #define ZYAN_VSNPRINTF  vsnprintf
+#if (defined(ZYAN_MSVC) && defined(ZYAN_KERNEL))
+#   define ZYAN_VSNPRINTF  _vsnprintf
+#else
+#   define ZYAN_VSNPRINTF  vsnprintf
+#endif
 
 /**
  * @brief   Defines the `ZyanFile` datatype.

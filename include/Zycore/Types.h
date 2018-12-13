@@ -38,7 +38,7 @@
 /* Integer types                                                                                  */
 /* ============================================================================================== */
 
-#if !defined(ZYAN_NO_LIBC)
+#if !defined(ZYAN_NO_LIBC) && (!defined(ZYAN_MSVC) && defined(ZYAN_KERNEL)) // The WDK LibC lacks stdint.h.
     // If is LibC present, we use stdint types.
 #   include <stdint.h>
 #   include <stddef.h>
