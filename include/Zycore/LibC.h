@@ -150,7 +150,7 @@ typedef FILE ZyanFile;
 /* stdarg.h                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
-#if defined(ZYAN_MSVC)
+#if defined(ZYAN_MSVC) || defined(ZYAN_ICC)
 
 /**
  * @brief   Defines the `ZyanVAList` datatype.

@@ -76,6 +76,19 @@
 #endif
 
 /* ============================================================================================== */
+/* Kernel mode detection                                                                          */
+/* ============================================================================================== */
+
+#if (defined(ZYAN_WINDOWS) && defined(_KERNEL_MODE)) || \
+    (defined(ZYAN_APPLE) && defined(KERNEL)) || \
+    (defined(ZYAN_LINUX) && defined(__KERNEL__)) || \
+    (defined(__FreeBSD_kernel__))
+#   define ZYAN_KERNEL
+#else
+#   define ZYAN_USER
+#endif
+
+/* ============================================================================================== */
 /* Architecture detection                                                                         */
 /* ============================================================================================== */
 
@@ -132,6 +145,9 @@
  */
 #if defined(ZYAN_NO_LIBC)
 #   define ZYAN_ASSERT(condition) (void)(condition)
+#elif defined(ZYAN_WINDOWS) && defined(ZYAN_KERNEL)
+#   include <wdm.h>
+#   define ZYAN_ASSERT(condition) NT_ASSERT(condition)
 #else
 #   include <assert.h>
 #   define ZYAN_ASSERT(condition) assert(condition)
@@ -175,6 +191,8 @@
 #   endif
 #elif defined(ZYAN_NO_LIBC)
 #   define ZYAN_UNREACHABLE for(;;)
+#elif defined(ZYAN_WINDOWS) && defined(ZYAN_KERNEL)
+#   define ZYAN_UNREACHABLE { __fastfail(0); for(;;){} }
 #else
 #   include <stdlib.h>
 #   define ZYAN_UNREACHABLE { assert(0); abort(); }
