@@ -56,7 +56,7 @@
     typedef intptr_t  ZyanIPointer;
 #else
     // No LibC, use compiler built-in types / macros.
-#   if defined(ZYAN_MSVC)
+#   if (defined(ZYAN_MSVC) || defined(ZYAN_ICC))
         typedef unsigned __int8  ZyanU8;
         typedef unsigned __int16 ZyanU16;
         typedef unsigned __int32 ZyanU32;
