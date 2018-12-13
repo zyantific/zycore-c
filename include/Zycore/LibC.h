@@ -253,6 +253,8 @@ ZYAN_INLINE void* ZYAN_MEMCHR(const void* str, int c, ZyanUSize n)
     return 0;
 }
 
+#ifndef ZYAN_UEFI
+
 ZYAN_INLINE int ZYAN_MEMCMP(const void* s1, const void* s2, ZyanUSize n)
 {
     const ZyanU8* p1 = s1, *p2 = s2;
@@ -307,6 +309,24 @@ ZYAN_INLINE void* ZYAN_MEMSET(void* dst, int val, ZyanUSize n)
     }
     return dst;
 }
+
+#else
+
+/*
+ * NOTE: You may get compilation errors from these defines, because they require headers that may or
+ * may not already have been included. Unfortunately, while the function names are defined by the UEFI spec,
+ * the names of the header files are left up to the library implementation.
+ */
+
+//#include <Library/BaseMemoryLib.h>  // For EDK2
+//#include <efilib.h>                 // For gnu-efi
+
+#define ZYAN_MEMCMP                 CompareMem
+#define ZYAN_MEMCPY                 CopyMem
+#define ZYAN_MEMMOVE                CopyMem // CopyMem() is required to deal with overlapping source and destination pointers.
+#define ZYAN_MEMSET(dst, val, n)    SetMem(dst, n, (ZyanU8)val)
+
+#endif // ZYAN_UEFI
 
 ZYAN_INLINE char* ZYAN_STRCAT(char* dest, const char* src)
 {
