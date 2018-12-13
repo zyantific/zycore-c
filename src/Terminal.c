@@ -26,7 +26,7 @@
 
 #include <Zycore/Terminal.h>
 
-#ifndef ZYAN_NO_LIBC
+#ifdef ZYAN_USER
 
 #ifdef ZYAN_WINDOWS
 #   include <Windows.h>
@@ -155,4 +155,4 @@ ZyanStatus ZyanTerminalIsTTY(ZyanStandardStream stream)
 
 /* ============================================================================================== */
 
-#endif // ZYAN_NO_LIBC
+#endif // ZYAN_USER
