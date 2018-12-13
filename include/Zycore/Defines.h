@@ -56,7 +56,14 @@
 /* Platform detection                                                                             */
 /* ============================================================================================== */
 
-#if defined(_WIN32)
+// Unfortunately neither EDK2 nor gnu-efi have any specific defines as part of their build environment, so we have to rely on standard headers.
+// The best solution is to define ZYAN_UEFI in your CMakeLists.txt or project file in order to avoid these hidden header dependencies.
+#if (defined(ZYAN_UEFI) || defined(__PI_UEFI_H__) || defined(_GNU_EFI) || \
+    defined(EFI32) || defined(EFIX64))
+#   ifndef ZYAN_UEFI
+#       define ZYAN_UEFI
+#   endif
+#elif defined(_WIN32)
 #   define ZYAN_WINDOWS
 #elif defined(__EMSCRIPTEN__)
 #   define ZYAN_EMSCRIPTEN
@@ -73,6 +80,19 @@
 #   define ZYAN_POSIX
 #else
 #   define ZYAN_UNKNOWN_PLATFORM
+#endif
+
+/* ============================================================================================== */
+/* Kernel mode detection                                                                          */
+/* ============================================================================================== */
+#if (defined(ZYAN_WINDOWS) && defined(_KERNEL_MODE)) || \
+    (defined(ZYAN_APPLE) && defined(KERNEL)) || \
+    (defined(ZYAN_LINUX) && defined(__KERNEL__)) || \
+    (defined(__FreeBSD_kernel__)) || \
+    (defined(ZYAN_UEFI))
+#   define ZYAN_KERNEL
+#else
+#   define ZYAN_USER
 #endif
 
 /* ============================================================================================== */
