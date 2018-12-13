@@ -152,6 +152,11 @@
  */
 #if defined(ZYAN_NO_LIBC)
 #   define ZYAN_ASSERT(condition)
+#elif (defined(ZYAN_WINDOWS) && defined(ZYAN_KERNEL))
+#   include <wdm.h>
+#   define ZYAN_ASSERT(condition) NT_ASSERT(condition)
+#elif defined(ZYAN_UEFI)
+#   define ZYAN_ASSERT(condition) ASSERT(condition)
 #else
 #   include <assert.h>
 #   define ZYAN_ASSERT(condition) assert(condition)
@@ -192,6 +197,10 @@
 #   endif
 #elif defined(ZYAN_NO_LIBC)
 #   define ZYAN_UNREACHABLE for(;;)
+#elif (defined(ZYAN_WINDOWS) && defined(ZYAN_KERNEL))
+#   define ZYAN_UNREACHABLE { __fastfail(0); for(;;){} }
+#elif (defined(ZYAN_UEFI) && defined(UNREACHABLE)) // EDK2 has this; gnu-efi does not
+#   define ZYAN_UNREACHABLE UNREACHABLE()
 #else
 #   include <stdlib.h>
 #   define ZYAN_UNREACHABLE { assert(0); abort(); }
