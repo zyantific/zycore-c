@@ -131,7 +131,7 @@
  * @brief   Runtime debug assersion.
  */
 #if defined(ZYAN_NO_LIBC)
-#   define ZYAN_ASSERT(condition)
+#   define ZYAN_ASSERT(condition) (void)(condition)
 #else
 #   include <assert.h>
 #   define ZYAN_ASSERT(condition) assert(condition)
