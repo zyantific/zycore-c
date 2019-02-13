@@ -330,7 +330,7 @@ TEST_P(VectorTestFilled, Find)
     ZyanU64 element_in = m_vector.size / 2;
     EXPECT_EQ(ZyanVectorFind(&m_vector, &element_in, &index,
         reinterpret_cast<ZyanEqualityComparison>(&ZyanEqualsNumeric64)), ZYAN_STATUS_TRUE);
-    EXPECT_EQ(index, element_in);
+    EXPECT_EQ(static_cast<ZyanU64>(index), element_in);
 
     element_in = 1337;
     EXPECT_EQ(ZyanVectorFind(&m_vector, &element_in, &index,
