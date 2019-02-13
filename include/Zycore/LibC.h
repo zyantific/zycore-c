@@ -182,8 +182,8 @@ typedef __builtin_va_list  ZyanVAList;
 /* stdio.h                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-// ZYAN_INLINE int ZYAN_VSNPRINTF (char* const buffer, ZyanUSize const count, char const* const format,
-//     ZyanVAList args)
+// ZYAN_INLINE int ZYAN_VSNPRINTF (char* const buffer, ZyanUSize const count,
+//     char const* const format, ZyanVAList args)
 // {
 //      // We cant provide a fallback implementation for this function
 //     ZYAN_UNUSED(buffer);

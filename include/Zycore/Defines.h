@@ -149,6 +149,9 @@
         typedef int ZYAN_MACRO_CONCAT(ZYAN_SASSERT_, __COUNTER__) [(x) ? 1 : -1]
 #endif
 
+/**
+ * @brief	Marks the current code path as unreachable.
+ */
 #if defined(ZYAN_RELEASE)
 #   if defined(ZYAN_CLANG) // GCC eagerly evals && RHS, we have to use nested ifs.
 #       if __has_builtin(__builtin_unreachable)

@@ -26,9 +26,10 @@
 
 /**
  * @file
- * @brief   Demonstrates the `Vector` implementation.
+ * @brief   Demonstrates the `ZyanVector` implementation.
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <time.h>
 #include <Zycore/Allocator.h>
@@ -117,14 +118,14 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
     for (ZyanUSize i = 0;  i < value; ++i)
     {
         ZYAN_CHECK(ZyanVectorGetElement(vector, i, (const void**)&e_p));
-        printf("  Element #%02llu: %08llu\n", i, e_p->u64);
+        printf("  Element #%02" PRIuPTR ": %08" PRIu64 "\n", i, e_p->u64);
     }
 
     // Print infos
     puts("INFO");
-    printf("  Size       : %08llu\n", value);
+    printf("  Size       : %08" PRIuPTR "\n", value);
     ZYAN_CHECK(ZyanVectorGetCapacity(vector, &value));
-    printf("  Capacity   : %08llu\n\n", value);
+    printf("  Capacity   : %08" PRIuPTR "\n\n", value);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -192,7 +193,7 @@ static ZyanStatus PerformBinarySearchTest(ZyanVector* vector)
     for (ZyanUSize i = 0;  i < value; ++i)
     {
         ZYAN_CHECK(ZyanVectorGetElement(vector, i, (const void**)&e_p));
-        printf("  Element #%02llu: %08lu\n", i, e_p->u32);
+        printf("  Element #%02" PRIuPTR ": %08" PRIu32 "\n", i, e_p->u32);
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -215,7 +216,7 @@ static ZyanStatus TestDynamic(void)
     ZYAN_CHECK(PerformBinarySearchTest(&vector));
 
     // Cleanup
-    return ZyanVectorDestroy(&vector);
+    return ZyanVectorDestroy(&vector, ZYAN_NULL);
 }
 
 /**
@@ -250,7 +251,7 @@ static ZyanStatus TestStatic(void)
     ZYAN_CHECK(PerformBinarySearchTest(&vector));
 
     // Cleanup
-    return ZyanVectorDestroy(&vector);
+    return ZyanVectorDestroy(&vector, ZYAN_NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -332,8 +333,7 @@ static ZyanStatus TestAllocator(void)
     ZyanVector vector;
     ZYAN_CHECK(ZyanVectorInitEx(&vector, sizeof(TestStruct), 5, &allocator, 10.0f, 0.0f));
 
-    static       TestStruct  e_v;
-    static const TestStruct* e_p;
+    static TestStruct  e_v;
 
     // Insert `10` elements. The vector automatically manages its size
     for (ZyanU32 i = 0; i < 10; ++i)
@@ -356,12 +356,12 @@ static ZyanStatus TestAllocator(void)
     // Print infos
     puts("INFO");
     ZYAN_CHECK(ZyanVectorGetSize(&vector, &value));
-    printf("  Size       : %08llu\n", value);
+    printf("  Size       : %08" PRIuPTR "\n", value);
     ZYAN_CHECK(ZyanVectorGetCapacity(&vector, &value));
-    printf("  Capacity   : %08llu\n\n", value);
+    printf("  Capacity   : %08" PRIuPTR "\n\n", value);
 
     // Cleanup
-    return ZyanVectorDestroy(&vector);
+    return ZyanVectorDestroy(&vector, ZYAN_NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
