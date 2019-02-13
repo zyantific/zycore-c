@@ -12,7 +12,7 @@ project(Zycore VERSION 1.0.0.0 LANGUAGES C CXX)
 # Overridable options                                                                             #
 # =============================================================================================== #
 
-# Global configuration ()
+# Global configuration
 option(ZYAN_WHOLE_PROGRAM_OPTIMIZATION
     "Enable whole program optimization (all targets)"
     OFF)
@@ -163,7 +163,7 @@ if (ZYAN_DEV_MODE)
             "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
         target_compile_options("Zycore" PUBLIC "-pedantic" "-Wextra" "-Werror")
     elseif (MSVC)
-        target_compile_options("Zycore" PUBLIC "/WX" "/W4" "/TC")
+        target_compile_options("Zycore" PUBLIC "/WX" "/W4")
     endif ()
 endif ()
 
@@ -211,3 +211,5 @@ if (ZYCORE_BUILD_TESTS)
     zyan_add_test("String")
     zyan_add_test("Vector")
 endif ()
+
+# =============================================================================================== #
