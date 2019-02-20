@@ -414,6 +414,35 @@ TEST_P(VectorTestBase, Emplace)
     EXPECT_EQ(*element_out, 1337);
 }
 
+TEST_P(VectorTestFilled, SwapElements)
+{
+    EXPECT_EQ(m_vector.capacity, m_vector.size);
+
+    // Edge cases
+    EXPECT_EQ(ZyanVectorSwapElements(&m_vector, 0, m_vector.size), ZYAN_STATUS_OUT_OF_RANGE);
+    EXPECT_EQ(ZyanVectorSwapElements(&m_vector, m_vector.size, 0), ZYAN_STATUS_OUT_OF_RANGE);
+    EXPECT_EQ(ZyanVectorSwapElements(&m_vector, 0, m_vector.size - 1),
+        ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE);
+
+    // Free space for the temporary element
+    EXPECT_EQ(ZyanVectorPop(&m_vector), ZYAN_STATUS_SUCCESS);
+
+    // Retrieve element pointers
+    const ZyanU64* element_first;
+    EXPECT_EQ(ZyanVectorGetElement(&m_vector, 0, (const void**)&element_first),
+        ZYAN_STATUS_SUCCESS);
+    const ZyanU64* element_second;
+    EXPECT_EQ(ZyanVectorGetElement(&m_vector, m_vector.size - 1, (const void**)&element_second),
+        ZYAN_STATUS_SUCCESS);
+
+    const ZyanU64 values_before[2] = { *element_first, *element_second };
+    EXPECT_EQ(ZyanVectorSwapElements(&m_vector, 0, m_vector.size - 1), ZYAN_STATUS_SUCCESS);
+    const ZyanU64 values_after [2] = { *element_first, *element_second };
+
+    EXPECT_EQ(values_before[0], values_after[1]);
+    EXPECT_EQ(values_before[1], values_after[0]);
+}
+
 INSTANTIATE_TEST_CASE_P(Param, VectorTestBase, ::testing::Values(false, true));
 INSTANTIATE_TEST_CASE_P(Param, VectorTestFilled, ::testing::Values(false, true));
 

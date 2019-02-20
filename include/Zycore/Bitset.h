@@ -377,7 +377,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetShrinkToFit(ZyanBitset* bitset);
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanBitsetSize(const ZyanBitset* bitset, ZyanUSize* size);
+ZYCORE_EXPORT ZyanStatus ZyanBitsetGetSize(const ZyanBitset* bitset, ZyanUSize* size);
 
 /**
  * @brief   Returns the current capacity of the bitset in bits.
@@ -387,7 +387,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetSize(const ZyanBitset* bitset, ZyanUSize* siz
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanBitsetCapacity(const ZyanBitset* bitset, ZyanUSize* capacity);
+ZYCORE_EXPORT ZyanStatus ZyanBitsetGetCapacity(const ZyanBitset* bitset, ZyanUSize* capacity);
 
 /**
  * @brief   Returns the current size of the bitset in bytes.
@@ -397,7 +397,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetCapacity(const ZyanBitset* bitset, ZyanUSize*
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanBitsetSizeBytes(const ZyanBitset* bitset, ZyanUSize* size);
+ZYCORE_EXPORT ZyanStatus ZyanBitsetGetSizeBytes(const ZyanBitset* bitset, ZyanUSize* size);
 
 /**
  * @brief   Returns the current capacity of the bitset in bytes.
@@ -407,7 +407,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetSizeBytes(const ZyanBitset* bitset, ZyanUSize
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanBitsetCapacityBytes(const ZyanBitset* bitset, ZyanUSize* capacity);
+ZYCORE_EXPORT ZyanStatus ZyanBitsetGetCapacityBytes(const ZyanBitset* bitset, ZyanUSize* capacity);
 
 /* ---------------------------------------------------------------------------------------------- */
 

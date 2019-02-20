@@ -25,6 +25,7 @@
 ***************************************************************************************************/
 
 #include <Zycore/Bitset.h>
+#include "Zycore/LibC.h"
 
 /* ============================================================================================== */
 /* Internal constants                                                                             */
@@ -461,7 +462,7 @@ ZyanStatus ZyanBitsetShrinkToFit(ZyanBitset* bitset)
 /* Information                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanBitsetSize(const ZyanBitset* bitset, ZyanUSize* size)
+ZyanStatus ZyanBitsetGetSize(const ZyanBitset* bitset, ZyanUSize* size)
 {
     if (!bitset)
     {
@@ -473,15 +474,15 @@ ZyanStatus ZyanBitsetSize(const ZyanBitset* bitset, ZyanUSize* size)
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanBitsetCapacity(const ZyanBitset* bitset, ZyanUSize* capacity)
+ZyanStatus ZyanBitsetGetCapacity(const ZyanBitset* bitset, ZyanUSize* capacity)
 {
-    ZYAN_CHECK(ZyanBitsetCapacityBytes(bitset, capacity));
+    ZYAN_CHECK(ZyanBitsetGetCapacityBytes(bitset, capacity));
     *capacity *= 8;
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanBitsetSizeBytes(const ZyanBitset* bitset, ZyanUSize* size)
+ZyanStatus ZyanBitsetGetSizeBytes(const ZyanBitset* bitset, ZyanUSize* size)
 {
     if (!bitset)
     {
@@ -491,7 +492,7 @@ ZyanStatus ZyanBitsetSizeBytes(const ZyanBitset* bitset, ZyanUSize* size)
     return ZyanVectorGetSize(&bitset->bits, size);
 }
 
-ZyanStatus ZyanBitsetCapacityBytes(const ZyanBitset* bitset, ZyanUSize* capacity)
+ZyanStatus ZyanBitsetGetCapacityBytes(const ZyanBitset* bitset, ZyanUSize* capacity)
 {
     if (!bitset)
     {

@@ -496,6 +496,36 @@ ZyanStatus ZyanVectorEmplaceEx(ZyanVector* vector, ZyanUSize index, void** eleme
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Utils                                                                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
+ZyanStatus ZyanVectorSwapElements(ZyanVector* vector, ZyanUSize index_first, ZyanUSize index_second)
+{
+    if (!vector)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if ((index_first >= vector->size) || (index_second >= vector->size))
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    if (vector->size == vector->capacity)
+    {
+        return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
+    }
+
+    ZyanU64* const t = ZYCORE_VECTOR_OFFSET(vector, vector->size);
+    ZyanU64* const a = ZYCORE_VECTOR_OFFSET(vector, index_first);
+    ZyanU64* const b = ZYCORE_VECTOR_OFFSET(vector, index_second);
+    ZYAN_MEMCPY(t, a, vector->element_size);
+    ZYAN_MEMCPY(a, b, vector->element_size);
+    ZYAN_MEMCPY(b, t, vector->element_size);
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Deletion                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 

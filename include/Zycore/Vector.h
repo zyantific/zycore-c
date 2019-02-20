@@ -360,6 +360,25 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorEmplaceEx(ZyanVector* vector, ZyanUSize index
     void** element, ZyanMemberFunction constructor);
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Utils                                                                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Swaps the element at `index_first` with the element at `index_second`.
+ *
+ * @param   vector          A pointer to the `ZyanVector` instance.
+ * @param   index_first     The index of the first element.
+ * @param   index_second    The index of the second element.
+ *
+ * @return  A zyan status code.
+ *
+ * This function requires the vector to have spare capacity for one temporary element. Call
+ * `ZyanVectorReserve` before this function to increase capacity, if needed.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorSwapElements(ZyanVector* vector, ZyanUSize index_first,
+    ZyanUSize index_second);
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Deletion                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -407,7 +426,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorClear(ZyanVector* vector);
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Searches for the first occurrence of `element` in the given vector.
+ * @brief   Sequentially searches for the first occurrence of `element` in the given vector.
  *
  * @param   vector      A pointer to the `ZyanVector` instance.
  * @param   element     A pointer to the element to search for.
@@ -423,7 +442,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorFind(const ZyanVector* vector, const void* el
     ZyanISize* found_index, ZyanEqualityComparison comparison);
 
 /**
- * @brief   Searches for the first occurrence of `element` in the given vector.
+ * @brief   Sequentially searches for the first occurrence of `element` in the given vector.
  *
  * @param   vector      A pointer to the `ZyanVector` instance.
  * @param   element     A pointer to the element to search for.
@@ -454,6 +473,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* 
  *
  * If found, `found_index` contains the zero-based index of `element`. If not found, `found_index`
  * contains the index of the first entry larger than `element`.
+ *
+ * This function requires all elements in the vector to be strictly ordered (sorted).
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorBinarySearch(const ZyanVector* vector, const void* element,
     ZyanUSize* found_index, ZyanComparison comparison);
@@ -474,6 +495,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorBinarySearch(const ZyanVector* vector, const 
  *
  * If found, `found_index` contains the zero-based index of `element`. If not found, `found_index`
  * contains the index of the first entry larger than `element`.
+ *
+ * This function requires all elements in the vector to be strictly ordered (sorted).
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorBinarySearchEx(const ZyanVector* vector, const void* element,
     ZyanUSize* found_index, ZyanComparison comparison, ZyanUSize index, ZyanUSize count);
