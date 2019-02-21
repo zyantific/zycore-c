@@ -109,7 +109,7 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
 
     // Change value of element `#15`
     InitTestdata(&e_v, 87654321);
-    ZYAN_CHECK(ZyanVectorSetElement(vector, 10, &e_v));
+    ZYAN_CHECK(ZyanVectorSet(vector, 10, &e_v));
 
     // Print `u64` of all vector elements
     ZyanUSize value;
@@ -117,7 +117,7 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
     puts("ELEMENTS");
     for (ZyanUSize i = 0;  i < value; ++i)
     {
-        ZYAN_CHECK(ZyanVectorGetElement(vector, i, (const void**)&e_p));
+        ZYAN_CHECK(ZyanVectorGetPointer(vector, i, (const void**)&e_p));
         printf("  Element #%02" PRIuPTR ": %08" PRIu64 "\n", i, e_p->u64);
     }
 
@@ -192,7 +192,7 @@ static ZyanStatus PerformBinarySearchTest(ZyanVector* vector)
     puts("ELEMENTS");
     for (ZyanUSize i = 0;  i < value; ++i)
     {
-        ZYAN_CHECK(ZyanVectorGetElement(vector, i, (const void**)&e_p));
+        ZYAN_CHECK(ZyanVectorGetPointer(vector, i, (const void**)&e_p));
         printf("  Element #%02" PRIuPTR ": %08" PRIu32 "\n", i, e_p->u32);
     }
 
@@ -239,7 +239,7 @@ static ZyanStatus TestStatic(void)
     for (ZyanUSize i = 0;  i < size; ++i)
     {
         static TestStruct* element;
-        ZYAN_CHECK(ZyanVectorGetElement(&vector, i, (const void**)&element));
+        ZYAN_CHECK(ZyanVectorGetPointer(&vector, i, (const void**)&element));
         if (element->u64 != buffer[i].u64)
         {
             return ZYAN_STATUS_INVALID_OPERATION;

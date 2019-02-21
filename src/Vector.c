@@ -324,7 +324,27 @@ ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination, const ZyanVe
 /* Element access                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSize index, const void** value)
+ZyanStatus ZyanVectorGet(const ZyanVector* vector, ZyanUSize index, void* destination)
+{
+    if (!vector || !destination)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if (index >= vector->size)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+
+    ZYAN_ASSERT(vector->element_size);
+    ZYAN_ASSERT(vector->data);
+
+    void* const data = ZYCORE_VECTOR_OFFSET(vector, index);
+    ZYAN_MEMCPY(destination, data, vector->element_size);
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanVectorGetPointer(const ZyanVector* vector, ZyanUSize index, const void** value)
 {
     if (!vector || !value)
     {
@@ -343,7 +363,7 @@ ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSize index, const
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index, void** value)
+ZyanStatus ZyanVectorGetPointerMutable(const ZyanVector* vector, ZyanUSize index, void** value)
 {
     if (!vector || !value)
     {
@@ -362,7 +382,7 @@ ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanVectorSetElement(ZyanVector* vector, ZyanUSize index, const void* value)
+ZyanStatus ZyanVectorSet(ZyanVector* vector, ZyanUSize index, const void* value)
 {
     if (!vector || !value)
     {
@@ -515,6 +535,9 @@ ZyanStatus ZyanVectorSwapElements(ZyanVector* vector, ZyanUSize index_first, Zya
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
+    ZYAN_ASSERT(vector->element_size);
+    ZYAN_ASSERT(vector->data);
+
     ZyanU64* const t = ZYCORE_VECTOR_OFFSET(vector, vector->size);
     ZyanU64* const a = ZYCORE_VECTOR_OFFSET(vector, index_first);
     ZyanU64* const b = ZYCORE_VECTOR_OFFSET(vector, index_second);
@@ -612,17 +635,19 @@ ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* element, ZyanI
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
+
     if (!count)
     {
         *found_index = -1;
         return ZYAN_STATUS_FALSE;
     }
 
-    const void* left;
+    ZYAN_ASSERT(vector->element_size);
+    ZYAN_ASSERT(vector->data);
+
     for (ZyanUSize i = index; i < index + count; ++i)
     {
-        ZYAN_CHECK(ZyanVectorGetElement(vector, i, &left));
-        if (comparison(left, element))
+        if (comparison(ZYCORE_VECTOR_OFFSET(vector, i), element))
         {
             *found_index = i;
             return ZYAN_STATUS_TRUE;
@@ -662,7 +687,8 @@ ZyanStatus ZyanVectorBinarySearchEx(const ZyanVector* vector, const void* elemen
         return ZYAN_STATUS_FALSE;
     }
 
-    const void* element_mid;
+    ZYAN_ASSERT(vector->element_size);
+    ZYAN_ASSERT(vector->data);
 
     ZyanStatus status = ZYAN_STATUS_FALSE;
     ZyanISize l = index;
@@ -670,8 +696,7 @@ ZyanStatus ZyanVectorBinarySearchEx(const ZyanVector* vector, const void* elemen
     while (l <= h)
     {
         const ZyanUSize mid = l + ((h - l) >> 1);
-        ZYAN_CHECK(ZyanVectorGetElement(vector, mid, &element_mid));
-        const ZyanI32 cmp = comparison(element_mid, element);
+        const ZyanI32 cmp = comparison(ZYCORE_VECTOR_OFFSET(vector, mid), element);
         if (cmp < 0)
         {
             l = mid + 1;

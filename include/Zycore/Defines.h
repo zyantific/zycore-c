@@ -33,6 +33,31 @@
 #define ZYCORE_DEFINES_H
 
 /* ============================================================================================== */
+/* Meta macros                                                                                    */
+/* ============================================================================================== */
+
+/**
+ * @brief   Concatenates two values using the stringify operator (`##`).
+ *
+ * @brief   x   The first value.
+ * @brief   y   The second value.
+ *
+ * @return  The combined string of the given values.
+ */
+#define ZYAN_MACRO_CONCAT(x, y) x ## y
+
+/**
+ * @brief   Concatenates two values using the stringify operator (`##`) and expands the value to
+ *          be used in another macro.
+ *
+ * @brief   x   The first value.
+ * @brief   y   The second value.
+ *
+ * @return  The combined string of the given values.
+ */
+#define ZYAN_MACRO_CONCAT_EXPAND(x, y) ZYAN_MACRO_CONCAT(x, y)
+
+/* ============================================================================================== */
 /* Compiler detection                                                                             */
 /* ============================================================================================== */
 
@@ -159,10 +184,8 @@
 #if __STDC_VERSION__ >= 201112L
 #   define ZYAN_STATIC_ASSERT(x) _Static_assert(x, #x)
 #else
-#   define ZYAN_MACRO_CONCAT2(x, y) x##y
-#   define ZYAN_MACRO_CONCAT(x, y) ZYAN_MACRO_CONCAT2(x, y)
 #   define ZYAN_STATIC_ASSERT(x) \
-        typedef int ZYAN_MACRO_CONCAT(ZYAN_SASSERT_, __COUNTER__) [(x) ? 1 : -1]
+        typedef int ZYAN_MACRO_CONCAT_EXPAND(ZYAN_SASSERT_, __COUNTER__) [(x) ? 1 : -1]
 #endif
 
 /**
@@ -207,6 +230,13 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Marks the specified parameter as unused.
+ *
+ * @param   x   The name of the unused parameter.
+ */
+#define ZYAN_UNUSED(x) (void)(x)
+
+/**
  * @brief   Intentional fallthrough.
  */
 #if defined(ZYAN_GCC) && __GNUC__ > 7
@@ -223,13 +253,6 @@
 #define ZYAN_BITFIELD(x) : x
 
 /**
- * @brief   Marks the specified parameter as unused.
- *
- * @param   x   The name of the unused parameter.
- */
-#define ZYAN_UNUSED(x) (void)(x)
-
-/**
  * @brief   Marks functions that require libc (cannot be used with `ZYAN_NO_LIBC`).
  */
 #define ZYAN_REQUIRES_LIBC
@@ -237,27 +260,27 @@
 /**
  * @brief   Decorator for `printf`-style functions.
  *
- * @param   fmtIndex       The 1-based index of the format string parameter.
- * @param   firstToCheck   The 1-based index of the format arguments parameter.
+ * @param   format_index    The 1-based index of the format string parameter.
+ * @param   first_to_check  The 1-based index of the format arguments parameter.
  */
 #if defined(__RESHARPER__) || defined(ZYAN_GCC)
-#define ZYAN_PRINTF_ATTR(fmtIndex, firstToCheck) \
-    [[gnu::format(printf, fmtIndex, firstToCheck)]]
+#   define ZYAN_PRINTF_ATTR(format_index, first_to_check) \
+        [[gnu::format(printf, format_index, first_to_check)]]
 #else
-#define ZYAN_PRINTF_ATTR(fmtIndex, firstToCheck)
+#   define ZYAN_PRINTF_ATTR(format_index, first_to_check)
 #endif
 
 /**
  * @brief   Decorator for `wprintf`-style functions.
  *
- * @param   fmtIndex       The 1-based index of the format string parameter.
- * @param   firstToCheck   The 1-based index of the format arguments parameter.
+ * @param   format_index    The 1-based index of the format string parameter.
+ * @param   first_to_check  The 1-based index of the format arguments parameter.
  */
 #if defined(__RESHARPER__)
-#define ZYAN_WPRINTF_ATTR(fmtIndex, firstToCheck) \
-    [[rscpp::format(wprintf, fmtIndex, firstToCheck)]]
+#   define ZYAN_WPRINTF_ATTR(format_index, first_to_check) \
+        [[rscpp::format(wprintf, format_index, first_to_check)]]
 #else
-#define ZYAN_WPRINTF_ATTR(fmtIndex, firstToCheck)
+#   define ZYAN_WPRINTF_ATTR(format_index, first_to_check)
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */

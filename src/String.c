@@ -333,9 +333,7 @@ ZyanStatus ZyanStringGetChar(const ZyanStringView* string, ZyanUSize index, char
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    const char* c;
-    ZYAN_CHECK(ZyanVectorGetElement(&string->string.vector, index, (const void**)&c));
-    *value = *c;
+    ZYAN_CHECK(ZyanVectorGet(&string->string.vector, index, (void*)value));
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -353,7 +351,7 @@ ZyanStatus ZyanStringGetCharMutable(ZyanString* string, ZyanUSize index, char** 
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    return ZyanVectorGetElementMutable(&string->vector, index, (void**)value);
+    return ZyanVectorGetPointerMutable(&string->vector, index, (void**)value);
 }
 
 ZyanStatus ZyanStringSetChar(ZyanString* string, ZyanUSize index, char value)
@@ -369,7 +367,7 @@ ZyanStatus ZyanStringSetChar(ZyanString* string, ZyanUSize index, char value)
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    return ZyanVectorSetElement(&string->vector, index, (void*)&value);
+    return ZyanVectorSet(&string->vector, index, (void*)&value);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

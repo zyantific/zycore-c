@@ -258,15 +258,31 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Returns the value of the element at the given `index`.
+ *
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   index       The element index.
+ * @param   destination A pointer to the memory that receives the value of the desired element in
+ *                      the vector.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanVectorGet(const ZyanVector* vector, ZyanUSize index,
+    void* destination);
+
+/**
  * @brief   Returns a constant pointer to the element at the given `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The element index.
  * @param   value   Receives a constant pointer to the desired element in the vector.
  *
+ * Note that the returned pointer might get invalid when the vector is resized by either a manual
+ * call to the memory-management functions or implicitly by inserting or removing elements.
+ *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSize index,
+ZYCORE_EXPORT ZyanStatus ZyanVectorGetPointer(const ZyanVector* vector, ZyanUSize index,
     const void** value);
 
 /**
@@ -276,9 +292,12 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorGetElement(const ZyanVector* vector, ZyanUSiz
  * @param   index   The element index.
  * @param   value Receives a pointer to the desired element in the vector.
  *
+ * Note that the returned pointer might get invalid when the vector is resized by either a manual
+ * call to the memory-management functions or implicitly by inserting or removing elements.
+ *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, ZyanUSize index,
+ZYCORE_EXPORT ZyanStatus ZyanVectorGetPointerMutable(const ZyanVector* vector, ZyanUSize index,
     void** value);
 
 /**
@@ -290,7 +309,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorGetElementMutable(const ZyanVector* vector, Z
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorSetElement(ZyanVector* vector, ZyanUSize index,
+ZYCORE_EXPORT ZyanStatus ZyanVectorSet(ZyanVector* vector, ZyanUSize index,
     const void* value);
 
 /* ---------------------------------------------------------------------------------------------- */

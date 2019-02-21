@@ -210,8 +210,8 @@ ZyanStatus ZyanBitsetPerformByteOperation(ZyanBitset* destination, const ZyanBit
     {
         ZyanU8* v1;
         const ZyanU8* v2;
-        ZYAN_CHECK(ZyanVectorGetElementMutable(&destination->bits, i, (void**)&v1));
-        ZYAN_CHECK(ZyanVectorGetElement(&source->bits, i, (const void**)&v2));
+        ZYAN_CHECK(ZyanVectorGetPointerMutable(&destination->bits, i, (void**)&v1));
+        ZYAN_CHECK(ZyanVectorGetPointer(&source->bits, i, (const void**)&v2));
 
         ZYAN_ASSERT(v1);
         ZYAN_ASSERT(v2);
@@ -249,7 +249,7 @@ ZyanStatus ZyanBitsetFlip(ZyanBitset* bitset)
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
-        ZYAN_CHECK(ZyanVectorGetElementMutable(&bitset->bits, i, (void**)&value));
+        ZYAN_CHECK(ZyanVectorGetPointerMutable(&bitset->bits, i, (void**)&value));
         *value = ~(*value);
     }
 
@@ -272,7 +272,7 @@ ZyanStatus ZyanBitsetSet(ZyanBitset* bitset, ZyanUSize index)
     }
 
     ZyanU8* value;
-    ZYAN_CHECK(ZyanVectorGetElementMutable(&bitset->bits, index / 8, (void**)&value));
+    ZYAN_CHECK(ZyanVectorGetPointerMutable(&bitset->bits, index / 8, (void**)&value));
     *value |= (1 << ZYAN_BITSET_BIT_OFFSET(index));
 
     return ZYAN_STATUS_SUCCESS;
@@ -290,7 +290,7 @@ ZyanStatus ZyanBitsetReset(ZyanBitset* bitset, ZyanUSize index)
     }
 
     ZyanU8* value;
-    ZYAN_CHECK(ZyanVectorGetElementMutable(&bitset->bits, index / 8, (void**)&value));
+    ZYAN_CHECK(ZyanVectorGetPointerMutable(&bitset->bits, index / 8, (void**)&value));
     *value &= ~(1 << ZYAN_BITSET_BIT_OFFSET(index));
 
     return ZYAN_STATUS_SUCCESS;
@@ -317,7 +317,7 @@ ZyanStatus ZyanBitsetToggle(ZyanBitset* bitset, ZyanUSize index)
     }
 
     ZyanU8* value;
-    ZYAN_CHECK(ZyanVectorGetElementMutable(&bitset->bits, index / 8, (void**)&value));
+    ZYAN_CHECK(ZyanVectorGetPointerMutable(&bitset->bits, index / 8, (void**)&value));
     *value ^= (1 << ZYAN_BITSET_BIT_OFFSET(index));
 
     return ZYAN_STATUS_SUCCESS;
@@ -334,9 +334,9 @@ ZyanStatus ZyanBitsetTest(ZyanBitset* bitset, ZyanUSize index)
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    const ZyanU8* value;
-    ZYAN_CHECK(ZyanVectorGetElement(&bitset->bits, index / 8, (const void**)&value));
-    if ((*value & (1 << ZYAN_BITSET_BIT_OFFSET(index))) == 0)
+    ZyanU8 value;
+    ZYAN_CHECK(ZyanVectorGet(&bitset->bits, index / 8, (void*)&value));
+    if ((value & (1 << ZYAN_BITSET_BIT_OFFSET(index))) == 0)
     {
         return ZYAN_STATUS_FALSE;
     }
@@ -372,7 +372,7 @@ ZyanStatus ZyanBitsetSetAll(ZyanBitset* bitset)
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
-        ZYAN_CHECK(ZyanVectorGetElementMutable(&bitset->bits, i, (void**)&value));
+        ZYAN_CHECK(ZyanVectorGetPointerMutable(&bitset->bits, i, (void**)&value));
         *value = 0xFF;
     }
 
@@ -391,7 +391,7 @@ ZyanStatus ZyanBitsetResetAll(ZyanBitset* bitset)
     for (ZyanUSize i = 0; i < size; ++i)
     {
         ZyanU8* value;
-        ZYAN_CHECK(ZyanVectorGetElementMutable(&bitset->bits, i, (void**)&value));
+        ZYAN_CHECK(ZyanVectorGetPointerMutable(&bitset->bits, i, (void**)&value));
         *value = 0x00;
     }
 
@@ -517,15 +517,14 @@ ZyanStatus ZyanBitsetCount(const ZyanBitset* bitset, ZyanUSize* count)
     ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
-        ZyanU8* value;
-        ZYAN_CHECK(ZyanVectorGetElement(&bitset->bits, i, (const void**)&value));
+        ZyanU8 value;
+        ZYAN_CHECK(ZyanVectorGet(&bitset->bits, i, (void*)&value));
 
-        ZyanU8 popcnt = *value;
-        popcnt = (popcnt & 0x55) + ((popcnt >> 1) & 0x55);
-        popcnt = (popcnt & 0x33) + ((popcnt >> 2) & 0x33);
-        popcnt = (popcnt & 0x0F) + ((popcnt >> 4) & 0x0F);
+        value = (value & 0x55) + ((value >> 1) & 0x55);
+        value = (value & 0x33) + ((value >> 2) & 0x33);
+        value = (value & 0x0F) + ((value >> 4) & 0x0F);
 
-        *count += popcnt;
+        *count += value;
     }
 
     *count = ZYAN_MIN(*count, bitset->size);
@@ -544,18 +543,18 @@ ZyanStatus ZyanBitsetAll(const ZyanBitset* bitset)
     ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
-        ZyanU8* value;
-        ZYAN_CHECK(ZyanVectorGetElement(&bitset->bits, i, (const void**)&value));
+        ZyanU8 value;
+        ZYAN_CHECK(ZyanVectorGetPointer(&bitset->bits, i, (void*)&value));
         if (i < (size - 1))
         {
-            if (*value != 0xFF)
+            if (value != 0xFF)
             {
                 return ZYAN_STATUS_FALSE;
             }
         } else
         {
             const ZyanU8 mask = ~(8 - (bitset->size % 8));
-            if ((*value & mask) != mask)
+            if ((value & mask) != mask)
             {
                 return ZYAN_STATUS_FALSE;
             }
@@ -576,18 +575,18 @@ ZyanStatus ZyanBitsetAny(const ZyanBitset* bitset)
     ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
-        ZyanU8* value;
-        ZYAN_CHECK(ZyanVectorGetElement(&bitset->bits, i, (const void**)&value));
+        ZyanU8 value;
+        ZYAN_CHECK(ZyanVectorGet(&bitset->bits, i, (void*)&value));
         if (i < (size - 1))
         {
-            if (*value != 0x00)
+            if (value != 0x00)
             {
                 return ZYAN_STATUS_TRUE;
             }
         } else
         {
             const ZyanU8 mask = ~(8 - (bitset->size % 8));
-            if ((*value & mask) != 0x00)
+            if ((value & mask) != 0x00)
             {
                 return ZYAN_STATUS_TRUE;
             }
@@ -608,18 +607,18 @@ ZyanStatus ZyanBitsetNone(const ZyanBitset* bitset)
     ZYAN_CHECK(ZyanVectorGetSize(&bitset->bits, &size));
     for (ZyanUSize i = 0; i < size; ++i)
     {
-        ZyanU8* value;
-        ZYAN_CHECK(ZyanVectorGetElement(&bitset->bits, i, (const void**)&value));
+        ZyanU8 value;
+        ZYAN_CHECK(ZyanVectorGet(&bitset->bits, i, (void*)&value));
         if (i < (size - 1))
         {
-            if (*value != 0x00)
+            if (value != 0x00)
             {
                 return ZYAN_STATUS_FALSE;
             }
         } else
         {
             const ZyanU8 mask = ~(8 - (bitset->size % 8));
-            if ((*value & mask) != 0x00)
+            if ((value & mask) != 0x00)
             {
                 return ZYAN_STATUS_FALSE;
             }
