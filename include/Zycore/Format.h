@@ -62,6 +62,7 @@ extern "C" {
  * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
  * `ZyanString` instance.
  */
+ZYAN_PRINTF_ATTR(3, 4)
 ZYCORE_EXPORT ZyanStatus ZyanStringInsertFormat(ZyanString* string, ZyanUSize index,
     const char* format, ...);
 
@@ -165,6 +166,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertHexS(ZyanString* string, ZyanUSize inde
  * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
  * `ZyanString` instance.
  */
+ZYAN_PRINTF_ATTR(2, 3)
 ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringAppendFormat(
     ZyanString* string, const char* format, ...);
 

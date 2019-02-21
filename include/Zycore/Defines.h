@@ -234,6 +234,32 @@
  */
 #define ZYAN_REQUIRES_LIBC
 
+/**
+ * @brief   Decorator for `printf`-style functions.
+ *
+ * @param   fmtIndex       The 1-based index of the format string parameter.
+ * @param   firstToCheck   The 1-based index of the format arguments parameter.
+ */
+#if defined(__RESHARPER__) || defined(ZYAN_GCC)
+#define ZYAN_PRINTF_ATTR(fmtIndex, firstToCheck) \
+    [[gnu::format(printf, fmtIndex, firstToCheck)]]
+#else
+#define ZYAN_PRINTF_ATTR(fmtIndex, firstToCheck)
+#endif
+
+/**
+ * @brief   Decorator for `wprintf`-style functions.
+ *
+ * @param   fmtIndex       The 1-based index of the format string parameter.
+ * @param   firstToCheck   The 1-based index of the format arguments parameter.
+ */
+#if defined(__RESHARPER__)
+#define ZYAN_WPRINTF_ATTR(fmtIndex, firstToCheck) \
+    [[rscpp::format(wprintf, fmtIndex, firstToCheck)]]
+#else
+#define ZYAN_WPRINTF_ATTR(fmtIndex, firstToCheck)
+#endif
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Arrays                                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
