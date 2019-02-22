@@ -263,9 +263,12 @@
  * @param   format_index    The 1-based index of the format string parameter.
  * @param   first_to_check  The 1-based index of the format arguments parameter.
  */
-#if defined(__RESHARPER__) || defined(ZYAN_GCC)
+#if defined(__RESHARPER__)
 #   define ZYAN_PRINTF_ATTR(format_index, first_to_check) \
         [[gnu::format(printf, format_index, first_to_check)]]
+#elif defined(ZYAN_GCC)
+#   define ZYAN_PRINTF_ATTR(format_index, first_to_check) \
+        __attribute__((format(printf, format_index, first_to_check)))
 #else
 #   define ZYAN_PRINTF_ATTR(format_index, first_to_check)
 #endif
