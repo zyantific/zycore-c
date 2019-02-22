@@ -109,6 +109,28 @@ typedef struct ZyanVector_
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
+/* ============================================================================================== */
+/* Macros                                                                                         */
+/* ============================================================================================== */
+
+/**
+ * @brief   Returns the value of the element at the given `index`.
+ *
+ * @param   vector  A pointer to the `ZyanVector` instance.
+ * @param   index   The element index.
+ *
+ * @result  The value of the desired element in the vector.
+ *
+ * Note that this function is unsafe and might dereference a null-pointer.
+ */
+#ifdef __cplusplus
+#define ZYAN_VECTOR_GET(vector, index, type) \
+    (*reinterpret_cast<const type*>(ZyanVectorGet(vector, index)))
+#else
+#define ZYAN_VECTOR_GET(vector, index, type) \
+    (*(const type*)ZyanVectorGet(vector, index))
+#endif
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Constructor and destructor                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
@@ -258,17 +280,21 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the value of the element at the given `index`.
+ * @brief   Returns a constant pointer to the element at the given `index`.
  *
  * @param   vector      A pointer to the `ZyanVector` instance.
  * @param   index       The element index.
- * @param   destination A pointer to the memory that receives the value of the desired element in
- *                      the vector.
  *
- * @return  A zyan status code.
+ * @return  A constant pointer to the desired element in the vector or `ZYAN_NULL`, if an error
+ *          occured.
+ *
+ * Note that the returned pointer might get invalid when the vector is resized by either a manual
+ * call to the memory-management functions or implicitly by inserting or removing elements.
+ *
+ * Take a look at `ZyanVectorGetPointer` instead, if you need a function that returns a zyan status
+ * code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorGet(const ZyanVector* vector, ZyanUSize index,
-    void* destination);
+ZYCORE_EXPORT const void* ZyanVectorGet(const ZyanVector* vector, ZyanUSize index);
 
 /**
  * @brief   Returns a constant pointer to the element at the given `index`.

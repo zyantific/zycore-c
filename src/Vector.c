@@ -133,7 +133,7 @@ static ZyanStatus ZyanVectorShiftLeft(ZyanVector* vector, ZyanUSize index, ZyanU
     ZYAN_ASSERT(vector);
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
-    ZYAN_ASSERT(count >  0);
+    ZYAN_ASSERT(count > 0);
     //ZYAN_ASSERT((ZyanISize)count - (ZyanISize)index + 1 >= 0);
 
     void* const source   = ZYCORE_VECTOR_OFFSET(vector, index + count);
@@ -184,7 +184,7 @@ static ZyanStatus ZyanVectorShiftRight(ZyanVector* vector, ZyanUSize index, Zyan
 
 ZyanStatus ZyanVectorInit(ZyanVector* vector, ZyanUSize element_size, ZyanUSize capacity)
 {
-    return ZyanVectorInitEx(vector,  element_size, capacity, ZyanAllocatorDefault(),
+    return ZyanVectorInitEx(vector, element_size, capacity, ZyanAllocatorDefault(),
         ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR, ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD);
 }
 
@@ -324,24 +324,17 @@ ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination, const ZyanVe
 /* Element access                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanVectorGet(const ZyanVector* vector, ZyanUSize index, void* destination)
+const void* ZyanVectorGet(const ZyanVector* vector, ZyanUSize index)
 {
-    if (!vector || !destination)
+    if (!vector || (index >= vector->size))
     {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-    if (index >= vector->size)
-    {
-        return ZYAN_STATUS_OUT_OF_RANGE;
+        return ZYAN_NULL;
     }
 
     ZYAN_ASSERT(vector->element_size);
     ZYAN_ASSERT(vector->data);
 
-    void* const data = ZYCORE_VECTOR_OFFSET(vector, index);
-    ZYAN_MEMCPY(destination, data, vector->element_size);
-
-    return ZYAN_STATUS_SUCCESS;
+    return ZYCORE_VECTOR_OFFSET(vector, index);
 }
 
 ZyanStatus ZyanVectorGetPointer(const ZyanVector* vector, ZyanUSize index, const void** value)
@@ -631,7 +624,7 @@ ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* element, ZyanI
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    if ((index + count > vector->size)|| (index == vector->size))
+    if ((index + count > vector->size) || (index == vector->size))
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }

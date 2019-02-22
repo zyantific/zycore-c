@@ -322,7 +322,7 @@ ZyanStatus ZyanStringViewGetSize(const ZyanStringView* view, ZyanUSize* size)
 
 ZyanStatus ZyanStringGetChar(const ZyanStringView* string, ZyanUSize index, char* value)
 {
-    if (!string)
+    if (!string || !value)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -333,7 +333,9 @@ ZyanStatus ZyanStringGetChar(const ZyanStringView* string, ZyanUSize index, char
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorGet(&string->string.vector, index, (void*)value));
+    const char* chr;
+    ZYAN_CHECK(ZyanVectorGetPointer(&string->string.vector, index, (const void**)&chr));
+    *value = *chr;
 
     return ZYAN_STATUS_SUCCESS;
 }
