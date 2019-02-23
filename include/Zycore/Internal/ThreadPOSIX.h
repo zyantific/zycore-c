@@ -24,30 +24,75 @@
 
 ***************************************************************************************************/
 
-#include <Zycore/Thread.h>
+/**
+ * @file
+ * @brief
+ */
+
+#ifndef ZYCORE_THREAD_POSIX_H
+#define ZYCORE_THREAD_POSIX_H
+
+#include <Zycore/Defines.h>
+
+#if defined(ZYAN_POSIX)
+
+#include <pthread.h>
+#include <Zycore/Status.h>
+#include <Zycore/Types.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* ============================================================================================== */
-/* Internal functions                                                                             */
+/* Enums and types                                                                                */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/*                                                                                                */
+/* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
+/**
+ *  @brief  Defines the `ZyanThread` datatype.
+ */
+typedef pthread_t ZyanThread;
 
+/**
+ *  @brief  Defines the `ZyanThreadId` datatype.
+ */
+typedef ZyanU64 ZyanThreadId;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Thread Local Storage (TLS)                                                                     */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ *  @brief  Defines the `ZyanThreadTlsIndex` datatype.
+ */
+typedef pthread_key_t ZyanThreadTlsIndex;
+
+/**
+ *  @brief  Defines the `ZyanThreadTlsCallback` function prototype.
+ */
+typedef void(*ZyanThreadTlsCallback)(void* data);
+
+/**
+ * @brief   Declares a Thread Local Storage (TLS) callback function.
+ *
+ * @param   name    The callback function name.
+ * @param   data    The callback data parameter name.
+ */
+#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, data) \
+    void name(void* data)
 
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
-/* Exported functions                                                                             */
-/* ============================================================================================== */
 
-/* ---------------------------------------------------------------------------------------------- */
-/*                                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
+#ifdef __cplusplus
+}
+#endif
 
+#endif
 
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/* ============================================================================================== */
+#endif /* ZYCORE_THREAD_POSIX_H */

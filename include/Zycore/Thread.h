@@ -33,35 +33,24 @@
 #define ZYCORE_THREAD_H
 
 #include <ZycoreExportConfig.h>
+#include <Zycore/Defines.h>
 #include <Zycore/Status.h>
-#include <Zycore/Types.h>
+
+#if defined(ZYAN_POSIX)
+#   include <Zycore/Internal/ThreadPosix.h>
+#elif defined(ZYAN_WINDOWS)
+#   include <Zycore/Internal/ThreadWindows.h>
+#else
+#   error "Unsupported platform detected"
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* ============================================================================================== */
 /* Enums and types                                                                                */
 /* ============================================================================================== */
-
-/**
- * @brief   Defines the `ZyanThreadManager` struct.
- */
-typedef struct ZyanThreadManager_
-{
-    int a;
-} ZyanThreadManager;
-
-/* ============================================================================================== */
-/* Exported functions                                                                             */
-/* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Memory manager                                                                                 */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Returns the default thread manager.
-
- * @return  The default thread manager.
- */
-ZYCORE_EXPORT const ZyanThreadManager* ZyanThreadManagerDefault(void);
 
 /* ---------------------------------------------------------------------------------------------- */
 /*                                                                                                */
@@ -69,6 +58,107 @@ ZYCORE_EXPORT const ZyanThreadManager* ZyanThreadManagerDefault(void);
 
 
 
+/* ---------------------------------------------------------------------------------------------- */
+
 /* ============================================================================================== */
+/* Exported functions                                                                             */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* General                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Returns the handle of the current thread.
+ *
+ * @param   thread  Receives the handle of the current thread.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadGetCurrentThread(ZyanThread* thread);
+
+/**
+ * @brief   Returns the unique id of the current thread.
+ *
+ * @param   thread_id   Receives the unique id of the current thread.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadGetCurrentThreadId(ZyanThreadId* thread_id);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Thread Local Storage (TLS)                                                                     */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Allocates a new Thread Local Storage (TLS) slot.
+ *
+ * @param   index       Receives the TLS slot index.
+ * @param   destructor  A pointer to a destructor callback which is invoked to finalize the data
+ *                      in the TLS slot or `ZYAN_NULL`, if not needed.
+ *
+ * The maximum available number of TLS slots is implementation specific and different on each
+ * platform:
+ * - Windows
+ *   - A total amount of 128 slots per process is guaranteed
+ * - POSIX
+ *   - A total amount of 128 slots per process is guaranteed
+ *   - Some systems guarantee larger amounts like e.g. 1024 slots per process
+ *
+ * Note that the invokation rules for the destructor callback are implementation specific and
+ * different on each platform:
+ * - Windows
+ *   - The callback is invoked when a thread exits
+ *   - The callback is invoked when the process exits
+ *   - The callback is invoked when the TLS slot is released
+ * - POSIX
+ *   - The callback is invoked when a thread exits and the stored value is not null
+ *   - The callback is NOT invoked when the process exits
+ *   - The callback is NOT invoked when the TLS slot is released
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadTlsAlloc(ZyanThreadTlsIndex* index,
+    ZyanThreadTlsCallback destructor);
+
+/**
+ * @brief   Releases a Thread Local Storage (TLS) slot.
+ *
+ * @param   index   The TLS slot index.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadTlsFree(ZyanThreadTlsIndex index);
+
+/**
+ * @brief   Returns the value inside the given Thread Local Storage (TLS) slot for the calling
+ *          thread.
+ *
+ * @param   index   The TLS slot index.
+ * @param   data    Receives the value inside the given Thread Local Storage (TLS) slot for the
+ *                  calling thread.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadTlsGetValue(ZyanThreadTlsIndex index, void** data);
+
+/**
+ * @brief   Set the value of the given Thread Local Storage (TLS) slot for the calling thread.
+ *
+ * @param   index   The TLS slot index.
+ * @param   data    The value to store inside the given Thread Local Storage (TLS) slot for the
+ *                  calling thread
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadTlsSetValue(ZyanThreadTlsIndex index, void* data);
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/* ============================================================================================== */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ZYCORE_THREAD_H */

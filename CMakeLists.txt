@@ -131,6 +131,8 @@ target_sources("Zycore"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Thread.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Types.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Vector.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Internal/ThreadPOSIX.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Internal/ThreadWindows.h"
         "src/Allocator.c"
         "src/Bitset.c"
         "src/Format.c"
@@ -138,10 +140,18 @@ target_sources("Zycore"
         "src/String.c"
         "src/Terminal.c"
         "src/Thread.c"
+        "src/ThreadPOSIX.c"
+        "src/ThreadWindows.c"
         "src/Vector.c")
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zycore" PRIVATE "src/VersionInfo.rc")
+endif ()
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    target_compile_definitions("Zycore" PRIVATE "_GNU_SOURCE")
+    find_package(Threads REQUIRED)
+    target_link_libraries("Zycore" Threads::Threads)
 endif ()
 
 # TODO: Install CMake config.
