@@ -117,32 +117,36 @@ endif ()
 
 target_sources("Zycore"
     PRIVATE
+        # API
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Memory.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Synchronization.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Terminal.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Thread.h"
+        # Common
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Allocator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Bitset.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Comparison.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Defines.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Format.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/LibC.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Memory.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Object.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Status.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/String.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Terminal.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Thread.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Types.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Vector.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Internal/ThreadPOSIX.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Internal/ThreadWindows.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Zycore.h"
+        # API
+        "src/API/Memory.c"
+        "src/API/Synchronization.c"
+        "src/API/Terminal.c"
+        "src/API/Thread.c"
+        # Common
         "src/Allocator.c"
         "src/Bitset.c"
         "src/Format.c"
-        "src/Memory.c"
         "src/String.c"
-        "src/Terminal.c"
-        "src/Thread.c"
-        "src/ThreadPOSIX.c"
-        "src/ThreadWindows.c"
-        "src/Vector.c")
+        "src/Vector.c"
+        "src/Zycore.c")
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zycore" PRIVATE "src/VersionInfo.rc")

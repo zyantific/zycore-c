@@ -29,16 +29,12 @@
  * @brief
  */
 
-#ifndef ZYCORE_THREAD_POSIX_H
-#define ZYCORE_THREAD_POSIX_H
+#ifndef ZYCORE_SYNCHRONIZATION_H
+#define ZYCORE_SYNCHRONIZATION_H
 
+#include <ZycoreExportConfig.h>
 #include <Zycore/Defines.h>
-
-#if defined(ZYAN_POSIX)
-
-#include <pthread.h>
 #include <Zycore/Status.h>
-#include <Zycore/Types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,42 +44,47 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
+#if   defined(ZYAN_POSIX)
+
 /* ---------------------------------------------------------------------------------------------- */
 /* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-/**
- *  @brief  Defines the `ZyanThread` datatype.
- */
-typedef pthread_t ZyanThread;
 
-/**
- *  @brief  Defines the `ZyanThreadId` datatype.
- */
-typedef ZyanU64 ZyanThreadId;
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Thread Local Storage (TLS)                                                                     */
+
+#elif defined(ZYAN_WINDOWS)
+
+#include <Windows.h>
+
+/* ---------------------------------------------------------------------------------------------- */
+/* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-/**
- *  @brief  Defines the `ZyanThreadTlsIndex` datatype.
- */
-typedef pthread_key_t ZyanThreadTlsIndex;
 
-/**
- *  @brief  Defines the `ZyanThreadTlsCallback` function prototype.
- */
-typedef void(*ZyanThreadTlsCallback)(void* data);
 
-/**
- * @brief   Declares a Thread Local Storage (TLS) callback function.
- *
- * @param   name    The callback function name.
- * @param   data    The callback data parameter name.
- */
-#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, data) \
-    void name(void* data)
+/* ---------------------------------------------------------------------------------------------- */
+
+#else
+#   error "Unsupported platform detected"
+#endif
+
+/* ============================================================================================== */
+/* Exported functions                                                                             */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Critical Section                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
+
+ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionCreate();
+
+ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionEnter();
+
+ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionLeave();
+
+ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionDestroy();
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -93,6 +94,4 @@ typedef void(*ZyanThreadTlsCallback)(void* data);
 }
 #endif
 
-#endif
-
-#endif /* ZYCORE_THREAD_POSIX_H */
+#endif /* ZYCORE_SYNCHRONIZATION_H */

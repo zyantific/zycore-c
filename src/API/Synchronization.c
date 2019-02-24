@@ -24,12 +24,7 @@
 
 ***************************************************************************************************/
 
-#include <Zycore/Defines.h>
-
-#if defined(ZYAN_WINDOWS)
-
-#include <Zycore/Thread.h>
-#include <Zycore/Internal/ThreadWindows.h>
+#include <Zycore/API/Synchronization.h>
 
 /* ============================================================================================== */
 /* Internal functions                                                                             */
@@ -47,69 +42,28 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
+#if   defined(ZYAN_POSIX)
+
 /* ---------------------------------------------------------------------------------------------- */
 /* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanThreadGetCurrentThread(ZyanThread* thread)
-{
-    *thread = GetCurrentThread();
 
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZyanThreadGetCurrentThreadId(ZyanThreadId* thread_id)
-{
-    *thread_id = GetCurrentThreadId();
-
-    return ZYAN_STATUS_SUCCESS;
-}
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Thread Local Storage (TLS)                                                                     */
-/* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanThreadTlsAlloc(ZyanThreadTlsIndex* index, ZyanThreadTlsCallback destructor)
-{
-    const ZyanThreadTlsIndex value = FlsAlloc(destructor);
-    if (value == FLS_OUT_OF_INDEXES)
-    {
-        return ZYAN_STATUS_OUT_OF_RESOURCES;
-    }
-
-    *index = value;
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZyanThreadTlsFree(ZyanThreadTlsIndex index)
-{
-    return FlsFree(index) ? ZYAN_STATUS_SUCCESS : ZYAN_STATUS_BAD_SYSTEMCALL;
-}
-
-ZyanStatus ZyanThreadTlsGetValue(ZyanThreadTlsIndex index, void** data)
-{
-    *data = FlsGetValue(index);
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZyanThreadTlsSetValue(ZyanThreadTlsIndex index, void* data)
-{
-    if (!FlsSetValue(index, data))
-    {
-        const DWORD error = GetLastError();
-        if (error == ERROR_INVALID_PARAMETER)
-        {
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
-        return ZYAN_STATUS_BAD_SYSTEMCALL;
-    }
-
-    return ZYAN_STATUS_SUCCESS;
-}
+#elif defined(ZYAN_WINDOWS)
 
 /* ---------------------------------------------------------------------------------------------- */
+/* General                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+
+
+/* ---------------------------------------------------------------------------------------------- */
+
+#else
+#   error "Unsupported platform detected"
+#endif
 
 /* ============================================================================================== */
-
-#endif

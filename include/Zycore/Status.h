@@ -213,10 +213,16 @@ typedef ZyanU32 ZyanStatus;
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x09)
 
 /**
- * @brief   An error occured during a system function call.
+ * @brief   An unknown error occured during a system function call.
  */
 #define ZYAN_STATUS_BAD_SYSTEMCALL \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0A)
+
+/**
+ * @brief   The process ran out of resources while performing an operation.
+ */
+#define ZYAN_STATUS_OUT_OF_RESOURCES \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0B)
 
 /* ---------------------------------------------------------------------------------------------- */
 

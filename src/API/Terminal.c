@@ -24,15 +24,17 @@
 
 ***************************************************************************************************/
 
-#include <Zycore/Terminal.h>
+#include <Zycore/API/Terminal.h>
 
 #ifndef ZYAN_NO_LIBC
 
-#ifdef ZYAN_WINDOWS
+#if   defined(ZYAN_POSIX)
+#   include <unistd.h>
+#elif defined(ZYAN_WINDOWS)
 #   include <Windows.h>
 #   include <io.h>
 #else
-#   include <unistd.h>
+#   error "Unsupported platform detected"
 #endif
 
 // Provide fallback for old SDK versions

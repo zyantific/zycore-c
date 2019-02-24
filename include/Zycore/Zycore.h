@@ -26,65 +26,81 @@
 
 /**
  * @file
- * @brief
+ * @brief   Master include file, including everything else.
  */
 
-#ifndef ZYCORE_THREAD_WINDOWS_H
-#define ZYCORE_THREAD_WINDOWS_H
+#ifndef ZYCORE_H
+#define ZYCORE_H
 
-#include <Zycore/Defines.h>
+#include <ZycoreExportConfig.h>
+#include <Zycore/Types.h>
 
-#if defined(ZYAN_WINDOWS)
-
-#include <Windows.h>
-#include <Zycore/Status.h>
+// TODO:
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* ============================================================================================== */
-/* Enums and types                                                                                */
+/* Macros                                                                                         */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* General                                                                                        */
+/* Constants                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- *  @brief  Defines the `ZyanThread` datatype.
+ * @brief   A macro that defines the zycore version.
  */
-typedef HANDLE ZyanThread;
-
-/**
- *  @brief  Defines the `ZyanThreadId` datatype.
- */
-typedef DWORD ZyanThreadId;
+#define ZYCORE_VERSION (ZyanU64)0x0001000000000000
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Thread Local Storage (TLS)                                                                     */
+/* Helper macros                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- *  @brief  Defines the `ZyanThreadTlsIndex` datatype.
- */
-typedef DWORD ZyanThreadTlsIndex;
-
-/**
- *  @brief  Defines the `ZyanThreadTlsCallback` function prototype.
- */
-typedef PFLS_CALLBACK_FUNCTION ZyanThreadTlsCallback;
-
-/**
- * @brief   Declares a Thread Local Storage (TLS) callback function.
+ * @brief   Extracts the major-part of the zydis version.
  *
- * @param   name    The callback function name.
- * @param   data    The callback data parameter name.
+ * @param   version The zydis version value
  */
-#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, data) \
-    VOID NTAPI name(PVOID data)
+#define ZYCORE_VERSION_MAJOR(version) (ZyanU16)((version & 0xFFFF000000000000) >> 48)
+
+/**
+ * @brief   Extracts the minor-part of the zydis version.
+ *
+ * @param   version The zydis version value
+ */
+#define ZYCORE_VERSION_MINOR(version) (ZyanU16)((version & 0x0000FFFF00000000) >> 32)
+
+/**
+ * @brief   Extracts the patch-part of the zydis version.
+ *
+ * @param   version The zydis version value
+ */
+#define ZYCORE_VERSION_PATCH(version) (ZyanU16)((version & 0x00000000FFFF0000) >> 16)
+
+/**
+ * @brief   Extracts the build-part of the zydis version.
+ *
+ * @param   version The zydis version value
+ */
+#define ZYCORE_VERSION_BUILD(version) (ZyanU16)(version & 0x000000000000FFFF)
 
 /* ---------------------------------------------------------------------------------------------- */
+
+/* ============================================================================================== */
+/* Exported functions                                                                             */
+/* ============================================================================================== */
+
+/**
+ * @brief   Returns the zycore version.
+ *
+ * @return  The zycore version.
+ *
+ * Use the macros provided in this file to extract the major, minor, patch and build part from the
+ * returned version value.
+ */
+ZYCORE_EXPORT ZyanU64 ZycoreGetVersion(void);
 
 /* ============================================================================================== */
 
@@ -92,6 +108,4 @@ typedef PFLS_CALLBACK_FUNCTION ZyanThreadTlsCallback;
 }
 #endif
 
-#endif
-
-#endif /* ZYCORE_THREAD_WINDOWS_H */
+#endif /* ZYCORE_H */

@@ -36,14 +36,6 @@
 #include <Zycore/Defines.h>
 #include <Zycore/Status.h>
 
-#if defined(ZYAN_POSIX)
-#   include <Zycore/Internal/ThreadPosix.h>
-#elif defined(ZYAN_WINDOWS)
-#   include <Zycore/Internal/ThreadWindows.h>
-#else
-#   error "Unsupported platform detected"
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,13 +44,95 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-/* ---------------------------------------------------------------------------------------------- */
-/*                                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
+#if   defined(ZYAN_POSIX)
 
-
+#include <pthread.h>
 
 /* ---------------------------------------------------------------------------------------------- */
+/* General                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ *  @brief  Defines the `ZyanThread` datatype.
+ */
+typedef pthread_t ZyanThread;
+
+/**
+ *  @brief  Defines the `ZyanThreadId` datatype.
+ */
+typedef ZyanU64 ZyanThreadId;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Thread Local Storage (TLS)                                                                     */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ *  @brief  Defines the `ZyanThreadTlsIndex` datatype.
+ */
+typedef pthread_key_t ZyanThreadTlsIndex;
+
+/**
+ *  @brief  Defines the `ZyanThreadTlsCallback` function prototype.
+ */
+typedef void(*ZyanThreadTlsCallback)(void* data);
+
+/**
+ * @brief   Declares a Thread Local Storage (TLS) callback function.
+ *
+ * @param   name    The callback function name.
+ * @param   data    The callback data parameter name.
+ */
+#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, data) \
+    void name(void* data)
+
+/* ---------------------------------------------------------------------------------------------- */
+
+#elif defined(ZYAN_WINDOWS)
+
+#include <Windows.h>
+
+/* ---------------------------------------------------------------------------------------------- */
+/* General                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ *  @brief  Defines the `ZyanThread` datatype.
+ */
+typedef HANDLE ZyanThread;
+
+/**
+ *  @brief  Defines the `ZyanThreadId` datatype.
+ */
+typedef DWORD ZyanThreadId;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Thread Local Storage (TLS)                                                                     */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ *  @brief  Defines the `ZyanThreadTlsIndex` datatype.
+ */
+typedef DWORD ZyanThreadTlsIndex;
+
+/**
+ *  @brief  Defines the `ZyanThreadTlsCallback` function prototype.
+ */
+typedef PFLS_CALLBACK_FUNCTION ZyanThreadTlsCallback;
+
+/**
+ * @brief   Declares a Thread Local Storage (TLS) callback function.
+ *
+ * @param   name    The callback function name.
+ * @param   data    The callback data parameter name.
+ */
+#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, data) \
+    VOID NTAPI name(PVOID data)
+
+/* ---------------------------------------------------------------------------------------------- */
+
+#else
+#   error "Unsupported platform detected"
+#endif
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
