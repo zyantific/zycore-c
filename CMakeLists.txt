@@ -75,6 +75,28 @@ function (zyan_set_common_flags target)
         "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
         target_compile_options("${target}" PRIVATE "-std=c99")
     endif ()
+
+    if (ZYAN_DEV_MODE)
+        # If in developer mode, be pedantic.
+        if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
+            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
+            "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+            target_compile_options("${target}" PUBLIC "-pedantic" "-Wextra" "-Werror")
+        elseif (MSVC)
+            target_compile_options("${target}" PUBLIC "/WX" "/W4")
+        endif ()
+    endif ()
+endfunction ()
+
+function (zyan_set_source_group target)
+    if (ZYAN_DEV_MODE)
+        if (((CMAKE_MAJOR_VERSION GREATER 3) OR (CMAKE_MAJOR_VERSION EQUAL 3)) AND 
+            ((CMAKE_MINOR_VERSION GREATER 8) OR (CMAKE_MINOR_VERSION EQUAL 8)))
+            # Mirror directory structure in project files
+            get_property("TARGET_SOURCE_FILES" TARGET "${target}" PROPERTY SOURCES)
+            source_group(TREE "${CMAKE_CURRENT_LIST_DIR}" FILES ${TARGET_SOURCE_FILES})
+        endif ()
+    endif ()
 endfunction ()
 
 function (zyan_maybe_enable_wpo target)
@@ -102,12 +124,12 @@ else ()
     add_library("Zycore" STATIC)
 endif ()
 
-zyan_set_common_flags("Zycore")
 set_target_properties("Zycore" PROPERTIES LINKER_LANGUAGE C)
 target_include_directories("Zycore"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
     PRIVATE "src")
 target_compile_definitions("Zycore" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYCORE_EXPORTS")
+zyan_set_common_flags("Zycore")
 zyan_maybe_enable_wpo_for_lib("Zycore")
 generate_export_header("Zycore" BASE_NAME "ZYCORE" EXPORT_FILE_NAME "ZycoreExportConfig.h")
 
@@ -148,6 +170,8 @@ target_sources("Zycore"
         "src/Vector.c"
         "src/Zycore.c")
 
+zyan_set_source_group("Zycore")
+
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zycore" PRIVATE "src/VersionInfo.rc")
 endif ()
@@ -172,17 +196,8 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # Developer mode                                                                                  #
 # =============================================================================================== #
 
-# If in developer mode, be pedantic.
 if (ZYAN_DEV_MODE)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
-        target_compile_options("Zycore" PUBLIC "-pedantic" "-Wextra" "-Werror")
-    elseif (MSVC)
-        target_compile_options("Zycore" PUBLIC "/WX" "/W4")
-    endif ()
 endif ()
 
 # =============================================================================================== #
