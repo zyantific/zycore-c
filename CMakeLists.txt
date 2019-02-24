@@ -170,11 +170,11 @@ target_sources("Zycore"
         "src/Vector.c"
         "src/Zycore.c")
 
-zyan_set_source_group("Zycore")
-
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
-    target_sources("Zycore" PRIVATE "src/VersionInfo.rc")
+    target_sources("Zycore" PRIVATE "resources/VersionInfo.rc")
 endif ()
+
+zyan_set_source_group("Zycore")
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     target_compile_definitions("Zycore" PRIVATE "_GNU_SOURCE")
