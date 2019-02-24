@@ -337,6 +337,19 @@ const void* ZyanVectorGet(const ZyanVector* vector, ZyanUSize index)
     return ZYCORE_VECTOR_OFFSET(vector, index);
 }
 
+void* ZyanVectorGetMutable(const ZyanVector* vector, ZyanUSize index)
+{
+    if (!vector || (index >= vector->size))
+    {
+        return ZYAN_NULL;
+    }
+
+    ZYAN_ASSERT(vector->element_size);
+    ZYAN_ASSERT(vector->data);
+
+    return ZYCORE_VECTOR_OFFSET(vector, index);
+}
+
 ZyanStatus ZyanVectorGetPointer(const ZyanVector* vector, ZyanUSize index, const void** value)
 {
     if (!vector || !value)

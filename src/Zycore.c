@@ -30,7 +30,7 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZyanU64 ZydisGetVersion(void)
+ZyanU64 ZycoreGetVersion(void)
 {
     return ZYCORE_VERSION;
 }

@@ -297,6 +297,23 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination
 ZYCORE_EXPORT const void* ZyanVectorGet(const ZyanVector* vector, ZyanUSize index);
 
 /**
+ * @brief   Returns a mutable pointer to the element at the given `index`.
+ *
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   index       The element index.
+ *
+ * @return  A mutable pointer to the desired element in the vector or `ZYAN_NULL`, if an error
+ *          occured.
+ *
+ * Note that the returned pointer might get invalid when the vector is resized by either a manual
+ * call to the memory-management functions or implicitly by inserting or removing elements.
+ *
+ * Take a look at `ZyanVectorGetPointerMutable` instead, if you need a function that returns a
+ * zyan status code.
+ */
+ZYCORE_EXPORT void* ZyanVectorGetMutable(const ZyanVector* vector, ZyanUSize index);
+
+/**
  * @brief   Returns a constant pointer to the element at the given `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
@@ -312,11 +329,11 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorGetPointer(const ZyanVector* vector, ZyanUSiz
     const void** value);
 
 /**
- * @brief   Returns a pointer to the element at the given `index`.
+ * @brief   Returns a mutable pointer to the element at the given `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The element index.
- * @param   value Receives a pointer to the desired element in the vector.
+ * @param   value Receives a mutable pointer to the desired element in the vector.
  *
  * Note that the returned pointer might get invalid when the vector is resized by either a manual
  * call to the memory-management functions or implicitly by inserting or removing elements.
@@ -478,8 +495,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorClear(ZyanVector* vector);
  * @param   found_index A pointer to a variable that receives the index of the found element.
  * @param   comparison  The comparison function to use.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
- *          zyan status code, if an error occured.
+ * @return  `ZYAN_STATUS_TRUE` if the element was found, `ZYAN_STATUS_FALSE` if not or a generic
+ *          zyan status code if an error occured.
  *
  * The `found_index` is set to `-1`, if the element was not found.
  */
@@ -496,8 +513,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorFind(const ZyanVector* vector, const void* el
  * @param   index       The start index.
  * @param   count       The maximum number of elements to iterate, beginning from the start `index`.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
- *          zyan status code, if an error occured.
+ * @return  `ZYAN_STATUS_TRUE` if the element was found, `ZYAN_STATUS_FALSE` if not or a generic
+ *          zyan status code if an error occured.
  *
  * The `found_index` is set to `-1`, if the element was not found.
  */
@@ -513,8 +530,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* 
  * @param   found_index A pointer to a variable that receives the index of the found element.
  * @param   comparison  The comparison function to use.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
- *          zyan status code, if an error occured.
+ * @return  `ZYAN_STATUS_TRUE` if the element was found, `ZYAN_STATUS_FALSE` if not or a generic
+ *          zyan status code if an error occured.
  *
  * If found, `found_index` contains the zero-based index of `element`. If not found, `found_index`
  * contains the index of the first entry larger than `element`.
@@ -535,8 +552,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorBinarySearch(const ZyanVector* vector, const 
  * @param   index       The start index.
  * @param   count       The maximum number of elements to iterate, beginning from the start `index`.
  *
- * @return  `ZYAN_STATUS_TRUE`, if the element was found, `ZYAN_STATUS_FALSE`, if not, or another
- *          zyan status code, if an error occured.
+ * @return  `ZYAN_STATUS_TRUE` if the element was found, `ZYAN_STATUS_FALSE` if not or a generic
+ *          zyan status code if an error occured.
  *
  * If found, `found_index` contains the zero-based index of `element`. If not found, `found_index`
  * contains the index of the first entry larger than `element`.

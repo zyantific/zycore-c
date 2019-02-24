@@ -79,11 +79,12 @@ typedef void(*ZyanThreadTlsCallback)(void* data);
 /**
  * @brief   Declares a Thread Local Storage (TLS) callback function.
  *
- * @param   name    The callback function name.
- * @param   data    The callback data parameter name.
+ * @param   name        The callback function name.
+ * @param   param_type  The callback data parameter type.
+ * @param   param_name  The callback data parameter name.
  */
-#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, data) \
-    void name(void* data)
+#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, param_type, param_name) \
+    void name(param_type* param_name)
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -122,11 +123,12 @@ typedef PFLS_CALLBACK_FUNCTION ZyanThreadTlsCallback;
 /**
  * @brief   Declares a Thread Local Storage (TLS) callback function.
  *
- * @param   name    The callback function name.
- * @param   data    The callback data parameter name.
+ * @param   name        The callback function name.
+ * @param   param_type  The callback data parameter type.
+ * @param   param_name  The callback data parameter name.
  */
-#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, data) \
-    VOID NTAPI name(PVOID data)
+#define ZYAN_THREAD_DECLARE_TLS_CALLBACK(name, param_type, param_name) \
+    VOID NTAPI name(param_type* param_name)
 
 /* ---------------------------------------------------------------------------------------------- */
 

@@ -189,40 +189,46 @@ typedef ZyanU32 ZyanStatus;
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x05)
 
 /**
+ * @brief   Insufficient privileges to perform the requested operation.
+ */
+#define ZYAN_STATUS_ACCESS_DENIED \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x06)
+
+/**
  * @brief   The requested entity was not found.
  */
 #define ZYAN_STATUS_NOT_FOUND \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x06)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x07)
 
 /**
  * @brief   An index passed to a function was out of bounds.
  */
 #define ZYAN_STATUS_OUT_OF_RANGE \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x07)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x08)
 
 /**
  * @brief   A buffer passed to a function was too small to complete the requested operation.
  */
 #define ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x08)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x09)
 
 /**
  * @brief   Insufficient memory to perform the operation.
  */
 #define ZYAN_STATUS_NOT_ENOUGH_MEMORY \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x09)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0A)
 
 /**
  * @brief   An unknown error occured during a system function call.
  */
 #define ZYAN_STATUS_BAD_SYSTEMCALL \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0A)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0B)
 
 /**
  * @brief   The process ran out of resources while performing an operation.
  */
 #define ZYAN_STATUS_OUT_OF_RESOURCES \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0B)
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0C)
 
 /* ---------------------------------------------------------------------------------------------- */
 
