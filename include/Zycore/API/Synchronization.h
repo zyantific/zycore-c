@@ -49,7 +49,7 @@ extern "C" {
 #include <pthread.h>
 
 /* ---------------------------------------------------------------------------------------------- */
-/* General                                                                                        */
+/* Critical Section                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 typedef pthread_mutex_t ZyanCriticalSection;
@@ -61,7 +61,7 @@ typedef pthread_mutex_t ZyanCriticalSection;
 #include <Windows.h>
 
 /* ---------------------------------------------------------------------------------------------- */
-/* General                                                                                        */
+/* Critical Section                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 typedef CRITICAL_SECTION ZyanCriticalSection;
@@ -85,14 +85,14 @@ typedef CRITICAL_SECTION ZyanCriticalSection;
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  */
-ZYCORE_EXPORT void ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section);
+ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section);
 
 /**
  * @brief   Enters a critical section.
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  */
-ZYCORE_EXPORT void ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section);
+ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section);
 
 /**
  * @brief   Tries to enter a critical section.
@@ -109,14 +109,14 @@ ZYCORE_EXPORT ZyanBool ZyanCriticalSectionTryEnter(ZyanCriticalSection* critical
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  */
-ZYCORE_EXPORT void ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section);
+ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section);
 
 /**
  * @brief   Deletes a critical section.
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  */
-ZYCORE_EXPORT void ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section);
+ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section);
 
 /* ---------------------------------------------------------------------------------------------- */
 

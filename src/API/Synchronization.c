@@ -44,38 +44,110 @@
 
 #if   defined(ZYAN_POSIX)
 
+#include <errno.h>
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Critical Section                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section)
+ZyanStatus ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section)
 {
     pthread_mutexattr_t attribute;
 
-    pthread_mutexattr_init(&attribute);
+    int error = pthread_mutexattr_init(&attribute);
+    if (error != 0)
+    {
+        if (error == ENOMEM)
+        {
+            return ZYAN_STATUS_NOT_ENOUGH_MEMORY;
+        }
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
     pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(critical_section, &attribute);
+
+    error = pthread_mutex_init(critical_section, &attribute);
     pthread_mutexattr_destroy(&attribute);
+    if (error != 0)
+    {
+        if (error == EAGAIN)
+        {
+            return ZYAN_STATUS_OUT_OF_RESOURCES;
+        }
+        if (error == ENOMEM)
+        {
+            return ZYAN_STATUS_NOT_ENOUGH_MEMORY;
+        }
+        if (error == EPERM)
+        {
+            return ZYAN_STATUS_ACCESS_DENIED;
+        }
+        if ((error == EBUSY) || (error == EINVAL))
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
-void ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section)
+ZyanStatus ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section)
 {
-    pthread_mutex_lock(critical_section);
+    const int error = pthread_mutex_lock(critical_section);
+    if (error != 0)
+    {
+        if (error == EINVAL)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+        if (error == EAGAIN)
+        {
+            return ZYAN_STATUS_INVALID_OPERATION;
+        }
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
 ZyanBool ZyanCriticalSectionTryEnter(ZyanCriticalSection* critical_section)
 {
+    // No fine grained error handling for this one
     return pthread_mutex_trylock(critical_section) ? ZYAN_FALSE : ZYAN_TRUE;
 }
 
-void ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section)
+ZyanStatus ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section)
 {
-    pthread_mutex_unlock(critical_section);
+    const int error = pthread_mutex_unlock(critical_section);
+    if (error != 0)
+    {
+        if (error == EINVAL)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+        if (error == EPERM)
+        {
+            return ZYAN_STATUS_INVALID_OPERATION;
+        }
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
-void ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
+ZyanStatus ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
 {
-    pthread_mutex_destroy(critical_section);
+    const int error = pthread_mutex_destroy(critical_section);
+    if (error != 0)
+    {
+        if ((error == EBUSY) || (error == EINVAL))
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -86,14 +158,18 @@ void ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
 /* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section)
+ZyanStatus ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section)
 {
     InitializeCriticalSection(critical_section);
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
-void ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section)
+ZyanStatus ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section)
 {
     EnterCriticalSection(critical_section);
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
 ZyanBool ZyanCriticalSectionTryEnter(ZyanCriticalSection* critical_section)
@@ -101,14 +177,18 @@ ZyanBool ZyanCriticalSectionTryEnter(ZyanCriticalSection* critical_section)
     return TryEnterCriticalSection(critical_section) ? ZYAN_TRUE : ZYAN_FALSE;
 }
 
-void ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section)
+ZyanStatus ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section)
 {
     LeaveCriticalSection(critical_section);
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
-void ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
+ZyanStatus ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
 {
     DeleteCriticalSection(critical_section);
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
