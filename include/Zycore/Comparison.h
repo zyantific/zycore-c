@@ -71,8 +71,15 @@ typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
 /* Macros                                                                                         */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Equality comparison functions                                                                  */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
- * @brief   Declares a generic equality comparison function for a trivial datatype.
+ * @brief   Declares a generic equality comparison function for an integral datatype.
+ *
+ * @param   name    The name of the function.
+ * @param   type    The name of the integral datatype.
  */
 #define ZYAN_DECLARE_EQUALITY_COMPARISON(name, type) \
     ZyanBool name(const type* left, const type* right) \
@@ -84,7 +91,31 @@ typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
     }
 
 /**
- * @brief   Declares a generic comparison function for a trivial datatype.
+ * @brief   Declares a generic equality comparison function that compares a single integral
+ *          datatype field of a struct.
+ *
+ * @param   name        The name of the function.
+ * @param   type        The name of the integral datatype.
+ * @param   field_name  The name of the struct field.
+ */
+#define ZYAN_DECLARE_EQUALITY_COMPARISON_FOR_FIELD(name, type, field_name) \
+    ZyanBool name(const type* left, const type* right) \
+    { \
+        ZYAN_ASSERT(left); \
+        ZYAN_ASSERT(right); \
+        \
+        return (left->field_name == right->field_name) ? ZYAN_TRUE : ZYAN_FALSE; \
+    }
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Comparison functions                                                                           */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Declares a generic comparison function for an integral datatype.
+ *
+ * @param   name    The name of the function.
+ * @param   type    The name of the integral datatype.
  */
 #define ZYAN_DECLARE_COMPARISON(name, type) \
     ZyanI32 name(const type* left, const type* right) \
@@ -102,6 +133,33 @@ typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
         } \
         return 0; \
     }
+
+/**
+ * @brief   Declares a generic comparison function that compares a single integral datatype field
+ *          of a struct.
+ *
+ * @param   name        The name of the function.
+ * @param   type        The name of the integral datatype.
+ * @param   field_name  The name of the struct field.
+ */
+#define ZYAN_DECLARE_COMPARISON_FOR_FIELD(name, type, field_name) \
+    ZyanI32 name(const type* left, const type* right) \
+    { \
+        ZYAN_ASSERT(left); \
+        ZYAN_ASSERT(right); \
+        \
+        if (left->field_name < right->field_name) \
+        { \
+            return -1; \
+        } \
+        if (left->field_name > right->field_name) \
+        { \
+            return  1; \
+        } \
+        return 0; \
+    }
+
+ /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
