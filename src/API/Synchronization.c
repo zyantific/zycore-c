@@ -45,10 +45,38 @@
 #if   defined(ZYAN_POSIX)
 
 /* ---------------------------------------------------------------------------------------------- */
-/* General                                                                                        */
+/* Critical Section                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
+void ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section)
+{
+    pthread_mutexattr_t attribute;
 
+    pthread_mutexattr_init(&attribute);
+    pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(critical_section, &attribute);
+    pthread_mutexattr_destroy(&attribute);
+}
+
+void ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section)
+{
+    pthread_mutex_lock(critical_section);
+}
+
+ZyanBool ZyanCriticalSectionTryEnter(ZyanCriticalSection* critical_section)
+{
+    return pthread_mutex_trylock(critical_section) ? ZYAN_FALSE : ZYAN_TRUE;
+}
+
+void ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section)
+{
+    pthread_mutex_unlock(critical_section);
+}
+
+void ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
+{
+    pthread_mutex_destroy(critical_section);
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -58,7 +86,30 @@
 /* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
+void ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section)
+{
+    InitializeCriticalSection(critical_section);
+}
 
+void ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section)
+{
+    EnterCriticalSection(critical_section);
+}
+
+ZyanBool ZyanCriticalSectionTryEnter(ZyanCriticalSection* critical_section)
+{
+    return TryEnterCriticalSection(critical_section) ? ZYAN_TRUE : ZYAN_FALSE;
+}
+
+void ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section)
+{
+    LeaveCriticalSection(critical_section);
+}
+
+void ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
+{
+    DeleteCriticalSection(critical_section);
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 

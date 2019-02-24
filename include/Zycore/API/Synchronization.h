@@ -46,11 +46,13 @@ extern "C" {
 
 #if   defined(ZYAN_POSIX)
 
+#include <pthread.h>
+
 /* ---------------------------------------------------------------------------------------------- */
 /* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-
+typedef pthread_mutex_t ZyanCriticalSection;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -62,7 +64,7 @@ extern "C" {
 /* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-
+typedef CRITICAL_SECTION ZyanCriticalSection;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -78,13 +80,43 @@ extern "C" {
 /* Critical Section                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionCreate();
+/**
+ * @brief   Initializes a critical section.
+ *
+ * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
+ */
+ZYCORE_EXPORT void ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section);
 
-ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionEnter();
+/**
+ * @brief   Enters a critical section.
+ *
+ * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
+ */
+ZYCORE_EXPORT void ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section);
 
-ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionLeave();
+/**
+ * @brief   Tries to enter a critical section.
+ *
+ * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
+ *
+ * @return  Returns `ZYAN_TRUE` if the critical section was successfully entered or `ZYAN_FALSE`,
+ *          if not.
+ */
+ZYCORE_EXPORT ZyanBool ZyanCriticalSectionTryEnter(ZyanCriticalSection* critical_section);
 
-ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionDestroy();
+/**
+ * @brief   Leaves a critical section.
+ *
+ * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
+ */
+ZYCORE_EXPORT void ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section);
+
+/**
+ * @brief   Deletes a critical section.
+ *
+ * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
+ */
+ZYCORE_EXPORT void ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section);
 
 /* ---------------------------------------------------------------------------------------------- */
 
