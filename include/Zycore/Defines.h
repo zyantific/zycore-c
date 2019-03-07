@@ -344,6 +344,13 @@
 #define ZYAN_IS_POWER_OF_2(x) (((x) & ((x) - 1)) == 0)
 
 /**
+ * @brief   Checks, if the given value is properly aligned.
+ *
+ * Note that this macro only works for powers of 2.
+ */
+#define ZYAN_IS_ALIGNED_TO(x, align) ((x & (align - 1)) == 0)
+
+/**
  * @brief   Aligns the value to the nearest given alignment boundary (by rounding it up).
  *
  * @param   x       The value.
