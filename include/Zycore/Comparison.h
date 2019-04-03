@@ -178,7 +178,7 @@ typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
  * @return  Returns `ZYAN_TRUE` if the `left` value equals the `right` one or `ZYAN_FALSE`, if
  *          not.
  */
-ZYAN_INLINE ZYAN_DECLARE_EQUALITY_COMPARISON(ZyanEqualsPointer, void*)
+ZYAN_INLINE ZYAN_DECLARE_EQUALITY_COMPARISON(ZyanEqualsPointer, void* const)
 
 /**
  * @brief   Defines a default equality comparison function for `ZyanBool` values.
@@ -248,7 +248,7 @@ ZYAN_INLINE ZYAN_DECLARE_EQUALITY_COMPARISON(ZyanEqualsNumeric64, ZyanU64)
  * @return  Returns `0` if the `left` value equals the `right` one, `-1` if the `left` value is
  *          less than the `right` one, or `1` if the `left` value is greater than the `right` one.
  */
-ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanComparePointer, void*)
+ZYAN_INLINE ZYAN_DECLARE_COMPARISON(ZyanComparePointer, void* const)
 
 /**
  * @brief   Defines a default comparison function for `ZyanBool` values.
