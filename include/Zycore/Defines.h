@@ -91,6 +91,9 @@
 #elif defined(__linux)
 #   define ZYAN_LINUX
 #   define ZYAN_POSIX
+#elif defined(__FreeBSD__)
+#   define ZYAN_FREEBSD
+#   define ZYAN_POSIX
 #elif defined(__unix)
 #   define ZYAN_UNIX
 #   define ZYAN_POSIX
