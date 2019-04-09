@@ -81,7 +81,7 @@ function (zyan_set_common_flags target)
         if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
             "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
             "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
-            target_compile_options("${target}" PUBLIC "-pedantic" "-Wextra" "-Werror")
+            target_compile_options("${target}" PUBLIC "-Wall" "-pedantic" "-Wextra" "-Werror")
         elseif (MSVC)
             target_compile_options("${target}" PUBLIC "/WX" "/W4")
         endif ()
@@ -90,7 +90,7 @@ endfunction ()
 
 function (zyan_set_source_group target)
     if (ZYAN_DEV_MODE)
-        if (((CMAKE_MAJOR_VERSION GREATER 3) OR (CMAKE_MAJOR_VERSION EQUAL 3)) AND 
+        if (((CMAKE_MAJOR_VERSION GREATER 3) OR (CMAKE_MAJOR_VERSION EQUAL 3)) AND
             ((CMAKE_MINOR_VERSION GREATER 8) OR (CMAKE_MINOR_VERSION EQUAL 8)))
             # Mirror directory structure in project files
             get_property("TARGET_SOURCE_FILES" TARGET "${target}" PROPERTY SOURCES)
