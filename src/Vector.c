@@ -412,7 +412,7 @@ ZyanStatus ZyanVectorSet(ZyanVector* vector, ZyanUSize index, const void* value)
 /* Insertion                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZyanVectorPush(ZyanVector* vector, const void* element)
+ZyanStatus ZyanVectorPushBack(ZyanVector* vector, const void* element)
 {
     if (!vector || !element)
     {
@@ -589,7 +589,7 @@ ZyanStatus ZyanVectorDeleteEx(ZyanVector* vector, ZyanUSize index, ZyanUSize cou
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZyanVectorPop(ZyanVector* vector)
+ZyanStatus ZyanVectorPopBack(ZyanVector* vector)
 {
     if (!vector)
     {

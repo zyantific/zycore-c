@@ -97,7 +97,7 @@ protected:
         }
         for (ZyanU64 i = 0; i < m_test_size; ++i)
         {
-            ASSERT_EQ(ZyanVectorPush(&m_vector, &i), ZYAN_STATUS_SUCCESS);
+            ASSERT_EQ(ZyanVectorPushBack(&m_vector, &i), ZYAN_STATUS_SUCCESS);
         }
     }
 };
@@ -223,18 +223,18 @@ TEST_P(VectorTestFilled, PushPop)
 
     if (!m_has_fixed_capacity)
     {
-        EXPECT_EQ(ZyanVectorPush(&m_vector, &element_in), ZYAN_STATUS_SUCCESS);
+        EXPECT_EQ(ZyanVectorPushBack(&m_vector, &element_in), ZYAN_STATUS_SUCCESS);
         EXPECT_EQ(m_vector.size, size + 1);
         EXPECT_EQ(ZYAN_VECTOR_GET(&m_vector, size, ZyanU64), element_in);
-        EXPECT_EQ(ZyanVectorPop(&m_vector), ZYAN_STATUS_SUCCESS);
+        EXPECT_EQ(ZyanVectorPopBack(&m_vector), ZYAN_STATUS_SUCCESS);
         EXPECT_EQ(m_vector.size, size);
     } else
     {
-        EXPECT_EQ(ZyanVectorPush(&m_vector, &element_in), ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE);
+        EXPECT_EQ(ZyanVectorPushBack(&m_vector, &element_in), ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE);
         EXPECT_EQ(m_vector.size, size);
-        EXPECT_EQ(ZyanVectorPop(&m_vector), ZYAN_STATUS_SUCCESS);
+        EXPECT_EQ(ZyanVectorPopBack(&m_vector), ZYAN_STATUS_SUCCESS);
         EXPECT_EQ(m_vector.size, size - 1);
-        EXPECT_EQ(ZyanVectorPush(&m_vector, &element_in), ZYAN_STATUS_SUCCESS);
+        EXPECT_EQ(ZyanVectorPushBack(&m_vector, &element_in), ZYAN_STATUS_SUCCESS);
         EXPECT_EQ(m_vector.size, size);
         EXPECT_EQ(ZYAN_VECTOR_GET(&m_vector, size - 1, ZyanU64), element_in);
     }
@@ -405,7 +405,7 @@ TEST_P(VectorTestFilled, SwapElements)
         ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE);
 
     // Free space for the temporary element
-    EXPECT_EQ(ZyanVectorPop(&m_vector), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(ZyanVectorPopBack(&m_vector), ZYAN_STATUS_SUCCESS);
 
     // Retrieve element pointers
     const ZyanU64* element_first;

@@ -97,7 +97,7 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
     for (ZyanU32 i = 0; i < 20; ++i)
     {
         InitTestdata(&e_v, i);
-        ZYAN_CHECK(ZyanVectorPush(vector, &e_v));
+        ZYAN_CHECK(ZyanVectorPushBack(vector, &e_v));
     }
 
     // Remove elements `#05..#09`
@@ -339,7 +339,7 @@ static ZyanStatus TestAllocator(void)
     for (ZyanU32 i = 0; i < 10; ++i)
     {
         InitTestdata(&e_v, i);
-        ZYAN_CHECK(ZyanVectorPush(&vector, &e_v));
+        ZYAN_CHECK(ZyanVectorPushBack(&vector, &e_v));
     }
 
     // Check capacity

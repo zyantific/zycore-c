@@ -384,14 +384,14 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorSet(ZyanVector* vector, ZyanUSize index,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Adds a new `element` at the end of the vector.
+ * @brief   Adds a new `element` to the end of the vector.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   element A pointer to the element to add.
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorPush(ZyanVector* vector, const void* element);
+ZYCORE_EXPORT ZyanStatus ZyanVectorPushBack(ZyanVector* vector, const void* element);
 
 /**
  * @brief   Inserts an `element` at the given `index` of the vector.
@@ -418,8 +418,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInsert(ZyanVector* vector, ZyanUSize index,
 ZYCORE_EXPORT ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index,
     const void* elements, ZyanUSize count);
 
- /**
- * @brief   Constructs an `element` in-place and adds it at the end of the vector.
+/**
+ * @brief   Constructs an `element` in-place at the end of the vector.
  *
  * @param   vector      A pointer to the `ZyanVector` instance.
  * @param   element     Receives a pointer to the new element.
@@ -496,7 +496,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDeleteEx(ZyanVector* vector, ZyanUSize index,
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorPop(ZyanVector* vector);
+ZYCORE_EXPORT ZyanStatus ZyanVectorPopBack(ZyanVector* vector);
 
 /**
  * @brief   Erases all elements of the given vector.

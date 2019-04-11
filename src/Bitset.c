@@ -91,7 +91,7 @@ static ZyanStatus ZyanBitsetInitVectorElements(ZyanVector* vector, ZyanUSize cou
     static const ZyanU8 zero = 0;
     for (ZyanUSize i = 0; i < count; ++i)
     {
-        ZYAN_CHECK(ZyanVectorPush(vector, &zero));
+        ZYAN_CHECK(ZyanVectorPushBack(vector, &zero));
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -273,7 +273,11 @@ ZyanStatus ZyanBitsetSet(ZyanBitset* bitset, ZyanUSize index)
 
     ZyanU8* value;
     ZYAN_CHECK(ZyanVectorGetPointerMutable(&bitset->bits, index / 8, (void**)&value));
-    *value |= (1 << ZYAN_BITSET_BIT_OFFSET(index));
+
+    const ZyanU8 y = ZYAN_BITSET_BIT_OFFSET(index);
+    const ZyanU8 x = 1 << y;
+
+    *value |= (x);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -412,7 +416,7 @@ ZyanStatus ZyanBitsetPush(ZyanBitset* bitset, ZyanBool value)
     if ((bitset->size++ % 8) == 0)
     {
         static const ZyanU8 zero = 0;
-        ZYAN_CHECK(ZyanVectorPush(&bitset->bits, &zero));
+        ZYAN_CHECK(ZyanVectorPushBack(&bitset->bits, &zero));
     }
 
     return ZyanBitsetAssign(bitset, bitset->size - 1, value);
@@ -427,7 +431,7 @@ ZyanStatus ZyanBitsetPop(ZyanBitset* bitset)
 
     if ((--bitset->size % 8) == 0)
     {
-        return ZyanVectorPop(&bitset->bits);
+        return ZyanVectorPopBack(&bitset->bits);
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -628,6 +632,40 @@ ZyanStatus ZyanBitsetNone(const ZyanBitset* bitset)
 
     return ZYAN_STATUS_TRUE;
 }
+
+/* ---------------------------------------------------------------------------------------------- */
+
+//ZyanStatus ZyanBitsetToU32(const ZyanBitset* bitset, ZyanU32* value)
+//{
+//    if (!bitset)
+//    {
+//        return ZYAN_STATUS_INVALID_ARGUMENT;
+//    }
+//    if (bitset->size > 32)
+//    {
+//        return ZYAN_STATUS_INVALID_OPERATION;
+//    }
+//
+//    // TODO:
+//
+//    return ZYAN_STATUS_SUCCESS;
+//}
+//
+//ZyanStatus ZyanBitsetToU64(const ZyanBitset* bitset, ZyanU64* value)
+//{
+//    if (!bitset)
+//    {
+//        return ZYAN_STATUS_INVALID_ARGUMENT;
+//    }
+//    if (bitset->size > 64)
+//    {
+//        return ZYAN_STATUS_INVALID_OPERATION;
+//    }
+//
+//    // TODO:
+//    
+//    return ZYAN_STATUS_SUCCESS;
+//}
 
 /* ---------------------------------------------------------------------------------------------- */
 
