@@ -113,6 +113,8 @@ typedef struct ZyanVector_
 /* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
+// TODO: rename to `*_INITIALIZER`
+
 /**
  * @brief   Defines an uninitialized `ZyanVector` instance.
  */
@@ -131,11 +133,14 @@ typedef struct ZyanVector_
 /* Helper macros                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
+// TODO: type should be the first parameter
+
 /**
  * @brief   Returns the value of the element at the given `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The element index.
+ * @param   type    The desired value type.
  *
  * @result  The value of the desired element in the vector.
  *

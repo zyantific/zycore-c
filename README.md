@@ -17,6 +17,7 @@ Internal library providing platform independent types, macros and a fallback for
   - `ZyanString`/`ZyanStringView`
 - Container types
   - `ZyanVector`
+  - `ZyanList`
 - LibC abstraction (WiP)
 
 ## License
