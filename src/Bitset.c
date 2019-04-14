@@ -150,8 +150,8 @@ ZyanStatus ZyanBitsetInitEx(ZyanBitset* bitset, ZyanUSize count, ZyanAllocator* 
     const ZyanU32 bytes = ZYAN_BITSET_BITS_TO_BYTES(count);
 
     bitset->size = count;
-    ZYAN_CHECK(ZyanVectorInitEx(&bitset->bits, sizeof(ZyanU8), bytes, allocator, growth_factor,
-        shrink_threshold));
+    ZYAN_CHECK(ZyanVectorInitEx(&bitset->bits, sizeof(ZyanU8), bytes, ZYAN_NULL, allocator, 
+        growth_factor, shrink_threshold));
     ZYAN_CHECK(ZyanBitsetInitVectorElements(&bitset->bits, bytes));
 
     return ZYAN_STATUS_SUCCESS;
@@ -172,7 +172,8 @@ ZyanStatus ZyanBitsetInitBuffer(ZyanBitset* bitset, ZyanUSize count, void* buffe
     }
 
     bitset->size = count;
-    ZYAN_CHECK(ZyanVectorInitCustomBuffer(&bitset->bits, sizeof(ZyanU8), buffer, capacity));
+    ZYAN_CHECK(ZyanVectorInitCustomBuffer(&bitset->bits, sizeof(ZyanU8), buffer, capacity, 
+        ZYAN_NULL));
     ZYAN_CHECK(ZyanBitsetInitVectorElements(&bitset->bits, bytes));
 
     return ZYAN_STATUS_SUCCESS;
@@ -185,7 +186,7 @@ ZyanStatus ZyanBitsetDestroy(ZyanBitset* bitset)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    return ZyanVectorDestroy(&bitset->bits, ZYAN_NULL);
+    return ZyanVectorDestroy(&bitset->bits);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -274,10 +275,7 @@ ZyanStatus ZyanBitsetSet(ZyanBitset* bitset, ZyanUSize index)
     ZyanU8* value;
     ZYAN_CHECK(ZyanVectorGetPointerMutable(&bitset->bits, index / 8, (void**)&value));
 
-    const ZyanU8 y = ZYAN_BITSET_BIT_OFFSET(index);
-    const ZyanU8 x = 1 << y;
-
-    *value |= (x);
+    *value |= (1 << ZYAN_BITSET_BIT_OFFSET(index));
 
     return ZYAN_STATUS_SUCCESS;
 }

@@ -133,12 +133,10 @@ typedef struct ZyanList_
 /* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-// TODO: rename to `*_INITIALIZER`
-
 /**
  * @brief   Defines an uninitialized `ZyanList` instance.
  */
-#define ZYAN_LIST_UNINITIALIZED \
+#define ZYAN_LIST_INITIALIZER \
     { \
         /* allocator        */ ZYAN_NULL, \
         /* size             */ 0, \
@@ -155,23 +153,21 @@ typedef struct ZyanList_
 /* Helper macros                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
-// TODO: type should be the first parameter
-
 /**
  * @brief   Returns the data value of the given `node`.
  *
- * @param   node    A pointer to the `ZyanListNode` struct.
  * @param   type    The desired value type.
+ * @param   node    A pointer to the `ZyanListNode` struct.
  *
  * @result  The data value of the given `node`.
  *
  * Note that this function is unsafe and might dereference a null-pointer.
  */
 #ifdef __cplusplus
-#define ZYAN_LIST_GET(node, type) \
+#define ZYAN_LIST_GET(type, node) \
     (*reinterpret_cast<const type*>(ZyanListGetNodeData(node)))
 #else
-#define ZYAN_LIST_GET(node, type) \
+#define ZYAN_LIST_GET(type, node) \
     (*(const type*)ZyanListGetNodeData(node))
 #endif
 
@@ -545,14 +541,13 @@ ZYCORE_EXPORT ZyanStatus ZyanListResize(ZyanList* list, ZyanUSize size);
 /**
  * @brief   Resizes the given `ZyanList` instance.
  *
- * @param   list                A pointer to the `ZyanList` instance.
- * @param   size                The new size of the list.
- * @param   initializer_item    The value to be used as initializer for new items.
+ * @param   list        A pointer to the `ZyanList` instance.
+ * @param   size        The new size of the list.
+ * @param   initializer A pointer to a value to be used as initializer for new items.
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanListResizeEx(ZyanList* list, ZyanUSize size, 
-    const void* initializer_item);
+ZYCORE_EXPORT ZyanStatus ZyanListResizeEx(ZyanList* list, ZyanUSize size, const void* initializer);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Information                                                                                    */

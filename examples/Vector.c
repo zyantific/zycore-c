@@ -208,7 +208,7 @@ static ZyanStatus TestDynamic(void)
 {
     // Initialize vector with a base capacity of `10` elements
     ZyanVector vector;
-    ZYAN_CHECK(ZyanVectorInit(&vector, sizeof(TestStruct), 10));
+    ZYAN_CHECK(ZyanVectorInit(&vector, sizeof(TestStruct), 10, ZYAN_NULL));
 
     ZYAN_CHECK(PerformBasicTests(&vector));
     ZYAN_CHECK(ZyanVectorClear(&vector));
@@ -216,7 +216,7 @@ static ZyanStatus TestDynamic(void)
     ZYAN_CHECK(PerformBinarySearchTest(&vector));
 
     // Cleanup
-    return ZyanVectorDestroy(&vector, ZYAN_NULL);
+    return ZyanVectorDestroy(&vector);
 }
 
 /**
@@ -231,7 +231,7 @@ static ZyanStatus TestStatic(void)
     // Initialize vector to use a static buffer with a total capacity of `20` elements.
     ZyanVector vector;
     ZYAN_CHECK(ZyanVectorInitCustomBuffer(&vector, sizeof(TestStruct), buffer,
-        ZYAN_ARRAY_LENGTH(buffer)));
+        ZYAN_ARRAY_LENGTH(buffer), ZYAN_NULL));
 
     // Compare elements
     ZyanUSize size;
@@ -251,7 +251,7 @@ static ZyanStatus TestStatic(void)
     ZYAN_CHECK(PerformBinarySearchTest(&vector));
 
     // Cleanup
-    return ZyanVectorDestroy(&vector, ZYAN_NULL);
+    return ZyanVectorDestroy(&vector);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -331,7 +331,8 @@ static ZyanStatus TestAllocator(void)
     // Initialize vector with a base capacity of `10` elements. Growth-factor is set to 10 and
     // dynamic shrinking is disabled
     ZyanVector vector;
-    ZYAN_CHECK(ZyanVectorInitEx(&vector, sizeof(TestStruct), 5, &allocator, 10.0f, 0.0f));
+    ZYAN_CHECK(ZyanVectorInitEx(&vector, sizeof(TestStruct), 5, ZYAN_NULL, &allocator, 
+        10.0f, 0.0f));
 
     static TestStruct  e_v;
 
@@ -361,7 +362,7 @@ static ZyanStatus TestAllocator(void)
     printf("  Capacity   : %08" PRIuPTR "\n\n", value);
 
     // Cleanup
-    return ZyanVectorDestroy(&vector, ZYAN_NULL);
+    return ZyanVectorDestroy(&vector);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

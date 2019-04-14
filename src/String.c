@@ -71,7 +71,7 @@ ZyanStatus ZyanStringInitEx(ZyanString* string, ZyanUSize capacity, ZyanAllocato
 
     string->flags = 0;
     capacity = ZYAN_MAX(ZYAN_STRING_MIN_CAPACITY, capacity) + 1;
-    ZYAN_CHECK(ZyanVectorInitEx(&string->vector, sizeof(char), capacity, allocator,
+    ZYAN_CHECK(ZyanVectorInitEx(&string->vector, sizeof(char), capacity, ZYAN_NULL, allocator,
         growth_factor, shrink_threshold));
     ZYAN_ASSERT(string->vector.capacity >= capacity);
     // Some of the string code relies on `sizeof(char) == 1`
@@ -91,7 +91,8 @@ ZyanStatus ZyanStringInitCustomBuffer(ZyanString* string, char* buffer, ZyanUSiz
     }
 
     string->flags = ZYAN_STRING_HAS_FIXED_CAPACITY;
-    ZYAN_CHECK(ZyanVectorInitCustomBuffer(&string->vector, sizeof(char), (void*)buffer, capacity));
+    ZYAN_CHECK(ZyanVectorInitCustomBuffer(&string->vector, sizeof(char), (void*)buffer, capacity, 
+        ZYAN_NULL));
     ZYAN_ASSERT(string->vector.capacity == capacity);
     // Some of the string code relies on `sizeof(char) == 1`
     ZYAN_ASSERT(string->vector.element_size == 1);
@@ -113,7 +114,7 @@ ZyanStatus ZyanStringDestroy(ZyanString* string)
         return ZYAN_STATUS_SUCCESS;
     }
 
-    return ZyanVectorDestroy(&string->vector, ZYAN_NULL);
+    return ZyanVectorDestroy(&string->vector);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
