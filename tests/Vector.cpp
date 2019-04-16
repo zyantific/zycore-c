@@ -224,7 +224,7 @@ TEST(VectorTest, Destructor)
     ASSERT_EQ(ZyanVectorPopBack(&vector), ZYAN_STATUS_SUCCESS);
     ASSERT_EQ(buffer[15], 0);
 
-    ASSERT_EQ(ZyanVectorDeleteEx(&vector, 12, 3), ZYAN_STATUS_SUCCESS);
+    ASSERT_EQ(ZyanVectorDeleteRange(&vector, 12, 3), ZYAN_STATUS_SUCCESS);
     ASSERT_EQ(buffer[12], 0);
     ASSERT_EQ(buffer[13], 0);
     ASSERT_EQ(buffer[14], 0);
@@ -314,7 +314,7 @@ TEST_P(VectorTestFilled, Insert)
     if (m_has_fixed_capacity)
     {
         const ZyanUSize size_temp = m_vector.size;
-        EXPECT_EQ(ZyanVectorInsertEx(&m_vector, size_temp / 2, &elements, count),
+        EXPECT_EQ(ZyanVectorInsertRange(&m_vector, size_temp / 2, &elements, count),
             ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE);
         EXPECT_EQ(ZyanVectorResize(&m_vector, size_temp - count), ZYAN_STATUS_SUCCESS);
         EXPECT_EQ(m_vector.size, size_temp - count);
@@ -323,7 +323,7 @@ TEST_P(VectorTestFilled, Insert)
     const ZyanUSize size = m_vector.size;
     const ZyanUSize half = (size / 2);
 
-    EXPECT_EQ(ZyanVectorInsertEx(&m_vector, half, &elements, ZYAN_ARRAY_LENGTH(elements)),
+    EXPECT_EQ(ZyanVectorInsertRange(&m_vector, half, &elements, ZYAN_ARRAY_LENGTH(elements)),
         ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(m_vector.size, size + count);
     for (ZyanUSize i = 0; i < m_vector.size; ++i)
@@ -346,14 +346,14 @@ TEST_P(VectorTestFilled, Insert)
 
 TEST_P(VectorTestFilled, Delete)
 {
-    EXPECT_EQ(ZyanVectorDeleteEx(&m_vector, m_vector.size, 1), ZYAN_STATUS_OUT_OF_RANGE);
-    EXPECT_EQ(ZyanVectorDeleteEx(&m_vector, 1, m_vector.size), ZYAN_STATUS_OUT_OF_RANGE);
+    EXPECT_EQ(ZyanVectorDeleteRange(&m_vector, m_vector.size, 1), ZYAN_STATUS_OUT_OF_RANGE);
+    EXPECT_EQ(ZyanVectorDeleteRange(&m_vector, 1, m_vector.size), ZYAN_STATUS_OUT_OF_RANGE);
 
     const ZyanUSize size = m_vector.size;
     const ZyanUSize half = (size / 2);
     const ZyanUSize count = (half / 2);
 
-    EXPECT_EQ(ZyanVectorDeleteEx(&m_vector, half, count), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(ZyanVectorDeleteRange(&m_vector, half, count), ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(m_vector.size, size - count);
     for (ZyanUSize i = 0; i < m_vector.size; ++i)
     {

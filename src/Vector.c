@@ -447,10 +447,10 @@ ZyanStatus ZyanVectorPushBack(ZyanVector* vector, const void* element)
 
 ZyanStatus ZyanVectorInsert(ZyanVector* vector, ZyanUSize index, const void* element)
 {
-    return ZyanVectorInsertEx(vector, index, element, 1);
+    return ZyanVectorInsertRange(vector, index, element, 1);
 }
 
-ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index, const void* elements,
+ZyanStatus ZyanVectorInsertRange(ZyanVector* vector, ZyanUSize index, const void* elements,
     ZyanUSize count)
 {
     if (!vector || !elements || !count)
@@ -569,10 +569,10 @@ ZyanStatus ZyanVectorSwapElements(ZyanVector* vector, ZyanUSize index_first, Zya
 
 ZyanStatus ZyanVectorDelete(ZyanVector* vector, ZyanUSize index)
 {
-    return ZyanVectorDeleteEx(vector, index, 1);
+    return ZyanVectorDeleteRange(vector, index, 1);
 }
 
-ZyanStatus ZyanVectorDeleteEx(ZyanVector* vector, ZyanUSize index, ZyanUSize count)
+ZyanStatus ZyanVectorDeleteRange(ZyanVector* vector, ZyanUSize index, ZyanUSize count)
 {
     if (!vector || !count)
     {

@@ -101,7 +101,7 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
     }
 
     // Remove elements `#05..#09`
-    ZYAN_CHECK(ZyanVectorDeleteEx(vector, 5, 5));
+    ZYAN_CHECK(ZyanVectorDeleteRange(vector, 5, 5));
 
     // Insert a new element at index `#05`
     InitTestdata(&e_v, 12345678);

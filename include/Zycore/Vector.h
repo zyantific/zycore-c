@@ -426,7 +426,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorInsert(ZyanVector* vector, ZyanUSize index,
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorInsertEx(ZyanVector* vector, ZyanUSize index,
+ZYCORE_EXPORT ZyanStatus ZyanVectorInsertRange(ZyanVector* vector, ZyanUSize index,
     const void* elements, ZyanUSize count);
 
 /**
@@ -498,7 +498,8 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDelete(ZyanVector* vector, ZyanUSize index);
  *
  * @return  A zyan status code.
  */
-ZYCORE_EXPORT ZyanStatus ZyanVectorDeleteEx(ZyanVector* vector, ZyanUSize index, ZyanUSize count);
+ZYCORE_EXPORT ZyanStatus ZyanVectorDeleteRange(ZyanVector* vector, ZyanUSize index, 
+    ZyanUSize count);
 
 /**
  * @brief   Removes the last element of the vector.

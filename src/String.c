@@ -395,7 +395,7 @@ ZyanStatus ZyanStringInsert(ZyanString* destination, ZyanUSize index, const Zyan
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorInsertEx(&destination->vector, index, source->string.vector.data,
+    ZYAN_CHECK(ZyanVectorInsertRange(&destination->vector, index, source->string.vector.data,
         source->string.vector.size - 1));
     ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
 
@@ -427,7 +427,7 @@ ZyanStatus ZyanStringInsertEx(ZyanString* destination, ZyanUSize destination_ind
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorInsertEx(&destination->vector, destination_index,
+    ZYAN_CHECK(ZyanVectorInsertRange(&destination->vector, destination_index,
         (char*)source->string.vector.data + source_index, count));
     ZYCORE_STRING_ASSERT_NULLTERMINATION(destination);
 
@@ -494,7 +494,7 @@ ZyanStatus ZyanStringDelete(ZyanString* string, ZyanUSize index, ZyanUSize count
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorDeleteEx(&string->vector, index, count));
+    ZYAN_CHECK(ZyanVectorDeleteRange(&string->vector, index, count));
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -513,7 +513,7 @@ ZyanStatus ZyanStringTruncate(ZyanString* string, ZyanUSize index)
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
 
-    ZYAN_CHECK(ZyanVectorDeleteEx(&string->vector, index, string->vector.size - index - 1));
+    ZYAN_CHECK(ZyanVectorDeleteRange(&string->vector, index, string->vector.size - index - 1));
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
