@@ -130,6 +130,8 @@
 #   define ZYAN_ARM
 #elif defined(__EMSCRIPTEN__)
     // Nothing to do, `ZYAN_EMSCRIPTEN` is both platform and arch macro for this one.
+#elif defined(ZYAN_WASM)
+    // Nothing to do.
 #else
 #   error "Unsupported architecture detected"
 #endif

@@ -1,0 +1,15 @@
+set(CMAKE_SYSTEM_NAME "wasm32-unknown-wasi")
+
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang")
+
+set(CMAKE_C_COMPILER_WORKS 1)
+set(CMAKE_CXX_COMPILER_WORKS 1)
+
+# Using <FLAGS>, <TARGET>, <CMAKE_C_LINK_FLAGS> and <LINK_FLAGS> breaks it
+set(CMAKE_C_LINK_EXECUTABLE
+  "wasm-ld <OBJECTS> -o <LINK_LIBRARIES>")
+set(CMAKE_CXX_LINK_EXECUTABLE
+  "wasm-ld <OBJECTS> -o <LINK_LIBRARIES>")
+
+add_definitions("-DZYAN_WASM")
