@@ -136,7 +136,7 @@ generate_export_header("Zycore" BASE_NAME "ZYCORE" EXPORT_FILE_NAME "ZycoreExpor
 if (ZYAN_NO_LIBC)
     target_compile_definitions("Zycore" PUBLIC "ZYAN_NO_LIBC")
     if (UNIX)
-        target_compile_options("Zycore" PUBLIC "-nostdlib" "-nodefaultlibs")
+        target_link_options("Zycore" PUBLIC "-nostdlib" "-nodefaultlibs")
     endif ()
 endif ()
 
@@ -144,7 +144,9 @@ target_sources("Zycore"
     PRIVATE
         # API
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Memory.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Synchronization.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Terminal.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Thread.h"
         # Common
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Allocator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Bitset.h"
@@ -161,7 +163,9 @@ target_sources("Zycore"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Zycore.h"
         # API
         "src/API/Memory.c"
+        "src/API/Synchronization.c"
         "src/API/Terminal.c"
+        "src/API/Thread.c"
         # Common
         "src/Allocator.c"
         "src/Bitset.c"
@@ -170,16 +174,6 @@ target_sources("Zycore"
         "src/String.c"
         "src/Vector.c"
         "src/Zycore.c")
-
-if (NOT ZYAN_NO_LIBC)
-    target_sources("Zycore"
-        PRIVATE
-            # API
-            "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Synchronization.h"
-            "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Thread.h"
-            "src/API/Synchronization.c"
-            "src/API/Thread.c")
-endif ()
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zycore" PRIVATE "resources/VersionInfo.rc")

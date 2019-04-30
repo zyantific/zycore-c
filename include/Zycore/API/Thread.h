@@ -32,6 +32,8 @@
 #ifndef ZYCORE_THREAD_H
 #define ZYCORE_THREAD_H
 
+#ifndef ZYAN_NO_LIBC
+
 #include <ZycoreExportConfig.h>
 #include <Zycore/Defines.h>
 #include <Zycore/Status.h>
@@ -236,5 +238,7 @@ ZYCORE_EXPORT ZyanStatus ZyanThreadTlsSetValue(ZyanThreadTlsIndex index, void* d
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* ZYAN_NO_LIBC */
 
 #endif /* ZYCORE_THREAD_H */

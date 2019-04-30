@@ -24,6 +24,8 @@
 
 ***************************************************************************************************/
 
+#ifndef ZYAN_NO_LIBC
+
 #include <Zycore/API/Synchronization.h>
 
 /* ============================================================================================== */
@@ -196,5 +198,7 @@ ZyanStatus ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
 #else
 #   error "Unsupported platform detected"
 #endif
+
+#endif /* ZYAN_NO_LIBC */
 
 /* ============================================================================================== */
