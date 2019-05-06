@@ -150,7 +150,7 @@ ZyanStatus ZyanTerminalIsTTY(ZyanStandardStream stream)
         // Invalid file descriptor
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    ZYAN_ASSERT((errno == EINVAL) || (errno == ENOTTY));
+    //ZYAN_ASSERT((errno == EINVAL) || (errno == ENOTTY));
 
     return ZYAN_STATUS_FALSE;
 }
