@@ -110,6 +110,61 @@ TEST(UnnamedArgs, PerfectFit)
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Dash args                                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
+
+TEST(DashArg, MixedBoolAndValueArgs)
+{
+    const char* argv[] = {
+        "test", "-aio42", "-n", "xxx"
+    };
+
+    ZyanArgParseDefinition args[] = {
+        {"-o", ZYAN_FALSE},
+        {"-a", ZYAN_TRUE},
+        {"-n", ZYAN_FALSE},
+        {"-i", ZYAN_TRUE},
+        {nullptr, ZYAN_FALSE}
+    };
+
+    ZyanArgParseConfig cfg = {
+        argv, // argv
+        4,    // argc
+        0,    // min_unnamed_args
+        0,    // max_unnamed_args
+        args  // args
+    };
+
+    ZyanVector parsed;
+    ZYAN_MEMSET(&parsed, 0, sizeof(parsed));
+    auto status = ZyanArgParse(&cfg, &parsed);
+    ASSERT_TRUE(ZYAN_SUCCESS(status));
+
+    ZyanUSize size;
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetSize(&parsed, &size)));
+    ASSERT_EQ(size, 4);
+
+    const ZyanArgParseArg* arg;
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 0, (const void**)&arg)));
+    ASSERT_STREQ(arg->arg->name, "-a");
+    ASSERT_FALSE(arg->has_value);
+
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 1, (const void**)&arg)));
+    ASSERT_STREQ(arg->arg->name, "-i");
+    ASSERT_FALSE(arg->has_value);
+
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 2, (const void**)&arg)));
+    ASSERT_STREQ(arg->arg->name, "-o");
+    ASSERT_TRUE(arg->has_value);
+    ASSERT_EQ(cvt_string_view(&arg->value), "42");
+
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 3, (const void**)&arg)));
+    ASSERT_STREQ(arg->arg->name, "-n");
+    ASSERT_TRUE(arg->has_value);
+    ASSERT_EQ(cvt_string_view(&arg->value), "xxx");
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Double dash args                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -120,18 +175,9 @@ TEST(DoubleDashArg, PerfectFit)
     };
 
     ZyanArgParseDefinition args[] = {
-        {
-            "--help",
-            ZYAN_TRUE,
-        },
-        {
-            "--stuff",
-            ZYAN_FALSE,
-        },
-        {
-            nullptr,
-            ZYAN_FALSE,
-        }
+        {"--help", ZYAN_TRUE},
+        {"--stuff", ZYAN_FALSE},
+        {nullptr, ZYAN_FALSE}
     };
 
     ZyanArgParseConfig cfg = {
@@ -153,11 +199,67 @@ TEST(DoubleDashArg, PerfectFit)
 
     const ZyanArgParseArg* arg;
     ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 0, (const void**)&arg)));
+    ASSERT_STREQ(arg->arg->name, "--help");
     ASSERT_FALSE(arg->has_value);
 
     ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 1, (const void**)&arg)));
+    ASSERT_STREQ(arg->arg->name, "--stuff");
     ASSERT_TRUE(arg->has_value);
     ASSERT_EQ(cvt_string_view(&arg->value), "1337");
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Mixed                                                                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
+TEST(MixedArgs, Stuff)
+{
+    const char* argv[] = {
+        "test", "--feature-xyz", "-n5", "blah.c", "woof.moo"
+    };
+
+    ZyanArgParseDefinition args[] = {
+        {"--feature-xyz", ZYAN_TRUE},
+        {"-n", ZYAN_FALSE},
+        {nullptr, ZYAN_FALSE}
+    };
+
+    ZyanArgParseConfig cfg = {
+        argv, // argv
+        5,    // argc4
+        0,    // min_unnamed_args
+        100,  // max_unnamed_args
+        args  // args
+    };
+
+    ZyanVector parsed;
+    ZYAN_MEMSET(&parsed, 0, sizeof(parsed));
+    auto status = ZyanArgParse(&cfg, &parsed);
+    ASSERT_TRUE(ZYAN_SUCCESS(status));
+
+    ZyanUSize size;
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetSize(&parsed, &size)));
+    ASSERT_EQ(size, 4);
+
+    const ZyanArgParseArg* arg;
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 0, (const void**)&arg)));
+    ASSERT_STREQ(arg->arg->name, "--feature-xyz");
+    ASSERT_FALSE(arg->has_value);
+
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 1, (const void**)&arg)));
+    ASSERT_STREQ(arg->arg->name, "-n");
+    ASSERT_TRUE(arg->has_value);
+    ASSERT_EQ(cvt_string_view(&arg->value), "5");
+
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 2, (const void**)&arg)));
+    ASSERT_EQ(arg->arg, nullptr);
+    ASSERT_TRUE(arg->has_value);
+    ASSERT_EQ(cvt_string_view(&arg->value), "blah.c");
+
+    ASSERT_TRUE(ZYAN_SUCCESS(ZyanVectorGetPointer(&parsed, 3, (const void**)&arg)));
+    ASSERT_EQ(arg->arg, nullptr);
+    ASSERT_TRUE(arg->has_value);
+    ASSERT_EQ(cvt_string_view(&arg->value), "woof.moo");
 }
 
 /* ============================================================================================== */
