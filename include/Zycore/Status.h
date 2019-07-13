@@ -144,12 +144,17 @@ typedef ZyanU32 ZyanStatus;
 #define ZYAN_MODULE_ZYCORE  0x001
 
 /**
+ * @brief   The zycore argparse submodule id.
+ */
+#define ZYAN_MODULE_ARGPARSE  0x003
+
+/**
  * @brief   The base module id for user-defined status codes.
  */
 #define ZYAN_MODULE_USER    0x3FF
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Status codes                                                                                   */
+/* Status codes (general purpose)                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -229,6 +234,34 @@ typedef ZyanU32 ZyanStatus;
  */
 #define ZYAN_STATUS_OUT_OF_RESOURCES \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0C)
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Status codes (arg parse)                                                                       */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Argument was not expected.
+ */
+#define ZYAN_ARGPARSE_STATUS_ARG_NOT_UNDERSTOOD \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x00)
+
+/**
+ * @brief   Too few arguments were provided.
+ */
+#define ZYAN_ARGPARSE_STATUS_TOO_FEW_ARGS \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x01)
+
+/**
+ * @brief   Too many arguments were provided.
+ */
+#define ZYAN_ARGPARSE_STATUS_TOO_MANY_ARGS \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x02)
+
+/**
+ * @brief   An argument that expected a value misses its value.
+ */
+#define ZYAN_ARGPARSE_STATUS_ARG_MISSES_VALUE \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x03)
 
 /* ---------------------------------------------------------------------------------------------- */
 
