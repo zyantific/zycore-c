@@ -101,12 +101,12 @@ TEST(UnnamedArgs, PerfectFit)
     auto arg = (const ZyanArgParseArg*)ZyanVectorGet(&parsed, 0);
     ASSERT_NE(arg, nullptr);
     ASSERT_TRUE(arg->has_value);
-    ASSERT_STREQ((const char*)arg->value.string.vector.data /* hax! */, "a");
+    ASSERT_EQ(cvt_string_view(&arg->value), "a");
 
     arg = (const ZyanArgParseArg*)ZyanVectorGet(&parsed, 1);
     ASSERT_NE(arg, nullptr);
     ASSERT_TRUE(arg->has_value);
-    ASSERT_STREQ((const char*)arg->value.string.vector.data /* hax! */, "xxx");
+    ASSERT_EQ(cvt_string_view(&arg->value), "xxx");
 }
 
 /* ---------------------------------------------------------------------------------------------- */
