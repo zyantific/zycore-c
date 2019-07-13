@@ -236,7 +236,7 @@ function (zyan_add_test test)
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
         "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
         "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
-        target_compile_options("Test${test}" PRIVATE "-std=c++14")
+        target_compile_options("Test${test}" PRIVATE "-std=c++17")
     endif ()
 
     target_link_libraries("Test${test}" "Zycore")
