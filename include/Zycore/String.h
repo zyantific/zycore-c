@@ -526,6 +526,17 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideBufferEx(ZyanStringView* view, cons
  */
 ZYCORE_EXPORT ZyanStatus ZyanStringViewGetSize(const ZyanStringView* view, ZyanUSize* size);
 
+/**
+ * @brief   Returns the C-style string of the given `ZyanString` instance.
+ * @warning The string can
+ *
+ * @param   string  A pointer to the `ZyanStringView` instance.
+ * @param   value   Receives a pointer to the C-style string.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanStringViewGetData(const ZyanStringView* view, const char** buffer);
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Character access                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
