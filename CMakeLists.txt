@@ -173,7 +173,7 @@ target_sources("Zycore"
         "src/List.c"
         "src/String.c"
         "src/Vector.c"
-        "src/Zycore.c")
+        "src/Zycore.c"
         "src/ArgParse.c")
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)

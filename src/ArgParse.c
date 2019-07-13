@@ -45,7 +45,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector/*<ZyanArgParse
     ZyanStatus err;
 
     // Initialize output vector.
-    ZYAN_CHECK(ZyanVectorInit(parsed, sizeof(ZyanArgParseArg), cfg->argc));
+    ZYAN_CHECK(ZyanVectorInit(parsed, sizeof(ZyanArgParseArg), cfg->argc, ZYAN_NULL));
 
     ZyanBool accept_dash_args = ZYAN_TRUE;
     ZyanUSize num_unnamed_args = 0;
@@ -169,7 +169,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector/*<ZyanArgParse
     return ZYAN_STATUS_SUCCESS;
 
 failure:
-    ZYAN_CHECK(ZyanVectorDestroy(parsed, ZYAN_NULL));
+    ZYAN_CHECK(ZyanVectorDestroy(parsed));
     return err;
 }
 
