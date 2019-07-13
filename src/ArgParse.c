@@ -41,17 +41,19 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
     }
 
     // Check argument syntax.
-    //  for (const ZyanArgParseDefinition* arg = cfg->args; arg && arg->name; ++arg) {
-    //      ZyanUSize arg_len = ZYAN_STRLEN(arg->name);
-    //      if (arg_len < 2 || arg->name[0] != '-') {
-    //          return ZYAN_STATUS_INVALID_ARGUMENT;
-    //      }
-    //
-    //      // Single dash arguments only accept
-    //      if (arg->name[1] != '-' && arg_len != 2) {
-    //
-    //      }
-    //  }
+    for (const ZyanArgParseDefinition* arg = cfg->args; arg && arg->name; ++arg) {
+        // TODO: Duplicate check
+
+        ZyanUSize arg_len = ZYAN_STRLEN(arg->name);
+        if (arg_len < 2 || arg->name[0] != '-') {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+
+        // Single dash arguments only accept a single char name.
+        if (arg->name[1] != '-' && arg_len != 2) {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+    }
 
     // Initialize output vector.
     ZYAN_CHECK(ZyanVectorInit(parsed, sizeof(ZyanArgParseArg), cfg->argc, ZYAN_NULL));
@@ -155,8 +157,8 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                         ZYAN_CHECK(ZyanStringViewInsideBuffer(&parsed_arg->value, cfg->argv[++i]));
                     }
 
-                    // Either way, continue with next token.
-                    continue;
+                    // Either way, continue with next argument.
+                    goto continue_main_loop;
                 }
             }
         }
@@ -174,6 +176,8 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
         ZYAN_MEMSET(parsed_arg, 0, sizeof(*parsed_arg));
         parsed_arg->has_value = ZYAN_TRUE;
         ZYAN_CHECK(ZyanStringViewInsideBuffer(&parsed_arg->value, cur_arg));
+
+    continue_main_loop:;
     }
 
     // All tokens processed. Do we have enough unnamed arguments?
