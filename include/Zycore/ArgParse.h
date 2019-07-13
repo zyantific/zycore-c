@@ -63,6 +63,9 @@ typedef struct ZyanArgParseDefinition_
     ZyanBool boolean;
 } ZyanArgParseDefinition;
 
+/**
+ * @brief   Configuration for argument parsing.
+ */
 typedef struct ZyanArgParseConfig_
 {
     /**
@@ -91,10 +94,15 @@ typedef struct ZyanArgParseConfig_
     ZyanArgParseDefinition* args;
 } ZyanArgParseConfig;
 
+/**
+ * @brief   Information about a parsed argument.
+ */
 typedef struct ZyanArgParseArg_
 {
     /**
      * @brief   Corresponding argument definition, or `NULL` for unnamed args.
+     *
+     * This pointer is borrowed from the `cfg` pointer passed to `ZyanArgParse`.
      */
     const ZyanArgParseDefinition* arg;
     /**
@@ -103,6 +111,8 @@ typedef struct ZyanArgParseArg_
     ZyanBool has_value;
     /**
      * @brief   If `has_value == true`, then the argument value.
+     *
+     * This is a view into the `argv` string array passed to `ZyanArgParse` via the `cfg` argument.
      */
     ZyanStringView value;
 } ZyanArgParseArg;
@@ -115,11 +125,11 @@ typedef struct ZyanArgParseArg_
  * @brief  Parse arguments according to a `ZyanArgParseConfig` definition.
  *
  * @param  cfg      Argument parser config to use.
- * @param  parsed   Receives the parsed output.
+ * @param  parsed   Receives the parsed output. Vector of `ZyanArgParseArg`.
  *
  * @return A `ZyanStatus` status determining whether the parsing succeeded.
  */
-ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector/*<ZyanArgParseArg>*/* parsed);
+ZYCORE_EXPORT ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed);
 
 /* ============================================================================================== */
 

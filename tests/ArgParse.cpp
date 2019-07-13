@@ -80,13 +80,13 @@ static auto UnnamedArgTest(ZyanU64 min, ZyanU64 max)
 TEST(UnnamedArgs, TooFew)
 {
     auto [status, parsed] = UnnamedArgTest(5, 5);
-    ASSERT_FALSE(ZYAN_SUCCESS(status));
+    ASSERT_EQ(status, ZYAN_ARGPARSE_STATUS_TOO_FEW_ARGS);
 }
 
 TEST(UnnamedArgs, TooMany)
 {
     auto [status, parsed] = UnnamedArgTest(1, 1);
-    ASSERT_FALSE(ZYAN_SUCCESS(status));
+    ASSERT_EQ(status, ZYAN_ARGPARSE_STATUS_TOO_MANY_ARGS);
 }
 
 TEST(UnnamedArgs, PerfectFit)
