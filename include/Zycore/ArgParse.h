@@ -45,11 +45,18 @@ extern "C" {
 /* Structs and other types                                                                        */
 /* ============================================================================================== */
 
+/**
+ * @brief   Definition of a single argument.
+ */
 typedef struct ZyanArgParseDefinition_
 {
+    /**
+     * @brief   The argument name, e.g. `--help`.
+     *
+     * Must start with either one or two dashes.
+     */
     const char* name;
     ZyanBool boolean;
-    const char* help;
 } ZyanArgParseDefinition;
 
 typedef struct ZyanArgParseConfig_
@@ -58,12 +65,13 @@ typedef struct ZyanArgParseConfig_
     ZyanUSize argc;
     ZyanUSize min_unnamed_args;
     ZyanUSize max_unnamed_args;
-    ZyanArgParseDefinition args[];
+    ZyanArgParseDefinition* args;
 } ZyanArgParseConfig;
 
 typedef struct ZyanArgParseArg_
 {
     const ZyanArgParseDefinition* arg;  // NULL = unnamed argument
+    ZyanBool has_value;
     ZyanStringView value;
 } ZyanArgParseArg;
 
