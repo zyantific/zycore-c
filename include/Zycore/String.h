@@ -528,7 +528,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewGetSize(const ZyanStringView* view, ZyanU
 
 /**
  * @brief   Returns the C-style string of the given `ZyanString` instance.
- * @warning The string can
+ *
+ * @warning The string is not guaranteed to be null terminated!
  *
  * @param   string  A pointer to the `ZyanStringView` instance.
  * @param   value   Receives a pointer to the C-style string.
