@@ -317,6 +317,18 @@ ZyanStatus ZyanStringViewGetSize(const ZyanStringView* view, ZyanUSize* size)
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZYCORE_EXPORT ZyanStatus ZyanStringViewGetData(const ZyanStringView* view, const char** buffer)
+{
+    if (!view || !buffer)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    *buffer = view->string.vector.data;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Character access                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
