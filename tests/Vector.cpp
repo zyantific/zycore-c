@@ -484,8 +484,8 @@ TEST_P(VectorTestFilled, SwapElements)
     EXPECT_EQ(values_before[1], values_after[0]);
 }
 
-INSTANTIATE_TEST_CASE_P(Param, VectorTestBase, ::testing::Values(false, true));
-INSTANTIATE_TEST_CASE_P(Param, VectorTestFilled, ::testing::Values(false, true));
+INSTANTIATE_TEST_SUITE_P(Param, VectorTestBase, ::testing::Values(false, true));
+INSTANTIATE_TEST_SUITE_P(Param, VectorTestFilled, ::testing::Values(false, true));
 
 /* ---------------------------------------------------------------------------------------------- */
 

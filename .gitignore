@@ -95,4 +95,6 @@ msvc/**/bin/
 
 doc/html
 
-.vscode
+/.vscode
+/.idea
+/cmake-build-*
