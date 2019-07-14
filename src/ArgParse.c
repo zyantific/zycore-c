@@ -31,8 +31,11 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
+ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
+    const char** error_token)
 {
+#   define ZYAN_ERR_TOK(tok) if (error_token) { *error_token = tok; }
+
     ZYAN_ASSERT(cfg);
     ZYAN_ASSERT(parsed);
 
@@ -105,6 +108,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                 if (!parsed_arg->arg)
                 {
                     err = ZYAN_STATUS_ARG_NOT_UNDERSTOOD;
+                    ZYAN_ERR_TOK(cur_arg);
                     goto failure;
                 }
 
@@ -114,6 +118,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                     if (i == cfg->argc - 1)
                     {
                         err = ZYAN_STATUS_ARG_MISSES_VALUE;
+                        ZYAN_ERR_TOK(cur_arg);
                         goto failure;
                     }
                     parsed_arg->has_value = ZYAN_TRUE;
@@ -155,6 +160,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                 if (!parsed_arg->arg)
                 {
                     err = ZYAN_STATUS_ARG_NOT_UNDERSTOOD;
+                    ZYAN_ERR_TOK(cur_arg);
                     goto failure;
                 }
 
@@ -173,6 +179,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                         if (i == cfg->argc - 1)
                         {
                             err = ZYAN_STATUS_ARG_MISSES_VALUE;
+                            ZYAN_ERR_TOK(cur_arg)
                             goto failure;
                         }
                         
@@ -191,6 +198,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
         if (num_unnamed_args > cfg->max_unnamed_args)
         {
             err = ZYAN_STATUS_TOO_MANY_ARGS;
+            ZYAN_ERR_TOK(cur_arg);
             goto failure;
         }
 
@@ -208,15 +216,19 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
     if (num_unnamed_args < cfg->min_unnamed_args)
     {
         err = ZYAN_STATUS_TOO_FEW_ARGS;
+        // No sensible error token for this error type.
         goto failure;
     }
 
     // Yay!
+    ZYAN_ERR_TOK(ZYAN_NULL);
     return ZYAN_STATUS_SUCCESS;
 
 failure:
     ZYAN_CHECK(ZyanVectorDestroy(parsed));
     return err;
+
+#   undef ZYAN_ERR_TOK
 }
 
 /* ============================================================================================== */
