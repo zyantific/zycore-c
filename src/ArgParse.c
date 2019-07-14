@@ -104,7 +104,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                 // Search exhausted & argument not found. RIP.
                 if (!parsed_arg->arg)
                 {
-                    err = ZYAN_ARGPARSE_STATUS_ARG_NOT_UNDERSTOOD;
+                    err = ZYAN_STATUS_ARG_NOT_UNDERSTOOD;
                     goto failure;
                 }
 
@@ -113,7 +113,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                 {
                     if (i == cfg->argc - 1)
                     {
-                        err = ZYAN_ARGPARSE_STATUS_ARG_MISSES_VALUE;
+                        err = ZYAN_STATUS_ARG_MISSES_VALUE;
                         goto failure;
                     }
                     parsed_arg->has_value = ZYAN_TRUE;
@@ -144,8 +144,8 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                 {
                     if (ZYAN_STRLEN(arg->name) == 2 &&
                         arg->name[0] == '-' &&
-                        arg->name[1] == *read_ptr
-                    ) {
+                        arg->name[1] == *read_ptr)
+                    {
                         parsed_arg->arg = arg;
                         break;
                     }
@@ -154,7 +154,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                 // Search exhausted, no match found?
                 if (!parsed_arg->arg)
                 {
-                    err = ZYAN_ARGPARSE_STATUS_ARG_NOT_UNDERSTOOD;
+                    err = ZYAN_STATUS_ARG_NOT_UNDERSTOOD;
                     goto failure;
                 }
 
@@ -172,7 +172,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
                     {
                         if (i == cfg->argc - 1)
                         {
-                            err = ZYAN_ARGPARSE_STATUS_ARG_MISSES_VALUE;
+                            err = ZYAN_STATUS_ARG_MISSES_VALUE;
                             goto failure;
                         }
                         
@@ -190,7 +190,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
         ++num_unnamed_args;
         if (num_unnamed_args > cfg->max_unnamed_args)
         {
-            err = ZYAN_ARGPARSE_STATUS_TOO_MANY_ARGS;
+            err = ZYAN_STATUS_TOO_MANY_ARGS;
             goto failure;
         }
 
@@ -207,7 +207,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed)
     // All tokens processed. Do we have enough unnamed arguments?
     if (num_unnamed_args < cfg->min_unnamed_args)
     {
-        err = ZYAN_ARGPARSE_STATUS_TOO_FEW_ARGS;
+        err = ZYAN_STATUS_TOO_FEW_ARGS;
         goto failure;
     }
 

@@ -43,7 +43,7 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZyanStatus` datatype.
+ * @brief   Defines the `ZyanStatus` data type.
  */
 typedef ZyanU32 ZyanStatus;
 
@@ -72,7 +72,7 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Checks if a zyan operation was successfull.
+ * @brief   Checks if a zyan operation was successful.
  *
  * @param   status  The zyan status-code to check.
  *
@@ -92,7 +92,7 @@ typedef ZyanU32 ZyanStatus;
     ((status) & 0x80000000)
 
 /**
- * @brief   Checks if a zyan operation was successfull and returns with the status-code, if not.
+ * @brief   Checks if a zyan operation was successful and returns with the status-code, if not.
  *
  * @param   status  The zyan status-code to check.
  */
@@ -144,7 +144,7 @@ typedef ZyanU32 ZyanStatus;
 #define ZYAN_MODULE_ZYCORE  0x001
 
 /**
- * @brief   The zycore argparse submodule id.
+ * @brief   The zycore arg-parse submodule id.
  */
 #define ZYAN_MODULE_ARGPARSE  0x003
 
@@ -224,7 +224,7 @@ typedef ZyanU32 ZyanStatus;
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0A)
 
 /**
- * @brief   An unknown error occured during a system function call.
+ * @brief   An unknown error occurred during a system function call.
  */
 #define ZYAN_STATUS_BAD_SYSTEMCALL \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0B)
@@ -242,25 +242,25 @@ typedef ZyanU32 ZyanStatus;
 /**
  * @brief   Argument was not expected.
  */
-#define ZYAN_ARGPARSE_STATUS_ARG_NOT_UNDERSTOOD \
+#define ZYAN_STATUS_ARG_NOT_UNDERSTOOD \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x00)
 
 /**
  * @brief   Too few arguments were provided.
  */
-#define ZYAN_ARGPARSE_STATUS_TOO_FEW_ARGS \
+#define ZYAN_STATUS_TOO_FEW_ARGS \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x01)
 
 /**
  * @brief   Too many arguments were provided.
  */
-#define ZYAN_ARGPARSE_STATUS_TOO_MANY_ARGS \
+#define ZYAN_STATUS_TOO_MANY_ARGS \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x02)
 
 /**
  * @brief   An argument that expected a value misses its value.
  */
-#define ZYAN_ARGPARSE_STATUS_ARG_MISSES_VALUE \
+#define ZYAN_STATUS_ARG_MISSES_VALUE \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x03)
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -149,6 +149,7 @@ target_sources("Zycore"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Thread.h"
         # Common
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Allocator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/ArgParse.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Bitset.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Comparison.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Defines.h"
@@ -168,13 +169,13 @@ target_sources("Zycore"
         "src/API/Thread.c"
         # Common
         "src/Allocator.c"
+        "src/ArgParse.c"
         "src/Bitset.c"
         "src/Format.c"
         "src/List.c"
         "src/String.c"
         "src/Vector.c"
-        "src/Zycore.c"
-        "src/ArgParse.c")
+        "src/Zycore.c")
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zycore" PRIVATE "resources/VersionInfo.rc")
