@@ -39,29 +39,32 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
     ZYAN_ASSERT(cfg);
     ZYAN_ASSERT(parsed);
 
+    // TODO: Once we have a decent hash map impl, refactor this to use it. The majority of for
+    //       loops through the argument list could be avoided.
+
     if (cfg->min_unnamed_args > cfg->max_unnamed_args)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
     // Check argument syntax.
-    for (const ZyanArgParseDefinition* arg = cfg->args; arg && arg->name; ++arg)
+    for (const ZyanArgParseDefinition* def = cfg->args; def && def->name; ++def)
     {
         // TODO: Duplicate check
 
-        if (!arg->name)
+        if (!def->name)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
 
-        ZyanUSize arg_len = ZYAN_STRLEN(arg->name);
-        if (arg_len < 2 || arg->name[0] != '-')
+        ZyanUSize arg_len = ZYAN_STRLEN(def->name);
+        if (arg_len < 2 || def->name[0] != '-')
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
 
         // Single dash arguments only accept a single char name.
-        if (arg->name[1] != '-' && arg_len != 2)
+        if (def->name[1] != '-' && arg_len != 2)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -95,17 +98,17 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
                 ZYAN_MEMSET(parsed_arg, 0, sizeof(*parsed_arg));
 
                 // Find corresponding argument definition.
-                for (const ZyanArgParseDefinition* arg = cfg->args; arg && arg->name; ++arg)
+                for (const ZyanArgParseDefinition* def = cfg->args; def && def->name; ++def)
                 {
-                    if (ZYAN_STRCMP(arg->name, cur_arg) == 0)
+                    if (ZYAN_STRCMP(def->name, cur_arg) == 0)
                     {
-                        parsed_arg->arg = arg;
+                        parsed_arg->def = def;
                         break;
                     }
                 }
 
                 // Search exhausted & argument not found. RIP.
-                if (!parsed_arg->arg)
+                if (!parsed_arg->def)
                 {
                     err = ZYAN_STATUS_ARG_NOT_UNDERSTOOD;
                     ZYAN_ERR_TOK(cur_arg);
@@ -113,7 +116,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
                 }
 
                 // Does the argument expect a value? If yes, consume next token.
-                if (!parsed_arg->arg->boolean)
+                if (!parsed_arg->def->boolean)
                 {
                     if (i == cfg->argc - 1)
                     {
@@ -145,19 +148,19 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
                 ZYAN_MEMSET(parsed_arg, 0, sizeof(*parsed_arg));
 
                 // Find corresponding argument definition.
-                for (const ZyanArgParseDefinition* arg = cfg->args; arg && arg->name; ++arg)
+                for (const ZyanArgParseDefinition* def = cfg->args; def && def->name; ++def)
                 {
-                    if (ZYAN_STRLEN(arg->name) == 2 &&
-                        arg->name[0] == '-' &&
-                        arg->name[1] == *read_ptr)
+                    if (ZYAN_STRLEN(def->name) == 2 &&
+                        def->name[0] == '-' &&
+                        def->name[1] == *read_ptr)
                     {
-                        parsed_arg->arg = arg;
+                        parsed_arg->def = def;
                         break;
                     }
                 }
 
                 // Search exhausted, no match found?
-                if (!parsed_arg->arg)
+                if (!parsed_arg->def)
                 {
                     err = ZYAN_STATUS_ARG_NOT_UNDERSTOOD;
                     ZYAN_ERR_TOK(cur_arg);
@@ -165,7 +168,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
                 }
 
                 // Requires value?
-                if (!parsed_arg->arg->boolean)
+                if (!parsed_arg->def->boolean)
                 {
                     // If there are chars left, consume them (e.g. `-n1000`).
                     if (read_ptr[1])
@@ -218,6 +221,37 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
         err = ZYAN_STATUS_TOO_FEW_ARGS;
         // No sensible error token for this error type.
         goto failure;
+    }
+
+    // Check whether all required arguments are present.
+    ZyanUSize num_parsed_args;
+    ZYAN_CHECK(ZyanVectorGetSize(parsed, &num_parsed_args));
+    for (const ZyanArgParseDefinition* def = cfg->args; def && def->name; ++def)
+    {
+        if (!def->required) continue;
+
+        ZyanBool arg_found = ZYAN_FALSE;
+        for (ZyanUSize i = 0; i < num_parsed_args; ++i)
+        {
+            const ZyanArgParseArg* arg = ZYAN_NULL;
+            ZYAN_CHECK(ZyanVectorGetPointer(parsed, i, (const void**)&arg));
+
+            // Skip unnamed args.
+            if (!arg->def) continue;
+
+            if (arg->def == def)
+            {
+                arg_found = ZYAN_TRUE;
+                break;
+            }
+        }
+
+        if (!arg_found)
+        {
+            err = ZYAN_STATUS_REQUIRED_ARG_MISSING;
+            ZYAN_ERR_TOK(def->name);
+            goto failure;
+        }
     }
 
     // Yay!

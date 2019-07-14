@@ -61,6 +61,10 @@ typedef struct ZyanArgParseDefinition_
      * @brief   Whether the argument is boolean or expects a value.
      */
     ZyanBool boolean;
+    /**
+     * @brief   Whether this argument is required (error if missing).
+     */
+    ZyanBool required;
 } ZyanArgParseDefinition;
 
 /**
@@ -104,7 +108,7 @@ typedef struct ZyanArgParseArg_
      *
      * This pointer is borrowed from the `cfg` pointer passed to `ZyanArgParse`.
      */
-    const ZyanArgParseDefinition* arg;
+    const ZyanArgParseDefinition* def;
     /**
      * @brief   Whether the argument has a value (is non-boolean).
      */
