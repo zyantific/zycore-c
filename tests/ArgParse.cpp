@@ -59,11 +59,13 @@ auto cvt_string_view(const ZyanStringView *sv)
 
 static auto UnnamedArgTest(ZyanU64 min, ZyanU64 max)
 {
-    const char* argv[] = {
+    const char* argv[]
+    {
         "test", "a", "xxx"
     };
 
-    ZyanArgParseConfig cfg = {
+    ZyanArgParseConfig cfg
+    {
         argv,   // argv
         3,      // argc
         min,    // min_unnamed_args
@@ -80,13 +82,13 @@ static auto UnnamedArgTest(ZyanU64 min, ZyanU64 max)
 TEST(UnnamedArgs, TooFew)
 {
     auto [status, parsed] = UnnamedArgTest(5, 5);
-    ASSERT_EQ(status, ZYAN_ARGPARSE_STATUS_TOO_FEW_ARGS);
+    ASSERT_EQ(status, ZYAN_STATUS_TOO_FEW_ARGS);
 }
 
 TEST(UnnamedArgs, TooMany)
 {
     auto [status, parsed] = UnnamedArgTest(1, 1);
-    ASSERT_EQ(status, ZYAN_ARGPARSE_STATUS_TOO_MANY_ARGS);
+    ASSERT_EQ(status, ZYAN_STATUS_TOO_MANY_ARGS);
 }
 
 TEST(UnnamedArgs, PerfectFit)
@@ -115,11 +117,13 @@ TEST(UnnamedArgs, PerfectFit)
 
 TEST(DashArg, MixedBoolAndValueArgs)
 {
-    const char* argv[] = {
+    const char* argv[]
+    {
         "test", "-aio42", "-n", "xxx"
     };
 
-    ZyanArgParseDefinition args[] = {
+    ZyanArgParseDefinition args[]
+    {
         {"-o", ZYAN_FALSE},
         {"-a", ZYAN_TRUE},
         {"-n", ZYAN_FALSE},
@@ -127,7 +131,8 @@ TEST(DashArg, MixedBoolAndValueArgs)
         {nullptr, ZYAN_FALSE}
     };
 
-    ZyanArgParseConfig cfg = {
+    ZyanArgParseConfig cfg
+    {
         argv, // argv
         4,    // argc
         0,    // min_unnamed_args
@@ -170,17 +175,20 @@ TEST(DashArg, MixedBoolAndValueArgs)
 
 TEST(DoubleDashArg, PerfectFit)
 {
-    const char* argv[] = {
+    const char* argv[]
+    {
         "test", "--help", "--stuff", "1337"
     };
 
-    ZyanArgParseDefinition args[] = {
+    ZyanArgParseDefinition args[]
+    {
         {"--help", ZYAN_TRUE},
         {"--stuff", ZYAN_FALSE},
         {nullptr, ZYAN_FALSE}
     };
 
-    ZyanArgParseConfig cfg = {
+    ZyanArgParseConfig cfg
+    {
         argv, // argv
         4,    // argc
         0,    // min_unnamed_args
@@ -214,19 +222,22 @@ TEST(DoubleDashArg, PerfectFit)
 
 TEST(MixedArgs, Stuff)
 {
-    const char* argv[] = {
+    const char* argv[]
+    {
         "test", "--feature-xyz", "-n5", "blah.c", "woof.moo"
     };
 
-    ZyanArgParseDefinition args[] = {
+    ZyanArgParseDefinition args[]
+    {
         {"--feature-xyz", ZYAN_TRUE},
         {"-n", ZYAN_FALSE},
         {nullptr, ZYAN_FALSE}
     };
 
-    ZyanArgParseConfig cfg = {
+    ZyanArgParseConfig cfg
+    {
         argv, // argv
-        5,    // argc4
+        5,    // argc
         0,    // min_unnamed_args
         100,  // max_unnamed_args
         args  // args
