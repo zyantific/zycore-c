@@ -263,6 +263,12 @@ typedef ZyanU32 ZyanStatus;
 #define ZYAN_STATUS_ARG_MISSES_VALUE \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x03)
 
+/**
+* @brief   A required argument is missing.
+*/
+#define ZYAN_STATUS_REQUIRED_ARG_MISSING \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x04)
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
