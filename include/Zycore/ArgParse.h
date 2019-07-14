@@ -85,11 +85,11 @@ typedef struct ZyanArgParseConfig_
      */
     ZyanUSize max_unnamed_args;
     /**
-     * @brief   Argument definition array, or `NULL`.
+     * @brief   Argument definition array, or `ZYAN_NULL`.
      *
      * Expects a pointer to an array of `ZyanArgParseDefinition` instances. The array is
-     * terminated by setting the `.name` field of the last element to `NULL`. If no named
-     * arguments should be parsed, you can also set this to `NULL`.
+     * terminated by setting the `.name` field of the last element to `ZYAN_NULL`. If no named
+     * arguments should be parsed, you can also set this to `ZYAN_NULL`.
      */
     ZyanArgParseDefinition* args;
 } ZyanArgParseConfig;
@@ -100,7 +100,7 @@ typedef struct ZyanArgParseConfig_
 typedef struct ZyanArgParseArg_
 {
     /**
-     * @brief   Corresponding argument definition, or `NULL` for unnamed args.
+     * @brief   Corresponding argument definition, or `ZYAN_NULL` for unnamed args.
      *
      * This pointer is borrowed from the `cfg` pointer passed to `ZyanArgParse`.
      */
@@ -124,12 +124,18 @@ typedef struct ZyanArgParseArg_
 /**
  * @brief  Parse arguments according to a `ZyanArgParseConfig` definition.
  *
- * @param  cfg      Argument parser config to use.
- * @param  parsed   Receives the parsed output. Vector of `ZyanArgParseArg`.
+ * @param  cfg          Argument parser config to use.
+ * @param  parsed       Receives the parsed output. Vector of `ZyanArgParseArg`. Ownership is
+ *                      transferred to the user. Input is expected to be uninitialized. On error,
+ *                      the vector remains uninitialized.
+ * @param  error_token  On error, if it makes sense, receives the argument fragment causing the
+ *                      error. Optional, may be `ZYAN_NULL`. The pointer borrows into the `cfg`
+ *                      struct and doesn't have to be freed by the user.
  *
  * @return A `ZyanStatus` status determining whether the parsing succeeded.
  */
-ZYCORE_EXPORT ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed);
+ZYCORE_EXPORT ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
+    const char** error_token);
 
 /* ============================================================================================== */
 

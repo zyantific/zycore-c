@@ -61,7 +61,7 @@ static auto UnnamedArgTest(ZyanU64 min, ZyanU64 max)
 {
     const char* argv[]
     {
-        "test", "a", "xxx"
+        "./test", "a", "xxx"
     };
 
     ZyanArgParseConfig cfg
@@ -74,26 +74,29 @@ static auto UnnamedArgTest(ZyanU64 min, ZyanU64 max)
     };
 
     ZyanVector parsed;
+    const char* err_tok = nullptr;
     ZYAN_MEMSET(&parsed, 0, sizeof(parsed));
-    auto status = ZyanArgParse(&cfg, &parsed);
-    return std::make_tuple(status, parsed);
+    auto status = ZyanArgParse(&cfg, &parsed, &err_tok);
+    return std::make_tuple(status, parsed, err_tok);
 }
 
 TEST(UnnamedArgs, TooFew)
 {
-    auto [status, parsed] = UnnamedArgTest(5, 5);
+    auto [status, parsed, err_tok] = UnnamedArgTest(5, 5);
     ASSERT_EQ(status, ZYAN_STATUS_TOO_FEW_ARGS);
+    ASSERT_STREQ(err_tok, nullptr);
 }
 
 TEST(UnnamedArgs, TooMany)
 {
-    auto [status, parsed] = UnnamedArgTest(1, 1);
+    auto [status, parsed, err_tok] = UnnamedArgTest(1, 1);
     ASSERT_EQ(status, ZYAN_STATUS_TOO_MANY_ARGS);
+    ASSERT_STREQ(err_tok, "xxx");
 }
 
 TEST(UnnamedArgs, PerfectFit)
 {
-    auto [status, parsed] = UnnamedArgTest(2, 2);
+    auto [status, parsed, err_tok] = UnnamedArgTest(2, 2);
     ASSERT_TRUE(ZYAN_SUCCESS(status));
 
     ZyanUSize size;
@@ -119,7 +122,7 @@ TEST(DashArg, MixedBoolAndValueArgs)
 {
     const char* argv[]
     {
-        "test", "-aio42", "-n", "xxx"
+        "./test", "-aio42", "-n", "xxx"
     };
 
     ZyanArgParseDefinition args[]
@@ -142,7 +145,7 @@ TEST(DashArg, MixedBoolAndValueArgs)
 
     ZyanVector parsed;
     ZYAN_MEMSET(&parsed, 0, sizeof(parsed));
-    auto status = ZyanArgParse(&cfg, &parsed);
+    auto status = ZyanArgParse(&cfg, &parsed, nullptr);
     ASSERT_TRUE(ZYAN_SUCCESS(status));
 
     ZyanUSize size;
@@ -177,7 +180,7 @@ TEST(DoubleDashArg, PerfectFit)
 {
     const char* argv[]
     {
-        "test", "--help", "--stuff", "1337"
+        "./test", "--help", "--stuff", "1337"
     };
 
     ZyanArgParseDefinition args[]
@@ -198,7 +201,7 @@ TEST(DoubleDashArg, PerfectFit)
 
     ZyanVector parsed;
     ZYAN_MEMSET(&parsed, 0, sizeof(parsed));
-    auto status = ZyanArgParse(&cfg, &parsed);
+    auto status = ZyanArgParse(&cfg, &parsed, nullptr);
     ASSERT_TRUE(ZYAN_SUCCESS(status));
 
     ZyanUSize size;
@@ -224,7 +227,7 @@ TEST(MixedArgs, Stuff)
 {
     const char* argv[]
     {
-        "test", "--feature-xyz", "-n5", "blah.c", "woof.moo"
+        "./test", "--feature-xyz", "-n5", "blah.c", "woof.moo"
     };
 
     ZyanArgParseDefinition args[]
@@ -245,7 +248,7 @@ TEST(MixedArgs, Stuff)
 
     ZyanVector parsed;
     ZYAN_MEMSET(&parsed, 0, sizeof(parsed));
-    auto status = ZyanArgParse(&cfg, &parsed);
+    auto status = ZyanArgParse(&cfg, &parsed, nullptr);
     ASSERT_TRUE(ZYAN_SUCCESS(status));
 
     ZyanUSize size;
