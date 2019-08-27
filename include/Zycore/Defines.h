@@ -242,8 +242,8 @@
 /**
  * @brief   Intentional fallthrough.
  */
-#if defined(ZYAN_GCC) && __GNUC__ > 7
-#   define ZYAN_FALLTHROUGH __attribute__ ((fallthrough))
+#if defined(ZYAN_GCC) && __GNUC__ >= 7
+#   define ZYAN_FALLTHROUGH __attribute__((fallthrough))
 #else
 #   define ZYAN_FALLTHROUGH
 #endif
