@@ -136,7 +136,7 @@ generate_export_header("Zycore" BASE_NAME "ZYCORE" EXPORT_FILE_NAME "ZycoreExpor
 if (ZYAN_NO_LIBC)
     target_compile_definitions("Zycore" PUBLIC "ZYAN_NO_LIBC")
     if (UNIX)
-        target_link_options("Zycore" PUBLIC "-nostdlib" "-nodefaultlibs")
+        set_target_properties("Zycore" PROPERTIES LINK_FLAGS "-nostdlib -nodefaultlibs")
     endif ()
 endif ()
 
