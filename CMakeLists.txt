@@ -162,11 +162,6 @@ target_sources("Zycore"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Types.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Vector.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/Zycore.h"
-        # API
-        "src/API/Memory.c"
-        "src/API/Synchronization.c"
-        "src/API/Terminal.c"
-        "src/API/Thread.c"
         # Common
         "src/Allocator.c"
         "src/ArgParse.c"
@@ -176,6 +171,16 @@ target_sources("Zycore"
         "src/String.c"
         "src/Vector.c"
         "src/Zycore.c")
+
+if (NOT ZYAN_NO_LIBC)
+    target_sources("Zycore"
+        PRIVATE
+            # API
+            "src/API/Memory.c"
+            "src/API/Synchronization.c"
+            "src/API/Terminal.c"
+            "src/API/Thread.c")
+endif ()
 
 if (ZYCORE_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zycore" PRIVATE "resources/VersionInfo.rc")

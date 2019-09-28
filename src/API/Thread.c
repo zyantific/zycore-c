@@ -24,8 +24,6 @@
 
 ***************************************************************************************************/
 
-#ifndef ZYAN_NO_LIBC
-
 #include <Zycore/API/Thread.h>
 
 /* ============================================================================================== */
@@ -192,7 +190,5 @@ ZyanStatus ZyanThreadTlsSetValue(ZyanThreadTlsIndex index, void* data)
 #else
 #   error "Unsupported platform detected"
 #endif
-
-#endif /* ZYAN_NO_LIBC */
 
 /* ============================================================================================== */
