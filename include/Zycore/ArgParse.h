@@ -125,6 +125,8 @@ typedef struct ZyanArgParseArg_
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
+#ifndef ZYAN_NO_LIBC
+
 /**
  * @brief  Parse arguments according to a `ZyanArgParseConfig` definition.
  *
@@ -140,6 +142,27 @@ typedef struct ZyanArgParseArg_
  */
 ZYCORE_EXPORT ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
     const char** error_token);
+
+#endif
+
+/**
+ * @brief  Parse arguments according to a `ZyanArgParseConfig` definition.
+ *
+ * This version allows specification of a custom memory allocator and thus supports no-libc.
+ *
+ * @param  cfg          Argument parser config to use.
+ * @param  parsed       Receives the parsed output. Vector of `ZyanArgParseArg`. Ownership is
+ *                      transferred to the user. Input is expected to be uninitialized. On error,
+ *                      the vector remains uninitialized.
+ * @param  error_token  On error, if it makes sense, receives the argument fragment causing the
+ *                      error. Optional, may be `ZYAN_NULL`. The pointer borrows into the `cfg`
+ *                      struct and doesn't have to be freed by the user.
+ * @param   allocator   The `ZyanAllocator` to be used for allocating the output vector's data.
+ *
+ * @return A `ZyanStatus` status determining whether the parsing succeeded.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanArgParseEx(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
+    const char** error_token, ZyanAllocator* allocator);
 
 /* ============================================================================================== */
 

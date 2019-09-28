@@ -31,8 +31,18 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
+#ifndef ZYAN_NO_LIBC
+
 ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
     const char** error_token)
+{
+    return ZyanArgParseEx(cfg, parsed, error_token, ZyanAllocatorDefault());
+}
+
+#endif
+
+ZyanStatus ZyanArgParseEx(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
+    const char** error_token, ZyanAllocator* allocator)
 {
 #   define ZYAN_ERR_TOK(tok) if (error_token) { *error_token = tok; }
 
@@ -71,7 +81,8 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
     }
 
     // Initialize output vector.
-    ZYAN_CHECK(ZyanVectorInit(parsed, sizeof(ZyanArgParseArg), cfg->argc, ZYAN_NULL));
+    ZYAN_CHECK(ZyanVectorInitEx(parsed, sizeof(ZyanArgParseArg), cfg->argc, ZYAN_NULL, allocator,
+        ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR, ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD));
 
     ZyanStatus err;
     ZyanBool accept_dash_args = ZYAN_TRUE;
@@ -185,7 +196,7 @@ ZyanStatus ZyanArgParse(const ZyanArgParseConfig *cfg, ZyanVector* parsed,
                             ZYAN_ERR_TOK(cur_arg)
                             goto failure;
                         }
-                        
+
                         parsed_arg->has_value = ZYAN_TRUE;
                         ZYAN_CHECK(ZyanStringViewInsideBuffer(&parsed_arg->value, cfg->argv[++i]));
                     }
