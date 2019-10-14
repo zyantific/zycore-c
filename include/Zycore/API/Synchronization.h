@@ -60,7 +60,7 @@ typedef pthread_mutex_t ZyanCriticalSection;
 
 #elif defined(ZYAN_WINDOWS)
 
-#include <Windows.h>
+#include <windows.h>
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Critical Section                                                                               */

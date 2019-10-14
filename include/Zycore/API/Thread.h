@@ -92,7 +92,7 @@ typedef void(*ZyanThreadTlsCallback)(void* data);
 
 #elif defined(ZYAN_WINDOWS)
 
-#include <Windows.h>
+#include <windows.h>
 
 /* ---------------------------------------------------------------------------------------------- */
 /* General                                                                                        */

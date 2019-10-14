@@ -29,7 +29,7 @@
 #if   defined(ZYAN_POSIX)
 #   include <unistd.h>
 #elif defined(ZYAN_WINDOWS)
-#   include <Windows.h>
+#   include <windows.h>
 #   include <io.h>
 #else
 #   error "Unsupported platform detected"
