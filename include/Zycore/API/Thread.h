@@ -55,12 +55,12 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- *  @brief  Defines the `ZyanThread` datatype.
+ *  @brief  Defines the `ZyanThread` data-type.
  */
 typedef pthread_t ZyanThread;
 
 /**
- *  @brief  Defines the `ZyanThreadId` datatype.
+ *  @brief  Defines the `ZyanThreadId` data-type.
  */
 typedef ZyanU64 ZyanThreadId;
 
@@ -69,7 +69,7 @@ typedef ZyanU64 ZyanThreadId;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- *  @brief  Defines the `ZyanThreadTlsIndex` datatype.
+ *  @brief  Defines the `ZyanThreadTlsIndex` data-type.
  */
 typedef pthread_key_t ZyanThreadTlsIndex;
 
@@ -99,12 +99,12 @@ typedef void(*ZyanThreadTlsCallback)(void* data);
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- *  @brief  Defines the `ZyanThread` datatype.
+ *  @brief  Defines the `ZyanThread` data-type.
  */
 typedef HANDLE ZyanThread;
 
 /**
- *  @brief  Defines the `ZyanThreadId` datatype.
+ *  @brief  Defines the `ZyanThreadId` data-type.
  */
 typedef DWORD ZyanThreadId;
 
@@ -113,7 +113,7 @@ typedef DWORD ZyanThreadId;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- *  @brief  Defines the `ZyanThreadTlsIndex` datatype.
+ *  @brief  Defines the `ZyanThreadTlsIndex` data-type.
  */
 typedef DWORD ZyanThreadTlsIndex;
 
@@ -178,12 +178,12 @@ ZYCORE_EXPORT ZyanStatus ZyanThreadGetCurrentThreadId(ZyanThreadId* thread_id);
  * The maximum available number of TLS slots is implementation specific and different on each
  * platform:
  * - Windows
- *   - A total amount of 128 slots per process is guaranteed
+ *   - A total amount of 128 slots per process are guaranteed
  * - POSIX
- *   - A total amount of 128 slots per process is guaranteed
+ *   - A total amount of 128 slots per process are guaranteed
  *   - Some systems guarantee larger amounts like e.g. 1024 slots per process
  *
- * Note that the invokation rules for the destructor callback are implementation specific and
+ * Note that the invocation rules for the destructor callback are implementation specific and
  * different on each platform:
  * - Windows
  *   - The callback is invoked when a thread exits
