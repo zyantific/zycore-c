@@ -141,17 +141,17 @@ typedef ZyanU32 ZyanStatus;
 /**
  * @brief   The zycore generic module id.
  */
-#define ZYAN_MODULE_ZYCORE  0x001
+#define ZYAN_MODULE_ZYCORE      0x001
 
 /**
  * @brief   The zycore arg-parse submodule id.
  */
-#define ZYAN_MODULE_ARGPARSE  0x003
+#define ZYAN_MODULE_ARGPARSE    0x003
 
 /**
  * @brief   The base module id for user-defined status codes.
  */
-#define ZYAN_MODULE_USER    0x3FF
+#define ZYAN_MODULE_USER        0x3FF
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Status codes (general purpose)                                                                 */
@@ -234,6 +234,13 @@ typedef ZyanU32 ZyanStatus;
  */
 #define ZYAN_STATUS_OUT_OF_RESOURCES \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0C)
+
+/**
+ * @brief   A dependency library was not found or does have an unexpected version number or
+ *          feature-set.
+ */
+#define ZYAN_STATUS_MISSING_DEPENDENCY \
+    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0D)
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Status codes (arg parse)                                                                       */
