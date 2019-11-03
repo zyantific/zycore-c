@@ -155,6 +155,50 @@ typedef struct ZyanVector_
     (*(const type*)ZyanVectorGet(vector, index))
 #endif
 
+/**
+ * @brief   Loops through all elements of the vector.
+ *
+ * @param   type        The desired value type.
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   item_name   The name of the iterator item.
+ * @param   body        The body to execute for each item in the vector.
+ */
+#define ZYAN_VECTOR_FOREACH(type, vector, item_name, body) \
+    { \
+        const ZyanUSize ZYAN_MACRO_CONCAT_EXPAND(size_d50d3303, item_name) = (vector)->size; \
+        for (ZyanUSize ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name) = 0; \
+            ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name) < \
+            ZYAN_MACRO_CONCAT_EXPAND(size_d50d3303, item_name); \
+            ++ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name)) \
+        { \
+            const type item_name = ZYAN_VECTOR_GET(type, vector, \
+                ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name)); \
+            body \
+        } \
+    }
+
+/**
+ * @brief   Loops through all elements of the vector.
+ *
+ * @param   type        The desired value type.
+ * @param   vector      A pointer to the `ZyanVector` instance.
+ * @param   item_name   The name of the iterator item.
+ * @param   body        The body to execute for each item in the vector.
+ */
+#define ZYAN_VECTOR_FOREACH_MUTABLE(type, vector, item_name, body) \
+    { \
+        const ZyanUSize ZYAN_MACRO_CONCAT_EXPAND(size_d50d3303, item_name) = (vector)->size; \
+        for (ZyanUSize ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name) = 0; \
+            ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name) < \
+            ZYAN_MACRO_CONCAT_EXPAND(size_d50d3303, item_name); \
+            ++ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name)) \
+        { \
+            type* const item_name = ZyanVectorGetMutable(vector, \
+                ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name)); \
+            body \
+        } \
+    }
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
