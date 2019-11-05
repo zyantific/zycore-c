@@ -70,20 +70,16 @@ endif ()
 # =============================================================================================== #
 
 function (zyan_set_common_flags target)
-    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
-        "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
-        "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+    if (NOT MSVC)
         target_compile_options("${target}" PRIVATE "-std=c99")
     endif ()
 
     if (ZYAN_DEV_MODE)
         # If in developer mode, be pedantic.
-        if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
-            target_compile_options("${target}" PUBLIC "-Wall" "-pedantic" "-Wextra" "-Werror")
-        elseif (MSVC)
+        if (MSVC)
             target_compile_options("${target}" PUBLIC "/WX" "/W4")
+        else ()
+            target_compile_options("${target}" PUBLIC "-Wall" "-pedantic" "-Wextra" "-Werror")
         endif ()
     endif ()
 endfunction ()
@@ -239,9 +235,7 @@ endif ()
 function (zyan_add_test test)
     add_executable("Test${test}" "tests/${test}.cpp")
 
-    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
-        "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
-        "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+    if (NOT MSVC)
         target_compile_options("Test${test}" PRIVATE "-std=c++17")
     endif ()
 
