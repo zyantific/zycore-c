@@ -116,8 +116,18 @@ ZYAN_STATIC_ASSERT((ZyanI32)-1 >> 1 < (ZyanI32)((ZyanU32)-1 >> 1));
 ZYAN_STATIC_ASSERT((ZyanI64)-1 >> 1 < (ZyanI64)((ZyanU64)-1 >> 1));
 
 /* ============================================================================================== */
-/* NULL                                                                                           */
+/* Pointer                                                                                        */
 /* ============================================================================================== */
+
+/**
+ * @brief   Defines the `ZyanVoidPointer` data-type.
+ */
+typedef char* ZyanVoidPointer;
+
+/**
+ * @brief   Defines the `ZyanConstVoidPointer` data-type.
+ */
+typedef const void* ZyanConstVoidPointer;
 
 #define ZYAN_NULL ((void*)0)
 

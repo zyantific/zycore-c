@@ -358,7 +358,7 @@
  *
  * Note that this macro only works for powers of 2.
  */
-#define ZYAN_IS_ALIGNED_TO(x, align) ((x & (align - 1)) == 0)
+#define ZYAN_IS_ALIGNED_TO(x, align) (((x) & ((align) - 1)) == 0)
 
 /**
  * @brief   Aligns the value to the nearest given alignment boundary (by rounding it up).
