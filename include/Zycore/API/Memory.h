@@ -33,41 +33,101 @@
 #define ZYCORE_MEMORY_H
 
 #include <ZycoreExportConfig.h>
+#include <Zycore/Defines.h>
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>
+
+#if   defined(ZYAN_WINDOWS)
+#   include <windows.h>
+#elif defined(ZYAN_POSIX)
+#   include <sys/mman.h>
+#else
+#   error "Unsupported platform detected"
+#endif
 
 /* ============================================================================================== */
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZyanMemoryManager` struct.
+ * @brief   Defines the `ZyanMemoryPageProtection` enum.  
  */
-typedef struct ZyanMemoryManager_
+typedef enum ZyanMemoryPageProtection_
 {
-    int a;
-} ZyanMemoryManager;
+#if   defined(ZYAN_WINDOWS)
+
+    ZYAN_PAGE_READONLY          = PAGE_READONLY,           
+    ZYAN_PAGE_READWRITE         = PAGE_READWRITE,
+    ZYAN_PAGE_EXECUTE           = PAGE_EXECUTE,             
+    ZYAN_PAGE_EXECUTE_READ      = PAGE_EXECUTE_READ,
+    ZYAN_PAGE_EXECUTE_READWRITE = PAGE_EXECUTE_READWRITE
+
+#elif defined(ZYAN_POSIX)
+
+    ZYAN_PAGE_READONLY          = PROT_READ,           
+    ZYAN_PAGE_READWRITE         = PROT_READ | PROT_WRITE,
+    ZYAN_PAGE_EXECUTE           = PROT_EXEC,             
+    ZYAN_PAGE_EXECUTE_READ      = PROT_EXEC | PROT_READ,
+    ZYAN_PAGE_EXECUTE_READWRITE = PROT_EXEC | PROT_READ | PROT_WRITE
+
+#endif
+} ZyanMemoryPageProtection;
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Memory manager                                                                                 */
+/* General                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the default memory manager.
-
- * @return  The default memory manager.
+ * @brief   Returns the system page size.
+ *
+ * @return  The system page size.
  */
-ZYCORE_EXPORT const ZyanMemoryManager* ZyanMemoryManagerDefault(void);
+ZyanU32 ZyanMemoryGetSystemPageSize();
+
+/**
+ * @brief   Returns the system allocation granularity.
+ *
+ * The system allocation granularity specifies the minimum amount of bytes which can be allocated
+ * at a specific address by a single call of `ZyanMemoryVirtualAlloc`.
+ *
+ * This value is typically 64KiB on Windows systems and equal to the page size on most POSIX
+ * platforms.
+ *
+ * @return  The system allocation granularity.
+ */
+ZyanU32 ZyanMemoryGetSystemAllocationGranularity();
 
 /* ---------------------------------------------------------------------------------------------- */
-/*                                                                                                */
+/* Memory management                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
+/**
+ * @brief   Changes the memory protection value of one or more pages.
+ *
+ * @param   address     The start address aligned to a page boundary.
+ * @param   size        The size.
+ * @param   protection  The new page protection value.
+ *
+ * @return  A zyan status code.
+ */
+ZyanStatus ZyanMemoryVirtualProtect(void* address, ZyanUSize size, 
+    ZyanMemoryPageProtection protection);
 
+/**
+ * @brief   Releases one or more memory pages starting at the given address.
+ *
+ * @param   address The start address aligned to a page boundary.
+ * @param   size    The size.
+ *
+ * @return  A zyan status code.
+ */
+ZyanStatus ZyanMemoryVirtualFree(void* address, ZyanUSize size);
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 
