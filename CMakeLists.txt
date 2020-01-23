@@ -140,6 +140,7 @@ target_sources("Zycore"
     PRIVATE
         # API
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Memory.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Process.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Synchronization.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Terminal.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zycore/API/Thread.h"
@@ -173,6 +174,7 @@ if (NOT ZYAN_NO_LIBC)
         PRIVATE
             # API
             "src/API/Memory.c"
+            "src/API/Process.c"
             "src/API/Synchronization.c"
             "src/API/Terminal.c"
             "src/API/Thread.c")
