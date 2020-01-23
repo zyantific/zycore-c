@@ -76,10 +76,10 @@ typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Declares a generic equality comparison function for an integral datatype.
+ * @brief   Declares a generic equality comparison function for an integral data-type.
  *
  * @param   name    The name of the function.
- * @param   type    The name of the integral datatype.
+ * @param   type    The name of the integral data-type.
  */
 #define ZYAN_DECLARE_EQUALITY_COMPARISON(name, type) \
     ZyanBool name(const type* left, const type* right) \
@@ -92,10 +92,10 @@ typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
 
 /**
  * @brief   Declares a generic equality comparison function that compares a single integral
- *          datatype field of a struct.
+ *          data-type field of a struct.
  *
  * @param   name        The name of the function.
- * @param   type        The name of the integral datatype.
+ * @param   type        The name of the integral data-type.
  * @param   field_name  The name of the struct field.
  */
 #define ZYAN_DECLARE_EQUALITY_COMPARISON_FOR_FIELD(name, type, field_name) \
@@ -112,10 +112,10 @@ typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Declares a generic comparison function for an integral datatype.
+ * @brief   Declares a generic comparison function for an integral data-type.
  *
  * @param   name    The name of the function.
- * @param   type    The name of the integral datatype.
+ * @param   type    The name of the integral data-type.
  */
 #define ZYAN_DECLARE_COMPARISON(name, type) \
     ZyanI32 name(const type* left, const type* right) \
@@ -135,11 +135,11 @@ typedef ZyanI32 (*ZyanComparison)(const void* left, const void* right);
     }
 
 /**
- * @brief   Declares a generic comparison function that compares a single integral datatype field
+ * @brief   Declares a generic comparison function that compares a single integral data-type field
  *          of a struct.
  *
  * @param   name        The name of the function.
- * @param   type        The name of the integral datatype.
+ * @param   type        The name of the integral data-type.
  * @param   field_name  The name of the struct field.
  */
 #define ZYAN_DECLARE_COMPARISON_FOR_FIELD(name, type, field_name) \

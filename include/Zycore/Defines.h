@@ -172,7 +172,7 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Runtime debug assersion.
+ * @brief   Runtime debug assertion.
  */
 #if defined(ZYAN_NO_LIBC)
 #   define ZYAN_ASSERT(condition) (void)(condition)

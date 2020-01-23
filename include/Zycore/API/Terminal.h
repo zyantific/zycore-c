@@ -29,8 +29,8 @@
  * @brief
  */
 
-#ifndef ZYCORE_TERMINAL_H
-#define ZYCORE_TERMINAL_H
+#ifndef ZYCORE_API_TERMINAL_H
+#define ZYCORE_API_TERMINAL_H
 
 #include <ZycoreExportConfig.h>
 #include <Zycore/LibC.h>
@@ -160,4 +160,4 @@ ZYCORE_EXPORT ZyanStatus ZyanTerminalIsTTY(ZyanStandardStream stream);
 }
 #endif
 
-#endif /* ZYCORE_TERMINAL_H */
+#endif /* ZYCORE_API_TERMINAL_H */

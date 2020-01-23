@@ -29,8 +29,8 @@
  * @brief
  */
 
-#ifndef ZYCORE_SYNCHRONIZATION_H
-#define ZYCORE_SYNCHRONIZATION_H
+#ifndef ZYCORE_API_SYNCHRONIZATION_H
+#define ZYCORE_API_SYNCHRONIZATION_H
 
 #ifndef ZYAN_NO_LIBC
 
@@ -130,4 +130,4 @@ ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionDelete(ZyanCriticalSection* critical
 
 #endif /* ZYAN_NO_LIBC */
 
-#endif /* ZYCORE_SYNCHRONIZATION_H */
+#endif /* ZYCORE_API_SYNCHRONIZATION_H */

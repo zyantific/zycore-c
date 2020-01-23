@@ -29,8 +29,8 @@
  * @brief
  */
 
-#ifndef ZYCORE_MEMORY_H
-#define ZYCORE_MEMORY_H
+#ifndef ZYCORE_API_MEMORY_H
+#define ZYCORE_API_MEMORY_H
 
 #include <ZycoreExportConfig.h>
 #include <Zycore/Defines.h>
@@ -86,7 +86,7 @@ typedef enum ZyanMemoryPageProtection_
  *
  * @return  The system page size.
  */
-ZyanU32 ZyanMemoryGetSystemPageSize();
+ZYCORE_EXPORT ZyanU32 ZyanMemoryGetSystemPageSize();
 
 /**
  * @brief   Returns the system allocation granularity.
@@ -99,7 +99,7 @@ ZyanU32 ZyanMemoryGetSystemPageSize();
  *
  * @return  The system allocation granularity.
  */
-ZyanU32 ZyanMemoryGetSystemAllocationGranularity();
+ZYCORE_EXPORT ZyanU32 ZyanMemoryGetSystemAllocationGranularity();
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Memory management                                                                              */
@@ -114,7 +114,7 @@ ZyanU32 ZyanMemoryGetSystemAllocationGranularity();
  *
  * @return  A zyan status code.
  */
-ZyanStatus ZyanMemoryVirtualProtect(void* address, ZyanUSize size, 
+ZYCORE_EXPORT ZyanStatus ZyanMemoryVirtualProtect(void* address, ZyanUSize size, 
     ZyanMemoryPageProtection protection);
 
 /**
@@ -125,10 +125,10 @@ ZyanStatus ZyanMemoryVirtualProtect(void* address, ZyanUSize size,
  *
  * @return  A zyan status code.
  */
-ZyanStatus ZyanMemoryVirtualFree(void* address, ZyanUSize size);
+ZYCORE_EXPORT ZyanStatus ZyanMemoryVirtualFree(void* address, ZyanUSize size);
 
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 
-#endif /* ZYCORE_MEMORY_H */
+#endif /* ZYCORE_API_MEMORY_H */

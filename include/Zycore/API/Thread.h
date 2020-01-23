@@ -29,8 +29,8 @@
  * @brief
  */
 
-#ifndef ZYCORE_THREAD_H
-#define ZYCORE_THREAD_H
+#ifndef ZYCORE_API_THREAD_H
+#define ZYCORE_API_THREAD_H
 
 #ifndef ZYAN_NO_LIBC
 
@@ -241,4 +241,4 @@ ZYCORE_EXPORT ZyanStatus ZyanThreadTlsSetValue(ZyanThreadTlsIndex index, void* d
 
 #endif /* ZYAN_NO_LIBC */
 
-#endif /* ZYCORE_THREAD_H */
+#endif /* ZYCORE_API_THREAD_H */
