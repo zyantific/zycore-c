@@ -38,25 +38,9 @@
 /* Integer types                                                                                  */
 /* ============================================================================================== */
 
-#if !defined(ZYAN_NO_LIBC) && \
-    (!defined(ZYAN_MSVC) && defined(ZYAN_KERNEL)) // The WDK LibC lacks stdint.h.
-    // If is LibC present, we use stdint types.
-#   include <stdint.h>
-#   include <stddef.h>
-    typedef uint8_t   ZyanU8;
-    typedef uint16_t  ZyanU16;
-    typedef uint32_t  ZyanU32;
-    typedef uint64_t  ZyanU64;
-    typedef int8_t    ZyanI8;
-    typedef int16_t   ZyanI16;
-    typedef int32_t   ZyanI32;
-    typedef int64_t   ZyanI64;
-    typedef size_t    ZyanUSize;
-    typedef ptrdiff_t ZyanISize;
-    typedef uintptr_t ZyanUPointer;
-    typedef intptr_t  ZyanIPointer;
-#else
-    // No LibC, use compiler built-in types / macros.
+#if defined(ZYAN_NO_LIBC) || \
+    (defined(ZYAN_MSVC) && defined(ZYAN_KERNEL)) // The WDK LibC lacks stdint.h.
+    // No LibC mode, use compiler built-in types / macros.
 #   if defined(ZYAN_MSVC) || defined(ZYAN_ICC)
         typedef unsigned __int8  ZyanU8;
         typedef unsigned __int16 ZyanU16;
@@ -93,6 +77,22 @@
 #   else
 #       error "Unsupported compiler for no-libc mode."
 #   endif
+#else
+    // If is LibC present, we use stdint types.
+#   include <stdint.h>
+#   include <stddef.h>
+    typedef uint8_t   ZyanU8;
+    typedef uint16_t  ZyanU16;
+    typedef uint32_t  ZyanU32;
+    typedef uint64_t  ZyanU64;
+    typedef int8_t    ZyanI8;
+    typedef int16_t   ZyanI16;
+    typedef int32_t   ZyanI32;
+    typedef int64_t   ZyanI64;
+    typedef size_t    ZyanUSize;
+    typedef ptrdiff_t ZyanISize;
+    typedef uintptr_t ZyanUPointer;
+    typedef intptr_t  ZyanIPointer;
 #endif
 
 // Verify size assumptions.
@@ -144,7 +144,7 @@ typedef const void* ZyanConstVoidPointer;
 
 /**
  * @brief   Defines the `ZyanBool` data-type.
- * 
+ *
  * Represents a default boolean data-type where `0` is interpreted as `false` and all other values
  * as `true`.
  */
@@ -156,8 +156,8 @@ typedef ZyanU8 ZyanBool;
 
 /**
  * @brief   Defines the `ZyanTernary` data-type.
- * 
- * The `ZyanTernary` is a balanced ternary type that uses three truth values indicating `true`, 
+ *
+ * The `ZyanTernary` is a balanced ternary type that uses three truth values indicating `true`,
  * `false` and an indeterminate third value.
  */
 typedef ZyanI8 ZyanTernary;
@@ -176,7 +176,7 @@ typedef ZyanI8 ZyanTernary;
 
 /**
  * @brief   Defines the `ZyanCharPointer` data-type.
- * 
+ *
  * This type is most often used to represent null-terminated strings aka. C-style strings.
  */
 typedef char* ZyanCharPointer;
