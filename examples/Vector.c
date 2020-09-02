@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Demonstrates the `ZyanVector` implementation.
+ * Demonstrates the `ZyanVector` implementation.
  */
 
 #include <inttypes.h>
@@ -43,7 +43,7 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `TestStruct` struct that represents a single element in the vector.
+ * Defines the `TestStruct` struct that represents a single element in the vector.
  */
 typedef struct TestStruct_
 {
@@ -57,7 +57,7 @@ typedef struct TestStruct_
 /* ============================================================================================== */
 
 /**
- * @brief   Initializes the given `TestStruct` struct.
+ * Initializes the given `TestStruct` struct.
  *
  * @param   data    A pointer to the `TestStruct` struct.
  * @param   n       The number to initialize the struct with.
@@ -80,7 +80,7 @@ static void InitTestdata(TestStruct* data, ZyanU32 n)
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Performs some basic test on the given `ZyanVector` instance.
+ * Performs some basic test on the given `ZyanVector` instance.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  *
@@ -131,8 +131,8 @@ static ZyanStatus PerformBasicTests(ZyanVector* vector)
 }
 
 /**
- * @brief   A dummy comparison function for the `TestStruct` that uses the `u32` field as key
- *          value.
+ * A dummy comparison function for the `TestStruct` that uses the `u32` field as key
+ * value.
  *
  * @param   left    A pointer to the first element.
  * @param   right   A pointer to the second element.
@@ -159,7 +159,7 @@ static ZyanI32 TestDataComparison(const TestStruct* left, const TestStruct* righ
 }
 
 /**
- * @brief   Tests the binary-search functionality of the given `ZyanVector` instance.
+ * Tests the binary-search functionality of the given `ZyanVector` instance.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  *
@@ -200,7 +200,7 @@ static ZyanStatus PerformBinarySearchTest(ZyanVector* vector)
 }
 
 /**
- * @brief   Performs basic tests on a vector that dynamically manages memory.
+ * Performs basic tests on a vector that dynamically manages memory.
  *
  * @return  A zyan status code.
  */
@@ -220,7 +220,7 @@ static ZyanStatus TestDynamic(void)
 }
 
 /**
- * @brief   Performs basic tests on a vector that uses a static buffer.
+ * Performs basic tests on a vector that uses a static buffer.
  *
  * @return  A zyan status code.
  */
@@ -317,8 +317,8 @@ static ZyanStatus AllocatorDeallocate(ZyanAllocator* allocator, void* p, ZyanUSi
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Performs basic tests on a vector that dynamically manages memory using a custom
- *          allocator and modified growth-factor/shrink-threshold.
+ * Performs basic tests on a vector that dynamically manages memory using a custom
+ * allocator and modified growth-factor/shrink-threshold.
  *
  * @return  A zyan status code.
  */
@@ -331,7 +331,7 @@ static ZyanStatus TestAllocator(void)
     // Initialize vector with a base capacity of `10` elements. Growth-factor is set to 10 and
     // dynamic shrinking is disabled
     ZyanVector vector;
-    ZYAN_CHECK(ZyanVectorInitEx(&vector, sizeof(TestStruct), 5, ZYAN_NULL, &allocator, 
+    ZYAN_CHECK(ZyanVectorInitEx(&vector, sizeof(TestStruct), 5, ZYAN_NULL, &allocator,
         10.0f, 0.0f));
 
     static TestStruct  e_v;

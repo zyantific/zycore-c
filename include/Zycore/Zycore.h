@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Master include file, including everything else.
+ * Master include file, including everything else.
  */
 
 #ifndef ZYCORE_H
@@ -50,7 +50,7 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   A macro that defines the zycore version.
+ * A macro that defines the zycore version.
  */
 #define ZYCORE_VERSION (ZyanU64)0x0001000000000000
 
@@ -59,28 +59,28 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Extracts the major-part of the zycore version.
+ * Extracts the major-part of the zycore version.
  *
  * @param   version The zycore version value
  */
 #define ZYCORE_VERSION_MAJOR(version) (ZyanU16)((version & 0xFFFF000000000000) >> 48)
 
 /**
- * @brief   Extracts the minor-part of the zycore version.
+ * Extracts the minor-part of the zycore version.
  *
  * @param   version The zycore version value
  */
 #define ZYCORE_VERSION_MINOR(version) (ZyanU16)((version & 0x0000FFFF00000000) >> 32)
 
 /**
- * @brief   Extracts the patch-part of the zycore version.
+ * Extracts the patch-part of the zycore version.
  *
  * @param   version The zycore version value
  */
 #define ZYCORE_VERSION_PATCH(version) (ZyanU16)((version & 0x00000000FFFF0000) >> 16)
 
 /**
- * @brief   Extracts the build-part of the zycore version.
+ * Extracts the build-part of the zycore version.
  *
  * @param   version The zycore version value
  */
@@ -93,7 +93,7 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Returns the zycore version.
+ * Returns the zycore version.
  *
  * @return  The zycore version.
  *

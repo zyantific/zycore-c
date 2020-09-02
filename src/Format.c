@@ -70,7 +70,7 @@ static const ZyanStringView STR_SUB = ZYAN_DEFINE_STRING_VIEW("-");
 /* ============================================================================================== */
 
 /**
- * @brief   Writes a terminating '\0' character at the end of the string data.
+ * Writes a terminating '\0' character at the end of the string data.
  */
 #define ZYCORE_STRING_NULLTERMINATE(string) \
       *(char*)((ZyanU8*)(string)->vector.data + (string)->vector.size - 1) = '\0';

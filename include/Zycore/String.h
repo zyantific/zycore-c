@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Implements a string type.
+ * Implements a string type.
  */
 
 #ifndef ZYCORE_STRING_H
@@ -47,18 +47,18 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   The initial minimum capacity (number of characters) for all dynamically allocated
- *          string instances - not including the terminating '\0'-character.
+ * The initial minimum capacity (number of characters) for all dynamically allocated
+ * string instances - not including the terminating '\0'-character.
  */
 #define ZYAN_STRING_MIN_CAPACITY                32
 
 /**
- * @brief   The default growth factor for all string instances.
+ * The default growth factor for all string instances.
  */
 #define ZYAN_STRING_DEFAULT_GROWTH_FACTOR       2.00f
 
 /**
- * @brief   The default shrink threshold for all string instances.
+ * The default shrink threshold for all string instances.
  */
 #define ZYAN_STRING_DEFAULT_SHRINK_THRESHOLD    0.25f
 
@@ -71,12 +71,12 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZyanStringFlags` datatype.
+ * Defines the `ZyanStringFlags` datatype.
  */
 typedef ZyanU8 ZyanStringFlags;
 
 /**
- * @brief   The string uses a custom user-defined buffer with a fixed capacity.
+ * The string uses a custom user-defined buffer with a fixed capacity.
  */
 #define ZYAN_STRING_HAS_FIXED_CAPACITY  0x01 // (1 << 0)
 
@@ -85,7 +85,7 @@ typedef ZyanU8 ZyanStringFlags;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZyanString` struct.
+ * Defines the `ZyanString` struct.
  *
  * The `ZyanString` type is implemented as a size-prefixed string - which allows for a lot of
  * performance optimizations.
@@ -98,11 +98,11 @@ typedef ZyanU8 ZyanStringFlags;
 typedef struct ZyanString_
 {
     /**
-     * @brief   String flags.
+     * String flags.
      */
     ZyanStringFlags flags;
     /**
-     * @brief   The vector that contains the actual string.
+     * The vector that contains the actual string.
      */
     ZyanVector vector;
 } ZyanString;
@@ -112,7 +112,7 @@ typedef struct ZyanString_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZyanStringView` struct.
+ * Defines the `ZyanStringView` struct.
  *
  * The `ZyanStringView` type provides a view inside a string (`ZyanString` instances, null-
  * terminated C-style strings, or even not-null-terminated custom strings). A view is immutable
@@ -132,7 +132,7 @@ typedef struct ZyanString_
 typedef struct ZyanStringView_
 {
     /**
-     * @brief   The string data.
+     * The string data.
      *
      * The view internally re-uses the normal string struct to allow casts without any runtime
      * overhead.
@@ -151,7 +151,7 @@ typedef struct ZyanStringView_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines an uninitialized `ZyanString` instance.
+ * Defines an uninitialized `ZyanString` instance.
  */
 #define ZYAN_STRING_INITIALIZER \
     { \
@@ -164,12 +164,12 @@ typedef struct ZyanStringView_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Casts a `ZyanString` pointer to a constant `ZyanStringView` pointer.
+ * Casts a `ZyanString` pointer to a constant `ZyanStringView` pointer.
  */
 #define ZYAN_STRING_TO_VIEW(string) (const ZyanStringView*)(string)
 
 /**
- * @brief   Defines a `ZyanStringView` struct that provides a view into a static C-style string.
+ * Defines a `ZyanStringView` struct that provides a view into a static C-style string.
  *
  * @param   string  The C-style string.
  */
@@ -205,7 +205,7 @@ typedef struct ZyanStringView_
 #ifndef ZYAN_NO_LIBC
 
 /**
- * @brief   Initializes the given `ZyanString` instance.
+ * Initializes the given `ZyanString` instance.
  *
  * @param   string          A pointer to the `ZyanString` instance.
  * @param   capacity        The initial capacity (number of characters).
@@ -225,8 +225,8 @@ ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringInit(ZyanString* string, Z
 #endif // ZYAN_NO_LIBC
 
 /**
- * @brief   Initializes the given `ZyanString` instance and sets a custom `allocator` and memory
- *          allocation/deallocation parameters.
+ * Initializes the given `ZyanString` instance and sets a custom `allocator` and memory
+ * allocation/deallocation parameters.
  *
  * @param   string              A pointer to the `ZyanString` instance.
  * @param   capacity            The initial capacity (number of characters).
@@ -248,8 +248,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInitEx(ZyanString* string, ZyanUSize capacity
     ZyanAllocator* allocator, float growth_factor, float shrink_threshold);
 
 /**
- * @brief   Initializes the given `ZyanString` instance and configures it to use a custom user
- *          defined buffer with a fixed size.
+ * Initializes the given `ZyanString` instance and configures it to use a custom user
+ * defined buffer with a fixed size.
  *
  * @param   string          A pointer to the `ZyanString` instance.
  * @param   buffer          A pointer to the buffer that is used as storage for the string.
@@ -264,7 +264,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInitCustomBuffer(ZyanString* string, char* bu
     ZyanUSize capacity);
 
 /**
- * @brief   Destroys the given `ZyanString` instance.
+ * Destroys the given `ZyanString` instance.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  *
@@ -280,7 +280,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDestroy(ZyanString* string);
 #ifndef ZYAN_NO_LIBC
 
 /**
- * @brief   Initializes a new `ZyanString` instance by duplicating an existing string.
+ * Initializes a new `ZyanString` instance by duplicating an existing string.
  *
  * @param   destination A pointer to the (uninitialized) destination `ZyanString` instance.
  * @param   source      A pointer to the source string.
@@ -308,8 +308,8 @@ ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringDuplicate(ZyanString* dest
 #endif // ZYAN_NO_LIBC
 
 /**
- * @brief   Initializes a new `ZyanString` instance by duplicating an existing string and sets a
- *          custom `allocator` and memory allocation/deallocation parameters.
+ * Initializes a new `ZyanString` instance by duplicating an existing string and sets a
+ * custom `allocator` and memory allocation/deallocation parameters.
  *
  * @param   destination         A pointer to the (uninitialized) destination `ZyanString` instance.
  * @param   source              A pointer to the source string.
@@ -339,8 +339,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateEx(ZyanString* destination,
     float growth_factor, float shrink_threshold);
 
 /**
- * @brief   Initializes a new `ZyanString` instance by duplicating an existing string and
- *          configures it to use a custom user defined buffer with a fixed size.
+ * Initializes a new `ZyanString` instance by duplicating an existing string and
+ * configures it to use a custom user defined buffer with a fixed size.
  *
  * @param   destination A pointer to the (uninitialized) destination `ZyanString` instance.
  * @param   source      A pointer to the source string.
@@ -368,7 +368,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDuplicateCustomBuffer(ZyanString* destination
 #ifndef ZYAN_NO_LIBC
 
 /**
- * @brief   Initializes a new `ZyanString` instance by concatenating two existing strings.
+ * Initializes a new `ZyanString` instance by concatenating two existing strings.
  *
  * @param   destination A pointer to the (uninitialized) destination `ZyanString` instance.
  *
@@ -400,8 +400,8 @@ ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringConcat(ZyanString* destina
 #endif // ZYAN_NO_LIBC
 
 /**
- * @brief   Initializes a new `ZyanString` instance by concatenating two existing strings and sets
- *          a custom `allocator` and memory allocation/deallocation parameters.
+ * Initializes a new `ZyanString` instance by concatenating two existing strings and sets
+ * a custom `allocator` and memory allocation/deallocation parameters.
  *
  * @param   destination         A pointer to the (uninitialized) destination `ZyanString` instance.
  *
@@ -435,8 +435,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcatEx(ZyanString* destination, const ZyanS
     float shrink_threshold);
 
 /**
- * @brief   Initializes a new `ZyanString` instance by concatenating two existing strings and
- *          configures it to use a custom user defined buffer with a fixed size.
+ * Initializes a new `ZyanString` instance by concatenating two existing strings and
+ * configures it to use a custom user defined buffer with a fixed size.
  *
  * @param   destination A pointer to the (uninitialized) destination `ZyanString` instance.
  *
@@ -465,7 +465,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringConcatCustomBuffer(ZyanString* destination,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns a view inside an existing view/string.
+ * Returns a view inside an existing view/string.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   source  A pointer to the source string.
@@ -479,7 +479,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideView(ZyanStringView* view,
     const ZyanStringView* source);
 
 /**
- * @brief   Returns a view inside an existing view/string starting from the given `index`.
+ * Returns a view inside an existing view/string starting from the given `index`.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   source  A pointer to the source string.
@@ -495,7 +495,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideViewEx(ZyanStringView* view,
     const ZyanStringView* source, ZyanUSize index, ZyanUSize count);
 
 /**
- * @brief   Returns a view inside a null-terminated C-style string.
+ * Returns a view inside a null-terminated C-style string.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   string  The C-style string.
@@ -505,7 +505,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideViewEx(ZyanStringView* view,
 ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideBuffer(ZyanStringView* view, const char* string);
 
 /**
- * @brief   Returns a view inside a character buffer with custom length.
+ * Returns a view inside a character buffer with custom length.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   buffer  A pointer to the buffer containing the string characters.
@@ -517,7 +517,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideBufferEx(ZyanStringView* view, cons
     ZyanUSize length);
 
 /**
- * @brief   Returns the size (number of characters) of the view.
+ * Returns the size (number of characters) of the view.
  *
  * @param   view    A pointer to the `ZyanStringView` instance.
  * @param   size    Receives the size (number of characters) of the view.
@@ -527,7 +527,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewInsideBufferEx(ZyanStringView* view, cons
 ZYCORE_EXPORT ZyanStatus ZyanStringViewGetSize(const ZyanStringView* view, ZyanUSize* size);
 
 /**
- * @brief   Returns the C-style string of the given `ZyanString` instance.
+ * Returns the C-style string of the given `ZyanString` instance.
  *
  * @warning The string is not guaranteed to be null terminated!
  *
@@ -543,7 +543,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringViewGetData(const ZyanStringView* view, const
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the character at the given `index`.
+ * Returns the character at the given `index`.
  *
  * @param   string  A pointer to the `ZyanStringView` instance.
  * @param   index   The character index.
@@ -555,7 +555,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringGetChar(const ZyanStringView* string, ZyanUSi
     char* value);
 
 /**
- * @brief   Returns a pointer to the character at the given `index`.
+ * Returns a pointer to the character at the given `index`.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   index   The character index.
@@ -567,7 +567,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringGetCharMutable(ZyanString* string, ZyanUSize 
     char** value);
 
 /**
- * @brief   Assigns a new value to the character at the given `index`.
+ * Assigns a new value to the character at the given `index`.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   index   The character index.
@@ -582,7 +582,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringSetChar(ZyanString* string, ZyanUSize index, 
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Inserts the content of the source string in the destination string at the given `index`.
+ * Inserts the content of the source string in the destination string at the given `index`.
  *
  * @param   destination The destination string.
  * @param   index       The insert index.
@@ -594,8 +594,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsert(ZyanString* destination, ZyanUSize ind
     const ZyanStringView* source);
 
 /**
- * @brief   Inserts `count` characters of the source string in the destination string at the given
- *          `index`.
+ * Inserts `count` characters of the source string in the destination string at the given
+ * `index`.
  *
  * @param   destination         The destination string.
  * @param   destination_index   The insert index.
@@ -614,7 +614,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertEx(ZyanString* destination, ZyanUSize d
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Appends the content of the source string to the end of the destination string.
+ * Appends the content of the source string to the end of the destination string.
  *
  * @param   destination The destination string.
  * @param   source      The source string.
@@ -624,7 +624,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringInsertEx(ZyanString* destination, ZyanUSize d
 ZYCORE_EXPORT ZyanStatus ZyanStringAppend(ZyanString* destination, const ZyanStringView* source);
 
 /**
- * @brief   Appends `count` characters of the source string to the end of the destination string.
+ * Appends `count` characters of the source string to the end of the destination string.
  *
  * @param   destination     The destination string.
  * @param   source          The source string.
@@ -641,7 +641,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppendEx(ZyanString* destination, const ZyanS
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Deletes characters from the given string, starting at `index`.
+ * Deletes characters from the given string, starting at `index`.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   index   The index of the first character to delete.
@@ -652,7 +652,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringAppendEx(ZyanString* destination, const ZyanS
 ZYCORE_EXPORT ZyanStatus ZyanStringDelete(ZyanString* string, ZyanUSize index, ZyanUSize count);
 
 /**
- * @brief   Deletes all remaining characters from the given string, starting at `index`.
+ * Deletes all remaining characters from the given string, starting at `index`.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   index   The index of the first character to delete.
@@ -662,7 +662,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringDelete(ZyanString* string, ZyanUSize index, Z
 ZYCORE_EXPORT ZyanStatus ZyanStringTruncate(ZyanString* string, ZyanUSize index);
 
 /**
- * @brief   Erases the given string.
+ * Erases the given string.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  *
@@ -675,8 +675,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringClear(ZyanString* string);
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Searches for the first occurrence of `needle` in the given `haystack` starting from the
- *          left.
+ * Searches for the first occurrence of `needle` in the given `haystack` starting from the
+ * left.
  *
  * @param   haystack    The string to search in.
  * @param   needle      The sub-string to search for.
@@ -692,8 +692,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPos(const ZyanStringView* haystack,
     const ZyanStringView* needle, ZyanISize* found_index);
 
 /**
- * @brief   Searches for the first occurrence of `needle` in the given `haystack` starting from the
- *          left.
+ * Searches for the first occurrence of `needle` in the given `haystack` starting from the
+ * left.
  *
  * @param   haystack    The string to search in.
  * @param   needle      The sub-string to search for.
@@ -712,8 +712,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosEx(const ZyanStringView* haystack,
     const ZyanStringView* needle, ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /**
- * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
- *          `haystack` starting from the left.
+ * Performs a case-insensitive search for the first occurrence of `needle` in the given
+ * `haystack` starting from the left.
  *
  * @param   haystack    The string to search in.
  * @param   needle      The sub-string to search for.
@@ -729,8 +729,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosI(const ZyanStringView* haystack,
     const ZyanStringView* needle, ZyanISize* found_index);
 
 /**
- * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
- *          `haystack` starting from the left.
+ * Performs a case-insensitive search for the first occurrence of `needle` in the given
+ * `haystack` starting from the left.
  *
  * @param   haystack    The string to search in.
  * @param   needle      The sub-string to search for.
@@ -749,8 +749,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringLPosIEx(const ZyanStringView* haystack,
     const ZyanStringView* needle, ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /**
- * @brief   Searches for the first occurrence of `needle` in the given `haystack` starting from the
- *          right.
+ * Searches for the first occurrence of `needle` in the given `haystack` starting from the
+ * right.
  *
  * @param   haystack    The string to search in.
  * @param   needle      The sub-string to search for.
@@ -766,7 +766,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPos(const ZyanStringView* haystack,
     const ZyanStringView* needle, ZyanISize* found_index);
 
 /**
- * @brief   Searches for the first occurrence of `needle` in the given `haystack` starting from the
+ * Searches for the first occurrence of `needle` in the given `haystack` starting from the
  *          right.
  *
  * @param   haystack    The string to search in.
@@ -786,8 +786,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosEx(const ZyanStringView* haystack,
     const ZyanStringView* needle, ZyanISize* found_index, ZyanUSize index, ZyanUSize count);
 
 /**
- * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
- *          `haystack` starting from the right.
+ * Performs a case-insensitive search for the first occurrence of `needle` in the given
+ * `haystack` starting from the right.
  *
  * @param   haystack    The string to search in.
  * @param   needle      The sub-string to search for.
@@ -803,8 +803,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosI(const ZyanStringView* haystack,
     const ZyanStringView* needle, ZyanISize* found_index);
 
 /**
- * @brief   Performs a case-insensitive search for the first occurrence of `needle` in the given
- *          `haystack` starting from the right.
+ * Performs a case-insensitive search for the first occurrence of `needle` in the given
+ * `haystack` starting from the right.
  *
  * @param   haystack    The string to search in.
  * @param   needle      The sub-string to search for.
@@ -827,7 +827,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringRPosIEx(const ZyanStringView* haystack,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Compares two strings.
+ * Compares two strings.
  *
  * @param   s1      The first string
  * @param   s2      The second string.
@@ -847,7 +847,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringCompare(const ZyanStringView* s1, const ZyanS
     ZyanI32* result);
 
 /**
- * @brief   Performs a case-insensitive comparison of two strings.
+ * Performs a case-insensitive comparison of two strings.
  *
  * @param   s1      The first string
  * @param   s2      The second string.
@@ -871,7 +871,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringCompareI(const ZyanStringView* s1, const Zyan
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Converts the given string to lowercase letters.
+ * Converts the given string to lowercase letters.
  *
  * @param   string      A pointer to the `ZyanString` instance.
  *
@@ -883,7 +883,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringCompareI(const ZyanStringView* s1, const Zyan
 ZYCORE_EXPORT ZyanStatus ZyanStringToLowerCase(ZyanString* string);
 
 /**
- * @brief   Converts `count` characters of the given string to lowercase letters.
+ * Converts `count` characters of the given string to lowercase letters.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   index   The start index.
@@ -898,7 +898,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringToLowerCaseEx(ZyanString* string, ZyanUSize i
     ZyanUSize count);
 
 /**
- * @brief   Converts the given string to uppercase letters.
+ * Converts the given string to uppercase letters.
  *
  * @param   string      A pointer to the `ZyanString` instance.
  *
@@ -910,7 +910,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringToLowerCaseEx(ZyanString* string, ZyanUSize i
 ZYCORE_EXPORT ZyanStatus ZyanStringToUpperCase(ZyanString* string);
 
 /**
- * @brief   Converts `count` characters of the given string to uppercase letters.
+ * Converts `count` characters of the given string to uppercase letters.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   index   The start index.
@@ -929,7 +929,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringToUpperCaseEx(ZyanString* string, ZyanUSize i
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Resizes the given `ZyanString` instance.
+ * Resizes the given `ZyanString` instance.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   size    The new size of the string.
@@ -942,7 +942,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringToUpperCaseEx(ZyanString* string, ZyanUSize i
 ZYCORE_EXPORT ZyanStatus ZyanStringResize(ZyanString* string, ZyanUSize size);
 
 /**
- * @brief   Changes the capacity of the given `ZyanString` instance.
+ * Changes the capacity of the given `ZyanString` instance.
  *
  * @param   string      A pointer to the `ZyanString` instance.
  * @param   capacity    The new minimum capacity of the string.
@@ -955,7 +955,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringResize(ZyanString* string, ZyanUSize size);
 ZYCORE_EXPORT ZyanStatus ZyanStringReserve(ZyanString* string, ZyanUSize capacity);
 
 /**
- * @brief   Shrinks the capacity of the given string to match it's size.
+ * Shrinks the capacity of the given string to match it's size.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  *
@@ -971,7 +971,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringShrinkToFit(ZyanString* string);
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the current capacity of the string.
+ * Returns the current capacity of the string.
  *
  * @param   string      A pointer to the `ZyanString` instance.
  * @param   capacity    Receives the size of the string.
@@ -981,8 +981,8 @@ ZYCORE_EXPORT ZyanStatus ZyanStringShrinkToFit(ZyanString* string);
 ZYCORE_EXPORT ZyanStatus ZyanStringGetCapacity(const ZyanString* string, ZyanUSize* capacity);
 
 /**
- * @brief   Returns the current size (number of characters) of the string (excluding the
- *          terminating zero character).
+ * Returns the current size (number of characters) of the string (excluding the
+ * terminating zero character).
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   size    Receives the size (number of characters) of the string.
@@ -992,7 +992,7 @@ ZYCORE_EXPORT ZyanStatus ZyanStringGetCapacity(const ZyanString* string, ZyanUSi
 ZYCORE_EXPORT ZyanStatus ZyanStringGetSize(const ZyanString* string, ZyanUSize* size);
 
 /**
- * @brief   Returns the C-style string of the given `ZyanString` instance.
+ * Returns the C-style string of the given `ZyanString` instance.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  * @param   value   Receives a pointer to the C-style string.

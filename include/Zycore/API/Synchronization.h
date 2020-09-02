@@ -83,21 +83,21 @@ typedef CRITICAL_SECTION ZyanCriticalSection;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Initializes a critical section.
+ * Initializes a critical section.
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  */
 ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionInitialize(ZyanCriticalSection* critical_section);
 
 /**
- * @brief   Enters a critical section.
+ * Enters a critical section.
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  */
 ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionEnter(ZyanCriticalSection* critical_section);
 
 /**
- * @brief   Tries to enter a critical section.
+ * Tries to enter a critical section.
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  *
@@ -107,14 +107,14 @@ ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionEnter(ZyanCriticalSection* critical_
 ZYCORE_EXPORT ZyanBool ZyanCriticalSectionTryEnter(ZyanCriticalSection* critical_section);
 
 /**
- * @brief   Leaves a critical section.
+ * Leaves a critical section.
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  */
 ZYCORE_EXPORT ZyanStatus ZyanCriticalSectionLeave(ZyanCriticalSection* critical_section);
 
 /**
- * @brief   Deletes a critical section.
+ * Deletes a critical section.
  *
  * @param   critical_section    A pointer to the `ZyanCriticalSection` struct.
  */

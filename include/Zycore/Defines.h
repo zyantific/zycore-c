@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   General helper and platform detection macros.
+ * General helper and platform detection macros.
  */
 
 #ifndef ZYCORE_DEFINES_H
@@ -37,21 +37,21 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Concatenates two values using the stringify operator (`##`).
+ * Concatenates two values using the stringify operator (`##`).
  *
- * @brief   x   The first value.
- * @brief   y   The second value.
+ * @param   x   The first value.
+ * @param   y   The second value.
  *
  * @return  The combined string of the given values.
  */
 #define ZYAN_MACRO_CONCAT(x, y) x ## y
 
 /**
- * @brief   Concatenates two values using the stringify operator (`##`) and expands the value to
- *          be used in another macro.
+ * Concatenates two values using the stringify operator (`##`) and expands the value to
+ * be used in another macro.
  *
- * @brief   x   The first value.
- * @brief   y   The second value.
+ * @param   x   The first value.
+ * @param   y   The second value.
  *
  * @return  The combined string of the given values.
  */
@@ -172,7 +172,7 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Runtime debug assersion.
+ * Runtime debug assersion.
  */
 #if defined(ZYAN_NO_LIBC)
 #   define ZYAN_ASSERT(condition) (void)(condition)
@@ -185,7 +185,7 @@
 #endif
 
 /**
- * @brief   Compiler-time assertion.
+ * Compiler-time assertion.
  */
 #if __STDC_VERSION__ >= 201112L && !defined(__cplusplus)
 #   define ZYAN_STATIC_ASSERT(x) _Static_assert(x, #x)
@@ -199,7 +199,7 @@
 #endif
 
 /**
- * @brief	Marks the current code path as unreachable.
+ * Marks the current code path as unreachable.
  */
 #if defined(ZYAN_RELEASE)
 #   if defined(ZYAN_CLANG) // GCC eagerly evals && RHS, we have to use nested ifs.
@@ -240,14 +240,14 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Marks the specified parameter as unused.
+ * Marks the specified parameter as unused.
  *
  * @param   x   The name of the unused parameter.
  */
 #define ZYAN_UNUSED(x) (void)(x)
 
 /**
- * @brief   Intentional fallthrough.
+ * Intentional fallthrough.
  */
 #if defined(ZYAN_GCC) && __GNUC__ >= 7
 #   define ZYAN_FALLTHROUGH __attribute__((fallthrough))
@@ -256,19 +256,19 @@
 #endif
 
 /**
- * @brief   Declares a bitfield.
+ * Declares a bitfield.
  *
  * @param   x   The size (in bits) of the bitfield.
  */
 #define ZYAN_BITFIELD(x) : x
 
 /**
- * @brief   Marks functions that require libc (cannot be used with `ZYAN_NO_LIBC`).
+ * Marks functions that require libc (cannot be used with `ZYAN_NO_LIBC`).
  */
 #define ZYAN_REQUIRES_LIBC
 
 /**
- * @brief   Decorator for `printf`-style functions.
+ * Decorator for `printf`-style functions.
  *
  * @param   format_index    The 1-based index of the format string parameter.
  * @param   first_to_check  The 1-based index of the format arguments parameter.
@@ -284,7 +284,7 @@
 #endif
 
 /**
- * @brief   Decorator for `wprintf`-style functions.
+ * Decorator for `wprintf`-style functions.
  *
  * @param   format_index    The 1-based index of the format string parameter.
  * @param   first_to_check  The 1-based index of the format arguments parameter.
@@ -301,7 +301,7 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the length (number of elements) of an array.
+ * Returns the length (number of elements) of an array.
  *
  * @param   a   The name of the array.
  *
@@ -314,7 +314,7 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the smaller value of `a` or `b`.
+ * Returns the smaller value of `a` or `b`.
  *
  * @param   a   The first value.
  * @param   b   The second value.
@@ -324,7 +324,7 @@
 #define ZYAN_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 /**
- * @brief   Returns the bigger value of `a` or `b`.
+ * Returns the bigger value of `a` or `b`.
  *
  * @param   a   The first value.
  * @param   b   The second value.
@@ -334,7 +334,7 @@
 #define ZYAN_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 /**
- * @brief   Returns the absolute value of `a`.
+ * Returns the absolute value of `a`.
  *
  * @param   a   The value.
  *
@@ -343,7 +343,7 @@
 #define ZYAN_ABS(a) (((a) < 0) ? -(a) : (a))
 
 /**
- * @brief   Checks, if the given value is a power of 2.
+ * Checks, if the given value is a power of 2.
  *
  * @param   x   The value.
  *
@@ -354,14 +354,14 @@
 #define ZYAN_IS_POWER_OF_2(x) (((x) & ((x) - 1)) == 0)
 
 /**
- * @brief   Checks, if the given value is properly aligned.
+ * Checks, if the given value is properly aligned.
  *
  * Note that this macro only works for powers of 2.
  */
 #define ZYAN_IS_ALIGNED_TO(x, align) (((x) & ((align) - 1)) == 0)
 
 /**
- * @brief   Aligns the value to the nearest given alignment boundary (by rounding it up).
+ * Aligns the value to the nearest given alignment boundary (by rounding it up).
  *
  * @param   x       The value.
  * @param   align   The desired alignment.
@@ -373,7 +373,7 @@
 #define ZYAN_ALIGN_UP(x, align) (((x) + (align) - 1) & ~((align) - 1))
 
 /**
- * @brief   Aligns the value to the nearest given alignment boundary (by rounding it down).
+ * Aligns the value to the nearest given alignment boundary (by rounding it down).
  *
  * @param   x       The value.
  * @param   align   The desired alignment.
@@ -389,7 +389,7 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /*
- * @brief   Checks, if the bit at index `b` is required to present the ordinal value `n`.
+ * Checks, if the bit at index `b` is required to present the ordinal value `n`.
  *
  * @param   n   The ordinal value.
  * @param   b   The bit index.
@@ -402,7 +402,7 @@
 #define ZYAN_NEEDS_BIT(n, b) (((unsigned long)(n) >> (b)) > 0)
 
 /*
- * @brief   Returns the number of bits required to represent the ordinal value `n`.
+ * Returns the number of bits required to represent the ordinal value `n`.
  *
  * @param   n   The ordinal value.
  *

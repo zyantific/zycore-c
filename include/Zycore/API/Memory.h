@@ -50,23 +50,23 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZyanMemoryPageProtection` enum.  
+ * Defines the `ZyanMemoryPageProtection` enum.
  */
 typedef enum ZyanMemoryPageProtection_
 {
 #if   defined(ZYAN_WINDOWS)
 
-    ZYAN_PAGE_READONLY          = PAGE_READONLY,           
+    ZYAN_PAGE_READONLY          = PAGE_READONLY,
     ZYAN_PAGE_READWRITE         = PAGE_READWRITE,
-    ZYAN_PAGE_EXECUTE           = PAGE_EXECUTE,             
+    ZYAN_PAGE_EXECUTE           = PAGE_EXECUTE,
     ZYAN_PAGE_EXECUTE_READ      = PAGE_EXECUTE_READ,
     ZYAN_PAGE_EXECUTE_READWRITE = PAGE_EXECUTE_READWRITE
 
 #elif defined(ZYAN_POSIX)
 
-    ZYAN_PAGE_READONLY          = PROT_READ,           
+    ZYAN_PAGE_READONLY          = PROT_READ,
     ZYAN_PAGE_READWRITE         = PROT_READ | PROT_WRITE,
-    ZYAN_PAGE_EXECUTE           = PROT_EXEC,             
+    ZYAN_PAGE_EXECUTE           = PROT_EXEC,
     ZYAN_PAGE_EXECUTE_READ      = PROT_EXEC | PROT_READ,
     ZYAN_PAGE_EXECUTE_READWRITE = PROT_EXEC | PROT_READ | PROT_WRITE
 
@@ -82,14 +82,14 @@ typedef enum ZyanMemoryPageProtection_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the system page size.
+ * Returns the system page size.
  *
  * @return  The system page size.
  */
 ZyanU32 ZyanMemoryGetSystemPageSize();
 
 /**
- * @brief   Returns the system allocation granularity.
+ * Returns the system allocation granularity.
  *
  * The system allocation granularity specifies the minimum amount of bytes which can be allocated
  * at a specific address by a single call of `ZyanMemoryVirtualAlloc`.
@@ -106,7 +106,7 @@ ZyanU32 ZyanMemoryGetSystemAllocationGranularity();
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Changes the memory protection value of one or more pages.
+ * Changes the memory protection value of one or more pages.
  *
  * @param   address     The start address aligned to a page boundary.
  * @param   size        The size.
@@ -114,11 +114,11 @@ ZyanU32 ZyanMemoryGetSystemAllocationGranularity();
  *
  * @return  A zyan status code.
  */
-ZyanStatus ZyanMemoryVirtualProtect(void* address, ZyanUSize size, 
+ZyanStatus ZyanMemoryVirtualProtect(void* address, ZyanUSize size,
     ZyanMemoryPageProtection protection);
 
 /**
- * @brief   Releases one or more memory pages starting at the given address.
+ * Releases one or more memory pages starting at the given address.
  *
  * @param   address The start address aligned to a page boundary.
  * @param   size    The size.
