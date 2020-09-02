@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Includes and defines some default data types.
+ * Includes and defines some default data types.
  */
 
 #ifndef ZYCORE_TYPES_H
@@ -120,12 +120,12 @@ ZYAN_STATIC_ASSERT((ZyanI64)-1 >> 1 < (ZyanI64)((ZyanU64)-1 >> 1));
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZyanVoidPointer` data-type.
+ * Defines the `ZyanVoidPointer` data-type.
  */
 typedef char* ZyanVoidPointer;
 
 /**
- * @brief   Defines the `ZyanConstVoidPointer` data-type.
+ * Defines the `ZyanConstVoidPointer` data-type.
  */
 typedef const void* ZyanConstVoidPointer;
 
@@ -143,7 +143,7 @@ typedef const void* ZyanConstVoidPointer;
 #define ZYAN_TRUE  1
 
 /**
- * @brief   Defines the `ZyanBool` data-type.
+ * Defines the `ZyanBool` data-type.
  *
  * Represents a default boolean data-type where `0` is interpreted as `false` and all other values
  * as `true`.
@@ -155,7 +155,7 @@ typedef ZyanU8 ZyanBool;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZyanTernary` data-type.
+ * Defines the `ZyanTernary` data-type.
  *
  * The `ZyanTernary` is a balanced ternary type that uses three truth values indicating `true`,
  * `false` and an indeterminate third value.
@@ -175,14 +175,14 @@ typedef ZyanI8 ZyanTernary;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZyanCharPointer` data-type.
+ * Defines the `ZyanCharPointer` data-type.
  *
  * This type is most often used to represent null-terminated strings aka. C-style strings.
  */
 typedef char* ZyanCharPointer;
 
 /**
- * @brief   Defines the `ZyanConstCharPointer` data-type.
+ * Defines the `ZyanConstCharPointer` data-type.
  *
  * This type is most often used to represent null-terminated strings aka. C-style strings.
  */

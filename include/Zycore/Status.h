@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Status code definitions and check macros.
+ * Status code definitions and check macros.
  */
 
 #ifndef ZYCORE_STATUS_H
@@ -43,7 +43,7 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZyanStatus` data type.
+ * Defines the `ZyanStatus` data type.
  */
 typedef ZyanU32 ZyanStatus;
 
@@ -56,7 +56,7 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines a zyan status code.
+ * Defines a zyan status code.
  *
  * @param   error   `1`, if the status code signals an error or `0`, if not.
  * @param   module  The module id.
@@ -72,7 +72,7 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Checks if a zyan operation was successful.
+ * Checks if a zyan operation was successful.
  *
  * @param   status  The zyan status-code to check.
  *
@@ -82,7 +82,7 @@ typedef ZyanU32 ZyanStatus;
     (!((status) & 0x80000000))
 
 /**
- * @brief   Checks if a zyan operation failed.
+ * Checks if a zyan operation failed.
  *
  * @param   status  The zyan status-code to check.
  *
@@ -92,7 +92,7 @@ typedef ZyanU32 ZyanStatus;
     ((status) & 0x80000000)
 
 /**
- * @brief   Checks if a zyan operation was successful and returns with the status-code, if not.
+ * Checks if a zyan operation was successful and returns with the status-code, if not.
  *
  * @param   status  The zyan status-code to check.
  */
@@ -111,7 +111,7 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
  /**
- * @brief   Returns the module id of a zyan status-code.
+ * Returns the module id of a zyan status-code.
  *
  * @param   status  The zyan status-code.
  *
@@ -121,7 +121,7 @@ typedef ZyanU32 ZyanStatus;
     (((status) >> 20) & 0x7FF)
 
  /**
- * @brief   Returns the code of a zyan status-code.
+ * Returns the code of a zyan status-code.
  *
  * @param   status  The zyan status-code.
  *
@@ -139,17 +139,17 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   The zycore generic module id.
+ * The zycore generic module id.
  */
 #define ZYAN_MODULE_ZYCORE      0x001
 
 /**
- * @brief   The zycore arg-parse submodule id.
+ * The zycore arg-parse submodule id.
  */
 #define ZYAN_MODULE_ARGPARSE    0x003
 
 /**
- * @brief   The base module id for user-defined status codes.
+ * The base module id for user-defined status codes.
  */
 #define ZYAN_MODULE_USER        0x3FF
 
@@ -158,86 +158,86 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   The operation completed successfully.
+ * The operation completed successfully.
  */
 #define ZYAN_STATUS_SUCCESS \
     ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x00)
 
 /**
- * @brief   The operation failed with an generic error.
+ * The operation failed with an generic error.
  */
 #define ZYAN_STATUS_FAILED \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x01)
 
 /**
- * @brief   The operation completed successfully and returned `ZYAN_TRUE`.
+ * The operation completed successfully and returned `ZYAN_TRUE`.
  */
 #define ZYAN_STATUS_TRUE \
     ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x02)
 
 /**
- * @brief   The operation completed successfully and returned `ZYAN_FALSE`.
+ * The operation completed successfully and returned `ZYAN_FALSE`.
  */
 #define ZYAN_STATUS_FALSE \
     ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYCORE, 0x03)
 
 /**
- * @brief   An invalid argument was passed to a function.
+ * An invalid argument was passed to a function.
  */
 #define ZYAN_STATUS_INVALID_ARGUMENT \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x04)
 
 /**
- * @brief   An attempt was made to perform an invalid operation.
+ * An attempt was made to perform an invalid operation.
  */
 #define ZYAN_STATUS_INVALID_OPERATION \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x05)
 
 /**
- * @brief   Insufficient privileges to perform the requested operation.
+ * Insufficient privileges to perform the requested operation.
  */
 #define ZYAN_STATUS_ACCESS_DENIED \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x06)
 
 /**
- * @brief   The requested entity was not found.
+ * The requested entity was not found.
  */
 #define ZYAN_STATUS_NOT_FOUND \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x07)
 
 /**
- * @brief   An index passed to a function was out of bounds.
+ * An index passed to a function was out of bounds.
  */
 #define ZYAN_STATUS_OUT_OF_RANGE \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x08)
 
 /**
- * @brief   A buffer passed to a function was too small to complete the requested operation.
+ * A buffer passed to a function was too small to complete the requested operation.
  */
 #define ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x09)
 
 /**
- * @brief   Insufficient memory to perform the operation.
+ * Insufficient memory to perform the operation.
  */
 #define ZYAN_STATUS_NOT_ENOUGH_MEMORY \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0A)
 
 /**
- * @brief   An unknown error occurred during a system function call.
+ * An unknown error occurred during a system function call.
  */
 #define ZYAN_STATUS_BAD_SYSTEMCALL \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0B)
 
 /**
- * @brief   The process ran out of resources while performing an operation.
+ * The process ran out of resources while performing an operation.
  */
 #define ZYAN_STATUS_OUT_OF_RESOURCES \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0C)
 
 /**
- * @brief   A dependency library was not found or does have an unexpected version number or
- *          feature-set.
+ * A dependency library was not found or does have an unexpected version number or
+ * feature-set.
  */
 #define ZYAN_STATUS_MISSING_DEPENDENCY \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYCORE, 0x0D)
@@ -247,31 +247,31 @@ typedef ZyanU32 ZyanStatus;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Argument was not expected.
+ * Argument was not expected.
  */
 #define ZYAN_STATUS_ARG_NOT_UNDERSTOOD \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x00)
 
 /**
- * @brief   Too few arguments were provided.
+ * Too few arguments were provided.
  */
 #define ZYAN_STATUS_TOO_FEW_ARGS \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x01)
 
 /**
- * @brief   Too many arguments were provided.
+ * Too many arguments were provided.
  */
 #define ZYAN_STATUS_TOO_MANY_ARGS \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x02)
 
 /**
- * @brief   An argument that expected a value misses its value.
+ * An argument that expected a value misses its value.
  */
 #define ZYAN_STATUS_ARG_MISSES_VALUE \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x03)
 
 /**
-* @brief   A required argument is missing.
+* A required argument is missing.
 */
 #define ZYAN_STATUS_REQUIRED_ARG_MISSING \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ARGPARSE, 0x04)
