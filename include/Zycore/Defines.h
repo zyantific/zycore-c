@@ -161,6 +161,14 @@
 /* Misc compatibility macros                                                                      */
 /* ============================================================================================== */
 
+#if defined(ZYAN_CLANG)
+#   define ZYAN_UBSAN_DISABLE __attribute__((no_sanitize("undefined")))
+#   define ZYAN_ALLOW_SIGNED_OVERFLOW __attribute__((no_sanitize("signed-integer-overflow")))
+#else
+#   define ZYAN_UBSAN_DISABLE
+#   define ZYAN_ALLOW_SIGNED_OVERFLOW
+#endif
+
 #if defined(ZYAN_MSVC) || defined(ZYAN_BORLAND)
 #   define ZYAN_INLINE __inline
 #else
