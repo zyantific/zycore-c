@@ -445,7 +445,7 @@ ZyanStatus ZyanStringAppendDecS(ZyanString* string, ZyanI64 value, ZyanU8 paddin
         {
             ZYAN_CHECK(ZyanStringAppend(string, prefix));
         }
-        return ZyanStringAppendDecU(string, -value, padding_length);
+        return ZyanStringAppendDecU(string, ZyanAbsI64(value), padding_length);
     }
 
     if (force_sign)
@@ -486,7 +486,7 @@ ZyanStatus ZyanStringAppendHexS(ZyanString* string, ZyanI64 value, ZyanU8 paddin
         {
             ZYAN_CHECK(ZyanStringAppend(string, prefix));
         }
-        return ZyanStringAppendHexU(string, -value, padding_length, uppercase);
+        return ZyanStringAppendHexU(string, ZyanAbsI64(value), padding_length, uppercase);
     }
 
     if (force_sign)

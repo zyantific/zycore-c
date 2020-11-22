@@ -46,6 +46,31 @@ extern "C" {
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Helpers                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Get the absolute value of a 64 bit int.
+ *
+ * @param x The value to process.
+ * @return  The absolute, unsigned value.
+ *
+ * This gracefully deals with the special case of `x` being `INT_MAX`.
+ */
+ZYAN_INLINE ZyanU64 ZyanAbsI64(ZyanI64 x)
+{
+    // INT_MIN special case. Can't use the value directly because GCC thinks
+    // it's too big for an INT64 literal, however is perfectly happy to accept
+    // this expression. This is also hit INT64_MIN is defined in `stdint.h`.
+    if (x == (-0x7fffffffffffffff - 1))
+    {
+        return 0x8000000000000000u;
+    }
+
+    return (ZyanU64)(x < 0 ? -x : x);
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Insertion                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
