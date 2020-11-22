@@ -162,11 +162,9 @@
 /* ============================================================================================== */
 
 #if defined(ZYAN_CLANG)
-#   define ZYAN_UBSAN_DISABLE __attribute__((no_sanitize("undefined")))
-#   define ZYAN_ALLOW_SIGNED_OVERFLOW __attribute__((no_sanitize("signed-integer-overflow")))
+#   define ZYAN_NO_SANITIZE(what) __attribute__((no_sanitize(what)))
 #else
-#   define ZYAN_UBSAN_DISABLE
-#   define ZYAN_ALLOW_SIGNED_OVERFLOW
+#   define ZYAN_NO_SANITIZE(what)
 #endif
 
 #if defined(ZYAN_MSVC) || defined(ZYAN_BORLAND)
