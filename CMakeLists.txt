@@ -5,6 +5,7 @@ endif ()
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 include(GenerateExportHeader)
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 project(Zycore VERSION 1.0.0.0 LANGUAGES C CXX)
 
@@ -192,7 +193,15 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT ZYAN_NO_LIBC)
     target_link_libraries("Zycore" Threads::Threads)
 endif ()
 
-# TODO: Install CMake config.
+configure_package_config_file(cmake/zycore-config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/zycore-config.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+)
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/zycore-config.cmake"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+)
+
 install(TARGETS "Zycore"
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

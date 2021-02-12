@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Demonstrates the `String` implementation.
+ * Demonstrates the `String` implementation.
  */
 
 #include <stdio.h>
@@ -54,7 +54,7 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Performs some basic test on the given `ZyanString` instance.
+ * Performs some basic test on the given `ZyanString` instance.
  *
  * @param   string  A pointer to the `ZyanString` instance.
  *
@@ -71,7 +71,7 @@ static ZyanStatus PerformBasicTests(ZyanString* string)
 }
 
 /**
- * @brief   Performs basic tests on a string that dynamically manages memory.
+ * Performs basic tests on a string that dynamically manages memory.
  *
  * @return  A zyan status code.
  */
@@ -82,7 +82,7 @@ static ZyanStatus TestDynamic(void)
 }
 
 /**
- * @brief   Performs basic tests on a string that uses a static buffer.
+ * Performs basic tests on a string that uses a static buffer.
  *
  * @return  A zyan status code.
  */
@@ -155,8 +155,8 @@ static ZyanStatus TestStatic(void)
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Performs basic tests on a vector that dynamically manages memory using a custom
- *          allocator and modified growth-factor/shrink-threshold.
+ * Performs basic tests on a vector that dynamically manages memory using a custom
+ * allocator and modified growth-factor/shrink-threshold.
  *
  * @return  A zyan status code.
  */

@@ -105,20 +105,20 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Declares the `ZyanStandardStream` enum.
+ * Declares the `ZyanStandardStream` enum.
  */
 typedef enum ZyanStandardStream_
 {
     /**
-     * @brief   The default input stream.
+     * The default input stream.
      */
     ZYAN_STDSTREAM_IN,
     /**
-     * @brief   The default output stream.
+     * The default output stream.
      */
     ZYAN_STDSTREAM_OUT,
     /**
-     * @brief   The default error stream.
+     * The default error stream.
      */
     ZYAN_STDSTREAM_ERR
 } ZyanStandardStream;
@@ -128,7 +128,7 @@ typedef enum ZyanStandardStream_
 /* ============================================================================================== */
 
 /**
- * @brief   Enables VT100 ansi escape codes for the given stream.
+ * Enables VT100 ansi escape codes for the given stream.
  *
  * @param   stream  Either `ZYAN_STDSTREAM_OUT` or `ZYAN_STDSTREAM_ERR`.
  *
@@ -143,7 +143,7 @@ typedef enum ZyanStandardStream_
 ZYCORE_EXPORT ZyanStatus ZyanTerminalEnableVT100(ZyanStandardStream stream);
 
 /**
- * @brief   Checks, if the given standard stream reads from or writes to a terminal.
+ * Checks, if the given standard stream reads from or writes to a terminal.
  *
  * @param   stream  The standard stream to check.
  *

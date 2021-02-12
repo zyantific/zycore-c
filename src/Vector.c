@@ -32,7 +32,7 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Checks, if the passed vector should grow.
+ * Checks, if the passed vector should grow.
  *
  * @param   size        The desired size of the vector.
  * @param   capacity    The current capacity of the vector.
@@ -43,7 +43,7 @@
     ((size) > (capacity))
 
 /**
- * @brief   Checks, if the passed vector should shrink.
+ * Checks, if the passed vector should shrink.
  *
  * @param   size        The desired size of the vector.
  * @param   capacity    The current capacity of the vector.
@@ -55,7 +55,7 @@
     ((size) < (capacity) * (threshold))
 
 /**
- * @brief   Returns the offset of the element at the given `index`.
+ * Returns the offset of the element at the given `index`.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The element index.
@@ -74,7 +74,7 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Reallocates the internal buffer of the vector.
+ * Reallocates the internal buffer of the vector.
  *
  * @param   vector      A pointer to the `ZyanVector` instance.
  * @param   capacity    The new capacity.
@@ -119,8 +119,8 @@ static ZyanStatus ZyanVectorReallocate(ZyanVector* vector, ZyanUSize capacity)
 }
 
 /**
- * @brief   Shifts all elements starting at the specified `index` by the amount of `count` to the
- *          left.
+ * Shifts all elements starting at the specified `index` by the amount of
+ * `count` to the left.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The start index.
@@ -145,8 +145,8 @@ static ZyanStatus ZyanVectorShiftLeft(ZyanVector* vector, ZyanUSize index, ZyanU
 }
 
 /**
- * @brief   Shifts all elements starting at the specified `index` by the amount of `count` to the
- *          right.
+ * Shifts all elements starting at the specified `index` by the amount of
+ * `count` to the right.
  *
  * @param   vector  A pointer to the `ZyanVector` instance.
  * @param   index   The start index.
@@ -192,7 +192,7 @@ ZyanStatus ZyanVectorInit(ZyanVector* vector, ZyanUSize element_size, ZyanUSize 
 #endif // ZYAN_NO_LIBC
 
 ZyanStatus ZyanVectorInitEx(ZyanVector* vector, ZyanUSize element_size, ZyanUSize capacity,
-    ZyanMemberProcedure destructor, ZyanAllocator* allocator, float growth_factor, 
+    ZyanMemberProcedure destructor, ZyanAllocator* allocator, float growth_factor,
     float shrink_threshold)
 {
     if (!vector || !element_size || !allocator || (growth_factor < 1.0f) ||
@@ -291,7 +291,7 @@ ZyanStatus ZyanVectorDuplicateEx(ZyanVector* destination, const ZyanVector* sour
     const ZyanUSize len = source->size;
 
     capacity = ZYAN_MAX(capacity, len);
-    ZYAN_CHECK(ZyanVectorInitEx(destination, source->element_size, capacity, source->destructor, 
+    ZYAN_CHECK(ZyanVectorInitEx(destination, source->element_size, capacity, source->destructor,
         allocator, growth_factor, shrink_threshold));
     ZYAN_ASSERT(destination->capacity >= len);
 
@@ -316,7 +316,7 @@ ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination, const ZyanVe
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZYAN_CHECK(ZyanVectorInitCustomBuffer(destination, source->element_size, buffer, capacity, 
+    ZYAN_CHECK(ZyanVectorInitCustomBuffer(destination, source->element_size, buffer, capacity,
         source->destructor));
     ZYAN_ASSERT(destination->capacity >= len);
 
@@ -768,7 +768,7 @@ ZyanStatus ZyanVectorResizeEx(ZyanVector* vector, ZyanUSize size, const void* in
         for (ZyanUSize i = size; i < vector->size; ++i)
         {
             vector->destructor(ZYCORE_VECTOR_OFFSET(vector, i));
-        }       
+        }
     }
 
     if (ZYCORE_VECTOR_SHOULD_GROW(size, vector->capacity) ||
@@ -782,7 +782,7 @@ ZyanStatus ZyanVectorResizeEx(ZyanVector* vector, ZyanUSize size, const void* in
         for (ZyanUSize i = vector->size; i < size; ++i)
         {
             ZYAN_MEMCPY(ZYCORE_VECTOR_OFFSET(vector, i), initializer, vector->element_size);
-        }       
+        }
     }
 
     vector->size = size;
