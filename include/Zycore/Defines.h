@@ -173,6 +173,14 @@
 #   define ZYAN_INLINE static inline
 #endif
 
+#if defined(ZYAN_MSVC)
+#   define ZYAN_NOINLINE __declspec(noinline)
+#elif defined(ZYAN_GCC) || defined(ZYAN_CLANG)
+#   define ZYAN_NOINLINE __attribute__((noinline))
+#else
+#   define ZYAN_NOINLINE
+#endif
+
 /* ============================================================================================== */
 /* Debugging and optimization macros                                                              */
 /* ============================================================================================== */
