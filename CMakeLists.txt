@@ -123,7 +123,10 @@ endif ()
 
 set_target_properties("Zycore" PROPERTIES LINKER_LANGUAGE C)
 target_include_directories("Zycore"
-    PUBLIC "include" ${PROJECT_BINARY_DIR}
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Zycore>
     PRIVATE "src")
 target_compile_definitions("Zycore" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYCORE_EXPORTS")
 zyan_set_common_flags("Zycore")
@@ -195,17 +198,26 @@ endif ()
 
 configure_package_config_file(cmake/zycore-config.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/zycore-config.cmake"
-    INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore"
+)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/zycore-config-version.cmake"
+    COMPATIBILITY SameMajorVersion
 )
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/zycore-config.cmake"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/zycore-config-version.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore"
 )
 
 install(TARGETS "Zycore"
+    EXPORT "zycore-targets"
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(EXPORT "zycore-targets"
+    NAMESPACE "Zycore::"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore")
 install(FILES
     "${PROJECT_BINARY_DIR}/ZycoreExportConfig.h"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
