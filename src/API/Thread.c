@@ -33,8 +33,54 @@
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/*                                                                                                */
+/* Legacy Windows import declarations                                                             */
 /* ---------------------------------------------------------------------------------------------- */
+
+#if defined(ZYAN_WINDOWS) && defined(_WIN32_WINNT) && \
+    (_WIN32_WINNT >= 0x0501) && (_WIN32_WINNT < 0x0600)
+
+/**
+ * The Windows SDK conditionally declares the following prototypes: the target OS must be Vista
+ * (0x0600) or above. MSDN states the same incorrect minimum requirement for the Fls* functions.
+ *
+ * However, these functions exist and work perfectly fine on XP (SP3) and Server 2003.
+ * Preserve backward compatibility with these OSes by declaring the prototypes here if needed.
+ */
+
+#ifndef FLS_OUT_OF_INDEXES
+#define FLS_OUT_OF_INDEXES ((DWORD)0xFFFFFFFF)
+#endif
+
+WINBASEAPI
+DWORD
+WINAPI
+FlsAlloc(
+    _In_opt_ PFLS_CALLBACK_FUNCTION lpCallback
+    );
+
+WINBASEAPI
+PVOID
+WINAPI
+FlsGetValue(
+    _In_ DWORD dwFlsIndex
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+FlsSetValue(
+    _In_ DWORD dwFlsIndex,
+    _In_opt_ PVOID lpFlsData
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+FlsFree(
+    _In_ DWORD dwFlsIndex
+    );
+
+#endif /* (_WIN32_WINNT >= 0x0501) && (_WIN32_WINNT < 0x0600)*/
 
 
 
