@@ -25,14 +25,20 @@
 ***************************************************************************************************/
 
 #include <Zycore/Defines.h>
-#if   defined(ZYAN_WINDOWS)
-#   include <windows.h>
+#if defined(ZYAN_WINDOWS)
+#if   defined(ZYAN_KERNEL)
+#      include <wdm.h>
+#else
+#      include <windows.h>
+#endif
 #elif defined(ZYAN_POSIX)
 #   include <sys/mman.h>
 #else
 #   error "Unsupported platform detected"
 #endif
 #include <Zycore/API/Process.h>
+
+#ifndef ZYAN_NO_LIBC
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -66,3 +72,5 @@ ZyanStatus ZyanProcessFlushInstructionCache(void* address, ZyanUSize size)
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
+
+#endif /* ZYAN_NO_LIBC */

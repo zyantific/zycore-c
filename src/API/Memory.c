@@ -26,6 +26,8 @@
 
 #include <Zycore/API/Memory.h>
 
+#ifndef ZYAN_NO_LIBC
+
 #if   defined(ZYAN_WINDOWS)
 
 #elif defined(ZYAN_POSIX)
@@ -126,3 +128,5 @@ ZyanStatus ZyanMemoryVirtualFree(void* address, ZyanUSize size)
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
+
+#endif /* ZYAN_NO_LIBC */

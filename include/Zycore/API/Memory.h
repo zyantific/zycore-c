@@ -37,6 +37,8 @@
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>
 
+#ifndef ZYAN_NO_LIBC
+
 #if   defined(ZYAN_WINDOWS)
 #   include <windows.h>
 #elif defined(ZYAN_POSIX)
@@ -130,5 +132,7 @@ ZYCORE_EXPORT ZyanStatus ZyanMemoryVirtualFree(void* address, ZyanUSize size);
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
+
+#endif /* ZYAN_NO_LIBC */
 
 #endif /* ZYCORE_API_MEMORY_H */
