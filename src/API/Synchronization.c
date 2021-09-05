@@ -26,6 +26,8 @@
 
 #include <Zycore/API/Synchronization.h>
 
+#ifndef ZYAN_NO_LIBC
+
 /* ============================================================================================== */
 /* Internal functions                                                                             */
 /* ============================================================================================== */
@@ -198,3 +200,5 @@ ZyanStatus ZyanCriticalSectionDelete(ZyanCriticalSection* critical_section)
 #endif
 
 /* ============================================================================================== */
+
+#endif /* ZYAN_NO_LIBC */
