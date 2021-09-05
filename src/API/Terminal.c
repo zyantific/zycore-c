@@ -26,6 +26,8 @@
 
 #include <Zycore/API/Terminal.h>
 
+#ifndef ZYAN_NO_LIBC
+
 #if   defined(ZYAN_POSIX)
 #   include <unistd.h>
 #elif defined(ZYAN_WINDOWS)
@@ -154,3 +156,5 @@ ZyanStatus ZyanTerminalIsTTY(ZyanStandardStream stream)
 }
 
 /* ============================================================================================== */
+
+#endif /* ZYAN_NO_LIBC */

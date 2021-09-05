@@ -32,11 +32,11 @@
 #ifndef ZYCORE_API_SYNCHRONIZATION_H
 #define ZYCORE_API_SYNCHRONIZATION_H
 
-#ifndef ZYAN_NO_LIBC
-
 #include <ZycoreExportConfig.h>
 #include <Zycore/Defines.h>
 #include <Zycore/Status.h>
+
+#ifndef ZYAN_NO_LIBC
 
 #ifdef __cplusplus
 extern "C" {
