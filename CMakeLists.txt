@@ -23,6 +23,9 @@ option(ZYAN_NO_LIBC
 option(ZYAN_DEV_MODE
     "Enable developer mode (-Wall, -Werror, ...)"
     OFF)
+option(ZYAN_FORCE_ASSERTS
+    "Forces asserts in release builds."
+    OFF)
 
 # Build configuration
 option(ZYCORE_BUILD_SHARED_LIB
@@ -34,6 +37,26 @@ option(ZYCORE_BUILD_EXAMPLES
 option(ZYCORE_BUILD_TESTS
     "Build tests"
     OFF)
+
+# =============================================================================================== #
+# Forced assertions hack                                                                          #
+# =============================================================================================== #
+
+# The code for this is adapted from how LLVM forces asserts.
+if (ZYAN_FORCE_ASSERTS)
+    set(vars
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS_MINSIZEREL
+        CMAKE_C_FLAGS_RELEASE
+        CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_C_FLAGS_MINSIZEREL)
+
+    foreach (var ${vars})
+        string (REGEX REPLACE "(^| )[/-]D *NDEBUG($| )" " " "${var}" "${${var}}")
+        set("${var}" "${${var}} -UNDEBUG" CACHE STRING "" FORCE)
+    endforeach()
+endif ()
 
 # =============================================================================================== #
 # GoogleTest                                                                                      #
