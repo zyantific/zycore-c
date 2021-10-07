@@ -144,7 +144,10 @@ else ()
     add_library("Zycore" STATIC)
 endif ()
 
-set_target_properties("Zycore" PROPERTIES LINKER_LANGUAGE C)
+set_target_properties("Zycore" PROPERTIES
+    LINKER_LANGUAGE C
+    VERSION ${Zycore_VERSION}
+    SOVERSION ${Zycore_VERSION_MAJOR}.${Zycore_VERSION_MINOR})
 target_include_directories("Zycore"
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
