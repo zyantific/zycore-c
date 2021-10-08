@@ -89,50 +89,8 @@ if (ZYCORE_BUILD_TESTS)
         EXCLUDE_FROM_ALL)
 endif ()
 
-# =============================================================================================== #
-# Exported functions                                                                              #
-# =============================================================================================== #
-
-function (zyan_set_common_flags target)
-    if (NOT MSVC)
-        target_compile_options("${target}" PRIVATE "-std=c99")
-    endif ()
-
-    if (ZYAN_DEV_MODE)
-        # If in developer mode, be pedantic.
-        if (MSVC)
-            target_compile_options("${target}" PUBLIC "/WX" "/W4")
-        else ()
-            target_compile_options("${target}" PUBLIC "-Wall" "-pedantic" "-Wextra" "-Werror")
-        endif ()
-    endif ()
-endfunction ()
-
-function (zyan_set_source_group target)
-    if (ZYAN_DEV_MODE)
-        if (((CMAKE_MAJOR_VERSION GREATER 3) OR (CMAKE_MAJOR_VERSION EQUAL 3)) AND
-            ((CMAKE_MINOR_VERSION GREATER 8) OR (CMAKE_MINOR_VERSION EQUAL 8)))
-            # Mirror directory structure in project files
-            get_property("TARGET_SOURCE_FILES" TARGET "${target}" PROPERTY SOURCES)
-            source_group(TREE "${CMAKE_CURRENT_LIST_DIR}" FILES ${TARGET_SOURCE_FILES})
-        endif ()
-    endif ()
-endfunction ()
-
-function (zyan_maybe_enable_wpo target)
-    if (ZYAN_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
-        set_target_properties("${target}" PROPERTIES COMPILE_FLAGS "/GL")
-        set_target_properties("${target}" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
-    endif ()
-endfunction ()
-
-function (zyan_maybe_enable_wpo_for_lib target)
-    if (ZYAN_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
-        set_target_properties("${target}" PROPERTIES COMPILE_FLAGS "/GL")
-        set_target_properties("${target}" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
-        set_target_properties("${target}" PROPERTIES STATIC_LIBRARY_FLAGS_RELEASE "/LTCG")
-    endif ()
-endfunction ()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(zyan-functions)
 
 # =============================================================================================== #
 # Library configuration                                                                           #
@@ -226,16 +184,13 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion
 )
 install(FILES
+    "cmake/zyan-functions.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/zycore-config.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/zycore-config-version.cmake"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore"
 )
 
-install(TARGETS "Zycore"
-    EXPORT "zycore-targets"
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS "Zycore" EXPORT "zycore-targets")
 install(EXPORT "zycore-targets"
     NAMESPACE "Zycore::"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore")
