@@ -77,6 +77,34 @@
 #   else
 #       error "Unsupported compiler for no-libc mode."
 #   endif
+
+#   if defined(ZYAN_MSVC)
+#       define ZYAN_INT8_MIN     (-127i8 - 1)
+#       define ZYAN_INT16_MIN    (-32767i16 - 1)
+#       define ZYAN_INT32_MIN    (-2147483647i32 - 1)
+#       define ZYAN_INT64_MIN    (-9223372036854775807i64 - 1)
+#       define ZYAN_INT8_MAX     127i8
+#       define ZYAN_INT16_MAX    32767i16
+#       define ZYAN_INT32_MAX    2147483647i32
+#       define ZYAN_INT64_MAX    9223372036854775807i64
+#       define ZYAN_UINT8_MAX    0xffui8
+#       define ZYAN_UINT16_MAX   0xffffui16
+#       define ZYAN_UINT32_MAX   0xffffffffui32
+#       define ZYAN_UINT64_MAX   0xffffffffffffffffui64
+#   else
+#       define ZYAN_INT8_MAX     __INT8_MAX__
+#       define ZYAN_INT8_MIN     (-ZYAN_INT8_MAX - 1)
+#       define ZYAN_INT16_MAX    __INT16_MAX__
+#       define ZYAN_INT16_MIN    (-ZYAN_INT16_MAX - 1)
+#       define ZYAN_INT32_MAX    __INT32_MAX__
+#       define ZYAN_INT32_MIN    (-ZYAN_INT32_MAX - 1)
+#       define ZYAN_INT64_MAX    __INT64_MAX__
+#       define ZYAN_INT64_MIN    (-ZYAN_INT64_MAX - 1)
+#       define ZYAN_UINT8_MAX    __UINT8_MAX__
+#       define ZYAN_UINT16_MAX   __UINT16_MAX__
+#       define ZYAN_UINT32_MAX   __UINT32_MAX__
+#       define ZYAN_UINT64_MAX   __UINT64_MAX__
+#   endif
 #else
     // If is LibC present, we use stdint types.
 #   include <stdint.h>
@@ -93,6 +121,19 @@
     typedef ptrdiff_t ZyanISize;
     typedef uintptr_t ZyanUPointer;
     typedef intptr_t  ZyanIPointer;
+
+#   define ZYAN_INT8_MIN         INT8_MIN
+#   define ZYAN_INT16_MIN        INT16_MIN
+#   define ZYAN_INT32_MIN        INT32_MIN
+#   define ZYAN_INT64_MIN        INT64_MIN
+#   define ZYAN_INT8_MAX         INT8_MAX
+#   define ZYAN_INT16_MAX        INT16_MAX
+#   define ZYAN_INT32_MAX        INT32_MAX
+#   define ZYAN_INT64_MAX        INT64_MAX
+#   define ZYAN_UINT8_MAX        UINT8_MAX
+#   define ZYAN_UINT16_MAX       UINT16_MAX
+#   define ZYAN_UINT32_MAX       UINT32_MAX
+#   define ZYAN_UINT64_MAX       UINT64_MAX
 #endif
 
 // Verify size assumptions.
