@@ -754,6 +754,8 @@ ZyanStatus ZyanVectorResize(ZyanVector* vector, ZyanUSize size)
 
 ZyanStatus ZyanVectorResizeEx(ZyanVector* vector, ZyanUSize size, const void* initializer)
 {
+    ZYAN_ASSERT(vector->growth_factor >= 1.0);
+
     if (!vector)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -775,7 +777,7 @@ ZyanStatus ZyanVectorResizeEx(ZyanVector* vector, ZyanUSize size, const void* in
         ZYCORE_VECTOR_SHOULD_SHRINK(size, vector->capacity, vector->shrink_threshold))
     {
         ZYAN_CHECK(ZyanVectorReallocate(vector, (ZyanUSize)(size * vector->growth_factor)));
-    };
+    }
 
     if (initializer && (size > vector->size))
     {
