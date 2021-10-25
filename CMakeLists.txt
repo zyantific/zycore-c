@@ -4,7 +4,7 @@ endif ()
 
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project(Zycore VERSION 1.0.0.0 LANGUAGES C CXX)
+project(Zycore VERSION 1.1.0.0 LANGUAGES C CXX)
 
 include(GenerateExportHeader)
 include(GNUInstallDirs)
