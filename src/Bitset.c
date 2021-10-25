@@ -56,7 +56,7 @@
  * @return  The amount of bytes needed to fit `x` bits.
  */
 #define ZYAN_BITSET_BITS_TO_BYTES(x) \
-    ZYAN_BITSET_CEIL((x) / 8.0f)
+    ZYAN_BITSET_CEIL((x) / 8)
 
 /**
  * Returns the offset of the given bit.
