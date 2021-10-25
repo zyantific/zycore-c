@@ -146,8 +146,8 @@ TEST(VectorTest, InitBasic)
     ASSERT_EQ(ZyanVectorInit(&vector, sizeof(ZyanU64), 0, 
         reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL)), ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(vector.allocator, ZyanAllocatorDefault());
-    EXPECT_FLOAT_EQ(vector.growth_factor, ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR);
-    EXPECT_FLOAT_EQ(vector.shrink_threshold, ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD);
+    EXPECT_EQ(vector.growth_factor, ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR);
+    EXPECT_EQ(vector.shrink_threshold, ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD);
     EXPECT_EQ(vector.size, static_cast<ZyanUSize>(0));
     EXPECT_EQ(vector.capacity, static_cast<ZyanUSize>(ZYAN_VECTOR_MIN_CAPACITY));
     EXPECT_EQ(vector.element_size, sizeof(ZyanU64));
@@ -169,8 +169,8 @@ TEST(VectorTest, InitAdvanced)
         reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL), ZyanAllocatorDefault(), 1, 0),
         ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(vector.allocator, ZyanAllocatorDefault());
-    EXPECT_FLOAT_EQ(vector.growth_factor, 1);
-    EXPECT_FLOAT_EQ(vector.shrink_threshold, 0);
+    EXPECT_EQ(vector.growth_factor, 1);
+    EXPECT_EQ(vector.shrink_threshold, 0);
     EXPECT_EQ(vector.size, static_cast<ZyanUSize>(0));
     EXPECT_EQ(vector.capacity, static_cast<ZyanUSize>(ZYAN_VECTOR_MIN_CAPACITY));
     EXPECT_EQ(vector.element_size, sizeof(ZyanU16));
@@ -196,8 +196,8 @@ TEST(VectorTest, InitCustomBuffer)
         ZYAN_ARRAY_LENGTH(buffer), reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL)), 
         ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(vector.allocator, ZYAN_NULL);
-    EXPECT_FLOAT_EQ(vector.growth_factor, 1);
-    EXPECT_FLOAT_EQ(vector.shrink_threshold, 0);
+    EXPECT_EQ(vector.growth_factor, 1);
+    EXPECT_EQ(vector.shrink_threshold, 0);
     EXPECT_EQ(vector.size, static_cast<ZyanUSize>(0));
     EXPECT_EQ(vector.capacity, ZYAN_ARRAY_LENGTH(buffer));
     EXPECT_EQ(vector.element_size, sizeof(ZyanU16));
