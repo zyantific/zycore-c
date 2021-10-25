@@ -222,7 +222,7 @@ ZyanStatus ZyanVectorInitCustomBuffer(ZyanVector* vector, ZyanUSize element_size
     }
 
     vector->allocator        = ZYAN_NULL;
-    vector->growth_factor    = 1; // TODO: Should be 0
+    vector->growth_factor    = 1;
     vector->shrink_threshold = 0;
     vector->size             = 0;
     vector->capacity         = capacity;

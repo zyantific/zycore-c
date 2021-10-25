@@ -181,7 +181,7 @@ typedef struct ZyanStringView_
             /* vector */ \
             { \
                 /* allocator        */ ZYAN_NULL, \
-                /* growth_factor    */ 1, /* TODO: Should be 0 */ \
+                /* growth_factor    */ 1, \
                 /* shrink_threshold */ 0, \
                 /* size             */ sizeof(string), \
                 /* capacity         */ sizeof(string), \
@@ -414,8 +414,8 @@ ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringConcat(ZyanString* destina
  *                              This value is automatically adjusted to the combined size of the
  *                              source strings, if a smaller value was passed.
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
- * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
- * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
+ * @param   growth_factor       The growth factor.
+ * @param   shrink_threshold    The shrink threshold.
  *
  * @return  A zyan status code.
  *
