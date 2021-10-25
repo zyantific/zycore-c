@@ -166,11 +166,11 @@ TEST(VectorTest, InitAdvanced)
     ZyanVector vector;
 
     ASSERT_EQ(ZyanVectorInitEx(&vector, sizeof(ZyanU16), 0, 
-        reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL), ZyanAllocatorDefault(), 1.0f, 0.0f),
+        reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL), ZyanAllocatorDefault(), 1, 0),
         ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(vector.allocator, ZyanAllocatorDefault());
-    EXPECT_FLOAT_EQ(vector.growth_factor, 1.0f);
-    EXPECT_FLOAT_EQ(vector.shrink_threshold, 0.0f);
+    EXPECT_FLOAT_EQ(vector.growth_factor, 1);
+    EXPECT_FLOAT_EQ(vector.shrink_threshold, 0);
     EXPECT_EQ(vector.size, static_cast<ZyanUSize>(0));
     EXPECT_EQ(vector.capacity, static_cast<ZyanUSize>(ZYAN_VECTOR_MIN_CAPACITY));
     EXPECT_EQ(vector.element_size, sizeof(ZyanU16));
@@ -179,7 +179,7 @@ TEST(VectorTest, InitAdvanced)
 
     // Custom capacity
     EXPECT_EQ(ZyanVectorInitEx(&vector, sizeof(ZyanU16), 10, 
-        reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL), ZyanAllocatorDefault(), 1.0f, 0.0f),
+        reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL), ZyanAllocatorDefault(), 1, 0),
         ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(vector.capacity, static_cast<ZyanUSize>(ZYAN_MAX(ZYAN_VECTOR_MIN_CAPACITY, 10)));
     EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
@@ -196,8 +196,8 @@ TEST(VectorTest, InitCustomBuffer)
         ZYAN_ARRAY_LENGTH(buffer), reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL)), 
         ZYAN_STATUS_SUCCESS);
     EXPECT_EQ(vector.allocator, ZYAN_NULL);
-    EXPECT_FLOAT_EQ(vector.growth_factor, 1.0f);
-    EXPECT_FLOAT_EQ(vector.shrink_threshold, 0.0f);
+    EXPECT_FLOAT_EQ(vector.growth_factor, 1);
+    EXPECT_FLOAT_EQ(vector.shrink_threshold, 0);
     EXPECT_EQ(vector.size, static_cast<ZyanUSize>(0));
     EXPECT_EQ(vector.capacity, ZYAN_ARRAY_LENGTH(buffer));
     EXPECT_EQ(vector.element_size, sizeof(ZyanU16));
@@ -247,6 +247,40 @@ TEST(VectorTest, Destructor)
     {
         ASSERT_EQ(i, 0);
     }
+}
+
+TEST(VectorTest, TestGrowingAndShrinking)
+{
+    ZyanVector vector;
+
+    ASSERT_EQ(ZyanVectorInit(&vector, sizeof(ZyanU64), 0,
+        reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL)), ZYAN_STATUS_SUCCESS);
+
+    for (ZyanU64 i = 0; i < 100; ++i)
+    {
+        ZyanUSize expected_capacity = vector.capacity;
+        if (expected_capacity < (i + 1))
+        {
+            expected_capacity = (expected_capacity + 1) * vector.growth_factor;
+        }
+        ASSERT_EQ(ZyanVectorPushBack(&vector, &i), ZYAN_STATUS_SUCCESS);
+        ASSERT_EQ(vector.capacity, expected_capacity);
+    }
+
+    for (ZyanU64 i = 100; i > 0; --i)
+    {
+        const auto index = static_cast<ZyanUSize>(i - 1);
+
+        ZyanUSize expected_capacity = vector.capacity;
+        if ((vector.shrink_threshold != 0) && (index * vector.shrink_threshold < vector.capacity))
+        {
+            expected_capacity = ZYAN_MAX(1, (ZyanUSize)(index * vector.growth_factor));
+        }
+        ASSERT_EQ(ZyanVectorDelete(&vector, index), ZYAN_STATUS_SUCCESS);
+        ASSERT_EQ(vector.capacity, expected_capacity);
+    }
+
+    EXPECT_EQ(ZyanVectorDestroy(&vector), ZYAN_STATUS_SUCCESS);
 }
 
 TEST_P(VectorTestFilled, ElementAccess)
