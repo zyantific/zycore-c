@@ -231,8 +231,8 @@ ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanStringInit(ZyanString* string, Z
  * @param   string              A pointer to the `ZyanString` instance.
  * @param   capacity            The initial capacity (number of characters).
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
- * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
- * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
+ * @param   growth_factor       The growth factor.
+ * @param   shrink_threshold    The shrink threshold.
  *
  * @return  A zyan status code.
  *
