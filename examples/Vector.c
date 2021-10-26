@@ -332,7 +332,7 @@ static ZyanStatus TestAllocator(void)
     // dynamic shrinking is disabled
     ZyanVector vector;
     ZYAN_CHECK(ZyanVectorInitEx(&vector, sizeof(TestStruct), 5, ZYAN_NULL, &allocator,
-        10.0f, 0.0f));
+        10, 0));
 
     static TestStruct  e_v;
 

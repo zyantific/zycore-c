@@ -96,7 +96,7 @@ typedef ZyanStatus (*ZyanBitsetByteOperation)(ZyanU8* v1, const ZyanU8* v2);
  * @return  A zyan status code.
  *
  * The space for the bitset is dynamically allocated by the default allocator using the default
- * growth factor of `2.0f` and the default shrink threshold of `0.5f`.
+ * growth factor and the default shrink threshold.
  */
 ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanBitsetInit(ZyanBitset* bitset, ZyanUSize count);
 
@@ -109,16 +109,16 @@ ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanBitsetInit(ZyanBitset* bitset, Z
  * @param   bitset              A pointer to the `ZyanBitset` instance.
  * @param   count               The initial amount of bits.
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
- * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
- * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
+ * @param   growth_factor       The growth factor.
+ * @param   shrink_threshold    The shrink threshold.
  *
  * @return  A zyan status code.
  *
- * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
+ * A growth factor of `1` disables overallocation and a shrink threshold of `0` disables
  * dynamic shrinking.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetInitEx(ZyanBitset* bitset, ZyanUSize count,
-    ZyanAllocator* allocator, float growth_factor, float shrink_threshold);
+    ZyanAllocator* allocator, ZyanU8 growth_factor, ZyanU8 shrink_threshold);
 
 /**
  * Initializes the given `ZyanBitset` instance and configures it to use a custom user
@@ -266,7 +266,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetToggle(ZyanBitset* bitset, ZyanUSize index);
  * @param   index   The bit index.
  *
  * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not, Another zyan
- *          status code, if an error occured.
+ *          status code, if an error occurred.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetTest(ZyanBitset* bitset, ZyanUSize index);
 
@@ -276,7 +276,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetTest(ZyanBitset* bitset, ZyanUSize index);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
  * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not. Another zyan
- *          status code, if an error occured.
+ *          status code, if an error occurred.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetTestMSB(ZyanBitset* bitset);
 
@@ -286,7 +286,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetTestMSB(ZyanBitset* bitset);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
  * @return  `ZYAN_STATUS_TRUE`, if the bit is set or `ZYAN_STATUS_FALSE`, if not. Another zyan
- *          status code, if an error occured.
+ *          status code, if an error occurred.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetTestLSB(ZyanBitset* bitset);
 
@@ -427,7 +427,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetCount(const ZyanBitset* bitset, ZyanUSize* co
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
  * @return  `ZYAN_STATUS_TRUE`, if all bits are set, `ZYAN_STATUS_FALSE`, if not. Another zyan
- *          status code, if an error occured.
+ *          status code, if an error occurred.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetAll(const ZyanBitset* bitset);
 
@@ -437,7 +437,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetAll(const ZyanBitset* bitset);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
  * @return  `ZYAN_STATUS_TRUE`, if at least one bit is set, `ZYAN_STATUS_FALSE`, if not. Another
- *          zyan status code, if an error occured.
+ *          zyan status code, if an error occurred.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetAny(const ZyanBitset* bitset);
 
@@ -447,7 +447,7 @@ ZYCORE_EXPORT ZyanStatus ZyanBitsetAny(const ZyanBitset* bitset);
  * @param   bitset  A pointer to the `ZyanBitset` instance.
  *
  * @return  `ZYAN_STATUS_TRUE`, if none bits are set, `ZYAN_STATUS_FALSE`, if not. Another zyan
- *          status code, if an error occured.
+ *          status code, if an error occurred.
  */
 ZYCORE_EXPORT ZyanStatus ZyanBitsetNone(const ZyanBitset* bitset);
 

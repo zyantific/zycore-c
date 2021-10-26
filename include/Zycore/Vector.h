@@ -56,12 +56,12 @@ extern "C" {
 /**
  * The default growth factor for all vector instances.
  */
-#define ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR       2.00f
+#define ZYAN_VECTOR_DEFAULT_GROWTH_FACTOR       2
 
 /**
  * The default shrink threshold for all vector instances.
  */
-#define ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD    0.25f
+#define ZYAN_VECTOR_DEFAULT_SHRINK_THRESHOLD    4
 
 /* ============================================================================================== */
 /* Enums and types                                                                                */
@@ -82,11 +82,11 @@ typedef struct ZyanVector_
     /**
      * The growth factor.
      */
-    float growth_factor;
+    ZyanU8 growth_factor;
     /**
      * The shrink threshold.
      */
-    float shrink_threshold;
+    ZyanU8 shrink_threshold;
     /**
      * The current number of elements in the vector.
      */
@@ -123,8 +123,8 @@ typedef struct ZyanVector_
 #define ZYAN_VECTOR_INITIALIZER \
     { \
         /* allocator        */ ZYAN_NULL, \
-        /* growth_factor    */ 0.0f, \
-        /* shrink_threshold */ 0.0f, \
+        /* growth_factor    */ 0, \
+        /* shrink_threshold */ 0, \
         /* size             */ 0, \
         /* capacity         */ 0, \
         /* element_size     */ 0, \
@@ -193,7 +193,7 @@ typedef struct ZyanVector_
             ZYAN_MACRO_CONCAT_EXPAND(size_d50d3303, item_name); \
             ++ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name)) \
         { \
-            type* const item_name = ZyanVectorGetMutable(vector, \
+            (type)* const item_name = ZyanVectorGetMutable(vector, \
                 ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name)); \
             body \
         } \
@@ -223,7 +223,7 @@ typedef struct ZyanVector_
  * @return  A zyan status code.
  *
  * The memory for the vector elements is dynamically allocated by the default allocator using the
- * default growth factor of `2.0f` and the default shrink threshold of `0.25f`.
+ * default growth factor and the default shrink threshold.
  *
  * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
  */
@@ -242,19 +242,19 @@ ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanVectorInit(ZyanVector* vector,
  * @param   destructor          A destructor callback that is invoked every time an item is deleted,
  *                              or `ZYAN_NULL` if not needed.
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
- * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
- * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
+ * @param   growth_factor       The growth factor.
+ * @param   shrink_threshold    The shrink threshold.
  *
  * @return  A zyan status code.
  *
- * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
+ * A growth factor of `1` disables overallocation and a shrink threshold of `0` disables
  * dynamic shrinking.
  *
  * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorInitEx(ZyanVector* vector, ZyanUSize element_size,
     ZyanUSize capacity, ZyanMemberProcedure destructor, ZyanAllocator* allocator,
-    float growth_factor, float shrink_threshold);
+    ZyanU8 growth_factor, ZyanU8 shrink_threshold);
 
 /**
  * Initializes the given `ZyanVector` instance and configures it to use a custom user
@@ -302,7 +302,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDestroy(ZyanVector* vector);
  * @return  A zyan status code.
  *
  * The memory for the vector is dynamically allocated by the default allocator using the default
- * growth factor of `2.0f` and the default shrink threshold of `0.25f`.
+ * growth factor and the default shrink threshold.
  *
  * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
  */
@@ -322,18 +322,18 @@ ZYCORE_EXPORT ZYAN_REQUIRES_LIBC ZyanStatus ZyanVectorDuplicate(ZyanVector* dest
  *                              This value is automatically adjusted to the size of the source
  *                              vector, if a smaller value was passed.
  * @param   allocator           A pointer to a `ZyanAllocator` instance.
- * @param   growth_factor       The growth factor (from `1.0f` to `x.xf`).
- * @param   shrink_threshold    The shrink threshold (from `0.0f` to `1.0f`).
+ * @param   growth_factor       The growth factor.
+ * @param   shrink_threshold    The shrink threshold.
  *
  * @return  A zyan status code.
  *
- * A growth factor of `1.0f` disables overallocation and a shrink threshold of `0.0f` disables
+ * A growth factor of `1` disables overallocation and a shrink threshold of `0` disables
  * dynamic shrinking.
  *
  * Finalization with `ZyanVectorDestroy` is required for all instances created by this function.
  */
 ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicateEx(ZyanVector* destination, const ZyanVector* source,
-    ZyanUSize capacity, ZyanAllocator* allocator, float growth_factor, float shrink_threshold);
+    ZyanUSize capacity, ZyanAllocator* allocator, ZyanU8 growth_factor, ZyanU8 shrink_threshold);
 
 /**
  * Initializes a new `ZyanVector` instance by duplicating an existing vector and
@@ -365,7 +365,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorDuplicateCustomBuffer(ZyanVector* destination
  * @param   index       The element index.
  *
  * @return  A constant pointer to the desired element in the vector or `ZYAN_NULL`, if an error
- *          occured.
+ *          occurred.
  *
  * Note that the returned pointer might get invalid when the vector is resized by either a manual
  * call to the memory-management functions or implicitly by inserting or removing elements.
@@ -382,7 +382,7 @@ ZYCORE_EXPORT const void* ZyanVectorGet(const ZyanVector* vector, ZyanUSize inde
  * @param   index       The element index.
  *
  * @return  A mutable pointer to the desired element in the vector or `ZYAN_NULL`, if an error
- *          occured.
+ *          occurred.
  *
  * Note that the returned pointer might get invalid when the vector is resized by either a manual
  * call to the memory-management functions or implicitly by inserting or removing elements.
@@ -576,7 +576,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorClear(ZyanVector* vector);
  * @param   comparison  The comparison function to use.
  *
  * @return  `ZYAN_STATUS_TRUE` if the element was found, `ZYAN_STATUS_FALSE` if not or a generic
- *          zyan status code if an error occured.
+ *          zyan status code if an error occurred.
  *
  * The `found_index` is set to `-1`, if the element was not found.
  */
@@ -594,7 +594,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorFind(const ZyanVector* vector, const void* el
  * @param   count       The maximum number of elements to iterate, beginning from the start `index`.
  *
  * @return  `ZYAN_STATUS_TRUE` if the element was found, `ZYAN_STATUS_FALSE` if not or a generic
- *          zyan status code if an error occured.
+ *          zyan status code if an error occurred.
  *
  * The `found_index` is set to `-1`, if the element was not found.
  */
@@ -611,7 +611,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorFindEx(const ZyanVector* vector, const void* 
  * @param   comparison  The comparison function to use.
  *
  * @return  `ZYAN_STATUS_TRUE` if the element was found, `ZYAN_STATUS_FALSE` if not or a generic
- *          zyan status code if an error occured.
+ *          zyan status code if an error occurred.
  *
  * If found, `found_index` contains the zero-based index of `element`. If not found, `found_index`
  * contains the index of the first entry larger than `element`.
@@ -633,7 +633,7 @@ ZYCORE_EXPORT ZyanStatus ZyanVectorBinarySearch(const ZyanVector* vector, const 
  * @param   count       The maximum number of elements to iterate, beginning from the start `index`.
  *
  * @return  `ZYAN_STATUS_TRUE` if the element was found, `ZYAN_STATUS_FALSE` if not or a generic
- *          zyan status code if an error occured.
+ *          zyan status code if an error occurred.
  *
  * If found, `found_index` contains the zero-based index of `element`. If not found, `found_index`
  * contains the index of the first entry larger than `element`.

@@ -31,8 +31,8 @@
 /* Internal constants                                                                             */
 /* ============================================================================================== */
 
-#define ZYAN_BITSET_GROWTH_FACTOR    2.00f
-#define ZYAN_BITSET_SHRINK_THRESHOLD 0.50f
+#define ZYAN_BITSET_GROWTH_FACTOR    2
+#define ZYAN_BITSET_SHRINK_THRESHOLD 2
 
 /* ============================================================================================== */
 /* Internal macros                                                                                */
@@ -56,7 +56,7 @@
  * @return  The amount of bytes needed to fit `x` bits.
  */
 #define ZYAN_BITSET_BITS_TO_BYTES(x) \
-    ZYAN_BITSET_CEIL((x) / 8.0f)
+    ZYAN_BITSET_CEIL((x) / 8)
 
 /**
  * Returns the offset of the given bit.
@@ -140,7 +140,7 @@ ZyanStatus ZyanBitsetInit(ZyanBitset* bitset, ZyanUSize count)
 #endif // ZYAN_NO_LIBC
 
 ZyanStatus ZyanBitsetInitEx(ZyanBitset* bitset, ZyanUSize count, ZyanAllocator* allocator,
-    float growth_factor, float shrink_threshold)
+    ZyanU8 growth_factor, ZyanU8 shrink_threshold)
 {
     if (!bitset)
     {
