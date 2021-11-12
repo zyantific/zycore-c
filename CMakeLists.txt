@@ -2,7 +2,7 @@ if (TARGET Zycore)
     return()
 endif ()
 
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(Zycore VERSION 1.1.0.0 LANGUAGES C CXX)
 
@@ -234,19 +234,21 @@ endif ()
 
 function (zyan_add_test test)
     add_executable("Test${test}" "tests/${test}.cpp")
-
-    if (NOT MSVC)
-        target_compile_options("Test${test}" PRIVATE "-std=c++17")
-    endif ()
-
-    target_link_libraries("Test${test}" "Zycore")
-    target_link_libraries("Test${test}" "gtest")
-    set_target_properties("Test${test}" PROPERTIES FOLDER "Tests")
+    target_link_libraries("Test${test}" "Zycore" "gtest")
+    set_target_properties("Test${test}" PROPERTIES
+        LANGUAGE CXX
+        CXX_STANDARD 17
+        CXX_EXTENSIONS OFF
+        CXX_STANDARD_REQUIRED ON
+        FOLDER "Tests"
+    )
     target_compile_definitions("Test${test}" PRIVATE "_CRT_SECURE_NO_WARNINGS")
     zyan_maybe_enable_wpo("Test${test}")
+    add_test("${test}" "Test${test}")
 endfunction ()
 
 if (ZYCORE_BUILD_TESTS)
+    enable_testing()
     zyan_add_test("String")
     zyan_add_test("Vector")
     zyan_add_test("ArgParse")
