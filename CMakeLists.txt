@@ -183,6 +183,7 @@ zyan_set_source_group("Zycore")
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND NOT ZYAN_NO_LIBC)
     target_compile_definitions("Zycore" PRIVATE "_GNU_SOURCE")
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
     target_link_libraries("Zycore" Threads::Threads)
 endif ()
