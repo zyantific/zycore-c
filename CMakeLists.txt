@@ -63,31 +63,42 @@ endif ()
 # GoogleTest                                                                                      #
 # =============================================================================================== #
 
-# Download and unpack googletest
+# Search for GoogleTest, and fallback to downloading it if not found
 if (ZYCORE_BUILD_TESTS)
-    if (NOT DEFINED ZYCORE_DOWNLOADED_GTEST)
-        configure_file("CMakeLists.txt.in" "${CMAKE_BINARY_DIR}/gtest/download/CMakeLists.txt")
-        execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-            RESULT_VARIABLE result
-            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
-        if (result)
-            message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-        endif()
-        execute_process(COMMAND ${CMAKE_COMMAND} --build .
-            RESULT_VARIABLE result
-            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
-        if (result)
-            message(FATAL_ERROR "Build step for googletest failed: ${result}")
-        endif()
+    find_package(GTest QUIET)
+    if (GTest_FOUND)
+        # CMake 3.20 and upstream GTestConfig.cmake
+        if (TARGET GTest::gtest)
+            add_library(gtest ALIAS GTest::gtest)
+        # Older FindGTest
+        else ()
+            add_library(gtest ALIAS GTest::GTest)
+        endif ()
+    else ()
+        if (NOT DEFINED ZYCORE_DOWNLOADED_GTEST)
+            configure_file("CMakeLists.txt.in" "${CMAKE_BINARY_DIR}/gtest/download/CMakeLists.txt")
+            execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+                RESULT_VARIABLE result
+                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
+            if (result)
+                message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+            endif()
+            execute_process(COMMAND ${CMAKE_COMMAND} --build .
+                RESULT_VARIABLE result
+                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/gtest/download")
+            if (result)
+                message(FATAL_ERROR "Build step for googletest failed: ${result}")
+            endif()
 
-        set(ZYCORE_DOWNLOADED_GTEST TRUE CACHE BOOL "")
-        mark_as_advanced(ZYCORE_DOWNLOADED_GTEST)
-    endif ()
+            set(ZYCORE_DOWNLOADED_GTEST TRUE CACHE BOOL "")
+            mark_as_advanced(ZYCORE_DOWNLOADED_GTEST)
+        endif ()
 
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
     add_subdirectory("${CMAKE_BINARY_DIR}/gtest/src" "${CMAKE_BINARY_DIR}/gtest/build"
         EXCLUDE_FROM_ALL)
+    endif ()
 endif ()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
