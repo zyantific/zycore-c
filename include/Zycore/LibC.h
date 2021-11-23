@@ -500,6 +500,22 @@ ZYAN_INLINE ZyanUSize ZYAN_STRXFRM(char* dest, const char* src, ZyanUSize n)
     return n2;
 }
 
+ZYAN_INLINE char ZYAN_TOLOWER(const char c)
+{
+    if (c >= 'A' && c <= 'Z')
+        return c | 0x20;
+    return c;
+}
+
+ZYAN_INLINE int ZYAN_STRCMPI(const char* s1, const char* s2)
+{
+    while (*s1 && ZYAN_TOLOWER(*s1) == ZYAN_TOLOWER(*s2))
+    {
+        s1++; s2++;
+    }
+    return *(const ZyanU8*)s1 - *(const ZyanU8*)s2;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 #endif
