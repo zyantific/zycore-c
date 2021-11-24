@@ -507,6 +507,13 @@ ZYAN_INLINE char ZYAN_TOLOWER(const char c)
     return c;
 }
 
+ZYAN_INLINE wchar_t ZYAN_WCTOLOWER(const wchar_t c)
+{
+    if (c >= 'A' && c <= 'Z')
+        return c | 0x20;
+    return c;
+}
+
 ZYAN_INLINE int ZYAN_STRCMPI(const char* s1, const char* s2)
 {
     while (*s1 && ZYAN_TOLOWER(*s1) == ZYAN_TOLOWER(*s2))
@@ -536,7 +543,7 @@ ZYAN_INLINE int ZYAN_STRCMP_S(const char* s1, const char* s2, size_t size)
 
 ZYAN_INLINE int ZYAN_WCSICMP(const wchar_t* s1, const wchar_t* s2)
 {
-    while (*s1 && ZYAN_TOLOWER(*s1) == ZYAN_TOLOWER(*s2))
+    while (*s1 && ZYAN_WCTOLOWER(*s1) == ZYAN_WCTOLOWER(*s2))
     {
         s1++; s2++;
     }
@@ -545,7 +552,7 @@ ZYAN_INLINE int ZYAN_WCSICMP(const wchar_t* s1, const wchar_t* s2)
 
 ZYAN_INLINE int ZYAN_WCSICMP_S(const wchar_t* s1, const wchar_t* s2, size_t size)
 {
-    while (--size && ZYAN_TOLOWER(*s1) == ZYAN_TOLOWER(*s2))
+    while (--size && ZYAN_WCTOLOWER(*s1) == ZYAN_WCTOLOWER(*s2))
     {
         s1++; s2++;
     }
