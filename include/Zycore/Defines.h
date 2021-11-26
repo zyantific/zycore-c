@@ -85,6 +85,9 @@
 #   define ZYAN_WINDOWS
 #elif defined(__EMSCRIPTEN__)
 #   define ZYAN_EMSCRIPTEN
+#elif defined(__wasi__) || defined(__WASI__)
+// via: https://reviews.llvm.org/D57155
+#   define ZYAN_WASI
 #elif defined(__APPLE__)
 #   define ZYAN_APPLE
 #   define ZYAN_POSIX
@@ -131,8 +134,8 @@
 #   define ZYAN_AARCH64
 #elif defined(_M_ARM) || defined(_M_ARMT) || defined(__arm__) || defined(__thumb__)
 #   define ZYAN_ARM
-#elif defined(__EMSCRIPTEN__)
-    // Nothing to do, `ZYAN_EMSCRIPTEN` is both platform and arch macro for this one.
+#elif defined(__EMSCRIPTEN__) || defined(__wasm__) || defined(__WASM__)
+#   define ZYAN_WASM
 #else
 #   error "Unsupported architecture detected"
 #endif
