@@ -6,7 +6,6 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(Zycore VERSION 1.1.0.0 LANGUAGES C CXX)
 
-include(GenerateExportHeader)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
@@ -112,22 +111,23 @@ if (ZYCORE_BUILD_SHARED_LIB)
     add_library("Zycore" SHARED)
 else ()
     add_library("Zycore" STATIC)
+    target_compile_definitions("Zycore" PUBLIC "ZYCORE_STATIC_BUILD")
 endif ()
 
 set_target_properties("Zycore" PROPERTIES
     LINKER_LANGUAGE C
-    VERSION ${Zycore_VERSION}
-    SOVERSION ${Zycore_VERSION_MAJOR}.${Zycore_VERSION_MINOR})
+    VERSION "${Zycore_VERSION}"
+    SOVERSION "${Zycore_VERSION_MAJOR}.${Zycore_VERSION_MINOR}"
+    DEFINE_SYMBOL "ZYCORE_SHOULD_EXPORT")
 target_include_directories("Zycore"
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE "src")
-target_compile_definitions("Zycore" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYCORE_EXPORTS")
+target_compile_definitions("Zycore" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 zyan_set_common_flags("Zycore")
 zyan_maybe_enable_wpo_for_lib("Zycore")
-generate_export_header("Zycore" BASE_NAME "ZYCORE" EXPORT_FILE_NAME "ZycoreExportConfig.h")
 
 if (ZYAN_NO_LIBC)
     target_compile_definitions("Zycore" PUBLIC "ZYAN_NO_LIBC")
@@ -207,9 +207,6 @@ install(TARGETS "Zycore" EXPORT "zycore-targets")
 install(EXPORT "zycore-targets"
     NAMESPACE "Zycore::"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore")
-install(FILES
-    "${PROJECT_BINARY_DIR}/ZycoreExportConfig.h"
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # =============================================================================================== #

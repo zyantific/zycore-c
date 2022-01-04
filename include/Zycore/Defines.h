@@ -161,6 +161,73 @@
 #endif
 
 /* ============================================================================================== */
+/* Deprecation hint                                                                               */
+/* ============================================================================================== */
+
+#if defined(ZYAN_GCC) || defined(ZYAN_CLANG)
+#   define ZYAN_DEPRECATED __attribute__((__deprecated__))
+#elif defined(ZYAN_MSVC)
+#   define ZYAN_DEPRECATED __declspec(deprecated)
+#else
+#   define ZYAN_DEPRECATED
+#endif
+
+/* ============================================================================================== */
+/* Generic DLL import/export helpers                                                              */
+/* ============================================================================================== */
+
+#if defined(ZYAN_MSVC)
+#   define ZYAN_DLLEXPORT __declspec(dllexport)
+#   define ZYAN_DLLIMPORT __declspec(dllimport)
+#else
+#   define ZYAN_DLLEXPORT
+#   define ZYAN_DLLIMPORT
+#endif
+
+/* ============================================================================================== */
+/* Zycore dll{export,import}                                                                      */
+/* ============================================================================================== */
+
+// This is a cut-down version of what CMake's `GenerateExportHeader` would usually generate. To
+// simplify builds without CMake, we define these things manually instead of relying on CMake
+// to generate the header.
+//
+// For static builds, our CMakeList will define `ZYCORE_STATIC_BUILD`. For shared library builds,
+// our CMake will define `ZYCORE_SHOULD_EXPORT` depending on whether the target is being imported or
+// exported. If CMake isn't used, users can manually define these to fit their use-case.
+
+// Backward compatibility: CMake would previously generate these variables names. However, because
+// they have pretty cryptic names, we renamed them when we got rid of `GenerateExportHeader`. For
+// backward compatibility for users that don't use CMake and previously manually defined these, we
+// translate the old defines here and print a warning.
+#if defined(ZYCORE_STATIC_DEFINE)
+#   pragma message("ZYCORE_STATIC_DEFINE was renamed to ZYCORE_STATIC_BUILD.")
+#   define ZYCORE_STATIC_BUILD
+#endif
+#if defined(Zycore_EXPORTS)
+#   pragma message("Zycore_EXPORTS was renamed to ZYCORE_SHOULD_EXPORT.")
+#   define ZYCORE_SHOULD_EXPORT
+#endif
+
+/**
+ * Symbol is exported in shared library builds.
+ */
+#if defined(ZYCORE_STATIC_BUILD)
+#   define ZYCORE_EXPORT
+#else
+#   if defined(ZYCORE_SHOULD_EXPORT)
+#       define ZYCORE_EXPORT ZYAN_DLLEXPORT
+#   else
+#       define ZYCORE_EXPORT ZYAN_DLLIMPORT
+#   endif
+#endif
+
+/**
+ * Symbol is not exported and for internal use only.
+ */
+#define ZYCORE_NO_EXPORT
+
+/* ============================================================================================== */
 /* Misc compatibility macros                                                                      */
 /* ============================================================================================== */
 

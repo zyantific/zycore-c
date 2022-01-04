@@ -32,7 +32,6 @@
 #ifndef ZYCORE_API_SYNCHRONIZATION_H
 #define ZYCORE_API_SYNCHRONIZATION_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/Defines.h>
 #include <Zycore/Status.h>
 

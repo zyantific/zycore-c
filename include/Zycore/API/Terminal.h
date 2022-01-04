@@ -32,7 +32,6 @@
 #ifndef ZYCORE_API_TERMINAL_H
 #define ZYCORE_API_TERMINAL_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/LibC.h>
 #include <Zycore/Status.h>
 

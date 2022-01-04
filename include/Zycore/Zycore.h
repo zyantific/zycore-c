@@ -32,7 +32,6 @@
 #ifndef ZYCORE_H
 #define ZYCORE_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/Types.h>
 
 // TODO:
