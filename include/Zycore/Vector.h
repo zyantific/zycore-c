@@ -32,7 +32,6 @@
 #ifndef ZYCORE_VECTOR_H
 #define ZYCORE_VECTOR_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/Allocator.h>
 #include <Zycore/Comparison.h>
 #include <Zycore/Object.h>

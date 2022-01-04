@@ -32,7 +32,6 @@
 #ifndef ZYCORE_API_MEMORY_H
 #define ZYCORE_API_MEMORY_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/Defines.h>
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>

@@ -32,7 +32,6 @@
 #ifndef ZYCORE_BITSET_H
 #define ZYCORE_BITSET_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/Allocator.h>
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>

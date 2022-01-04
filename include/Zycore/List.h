@@ -32,7 +32,6 @@
 #ifndef ZYCORE_LIST_H
 #define ZYCORE_LIST_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/Allocator.h>
 #include <Zycore/Object.h>
 #include <Zycore/Status.h>

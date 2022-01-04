@@ -32,7 +32,6 @@
 #ifndef ZYCORE_API_PROCESS_H
 #define ZYCORE_API_PROCESS_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/Status.h>
 #include <Zycore/Types.h>
 

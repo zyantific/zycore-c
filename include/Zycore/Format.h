@@ -32,7 +32,6 @@
 #ifndef ZYCORE_FORMAT_H
 #define ZYCORE_FORMAT_H
 
-#include <ZycoreExportConfig.h>
 #include <Zycore/Status.h>
 #include <Zycore/String.h>
 #include <Zycore/Types.h>
