@@ -193,7 +193,7 @@ typedef struct ZyanVector_
             ZYAN_MACRO_CONCAT_EXPAND(size_d50d3303, item_name); \
             ++ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name)) \
         { \
-            (type)* const item_name = ZyanVectorGetMutable(vector, \
+            type* const item_name = ZyanVectorGetMutable(vector, \
                 ZYAN_MACRO_CONCAT_EXPAND(i_bfd62679, item_name)); \
             body \
         } \
