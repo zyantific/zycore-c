@@ -163,7 +163,7 @@ ZYAN_STATIC_ASSERT((ZyanI64)-1 >> 1 < (ZyanI64)((ZyanU64)-1 >> 1));
 /**
  * Defines the `ZyanVoidPointer` data-type.
  */
-typedef char* ZyanVoidPointer;
+typedef void* ZyanVoidPointer;
 
 /**
  * Defines the `ZyanConstVoidPointer` data-type.
