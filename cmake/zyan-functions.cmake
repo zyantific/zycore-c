@@ -3,9 +3,7 @@
 # =============================================================================================== #
 
 function (zyan_set_common_flags target)
-    if (NOT MSVC)
-        target_compile_options("${target}" PRIVATE "-std=c99")
-    endif ()
+    set_target_properties("${target}" PROPERTIES C_STANDARD 11)
 
     if (ZYAN_DEV_MODE)
         # If in developer mode, be pedantic.
