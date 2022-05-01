@@ -2,7 +2,7 @@ if (TARGET Zycore)
     return()
 endif ()
 
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
 project(Zycore VERSION 1.1.0.0 LANGUAGES C CXX)
 
@@ -127,7 +127,7 @@ target_include_directories("Zycore"
     PRIVATE "src")
 target_compile_definitions("Zycore" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 zyan_set_common_flags("Zycore")
-zyan_maybe_enable_wpo_for_lib("Zycore")
+zyan_maybe_enable_wpo("Zycore")
 
 if (ZYAN_NO_LIBC)
     target_compile_definitions("Zycore" PUBLIC "ZYAN_NO_LIBC")
