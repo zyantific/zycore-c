@@ -206,7 +206,8 @@ install(FILES
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore"
 )
 
-install(TARGETS "Zycore" EXPORT "zycore-targets")
+install(TARGETS "Zycore" EXPORT "zycore-targets"
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(EXPORT "zycore-targets"
     NAMESPACE "Zycore::"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore")
