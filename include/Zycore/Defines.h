@@ -271,7 +271,7 @@
 /**
  * Compiler-time assertion.
  */
-#if __STDC_VERSION__ >= 201112L && !defined(__cplusplus)
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__cplusplus)
 #   define ZYAN_STATIC_ASSERT(x) _Static_assert(x, #x)
 #elif (defined(__cplusplus) && __cplusplus >= 201103L) || \
       (defined(__cplusplus) && defined (_MSC_VER) && (_MSC_VER >= 1600)) || \
