@@ -4,7 +4,7 @@ endif ()
 
 cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
-project(Zycore VERSION 1.2.0.0 LANGUAGES C CXX)
+project(Zycore VERSION 1.2.0.0 LANGUAGES C)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -276,6 +276,7 @@ function (zyan_add_test test)
 endfunction ()
 
 if (ZYCORE_BUILD_TESTS)
+    enable_language(CXX)
     enable_testing()
     zyan_add_test("String")
     zyan_add_test("Vector")
