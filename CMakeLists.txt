@@ -216,6 +216,19 @@ install(EXPORT "zycore-targets"
 install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # =============================================================================================== #
+# Doxygen documentation                                                                           #
+# =============================================================================================== #
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+    doxygen_add_docs(doc "include/Zycore/" ALL)
+    install(
+        DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/html/"
+        DESTINATION "${CMAKE_INSTALL_DOCDIR}/api"
+        COMPONENT Documentation
+    )
+endif()
+
+# =============================================================================================== #
 # Developer mode                                                                                  #
 # =============================================================================================== #
 
