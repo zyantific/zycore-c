@@ -140,6 +140,8 @@
 #   define ZYAN_PPC64
 #elif defined(__powerpc__)
 #   define ZYAN_PPC
+#elif defined(__riscv) && __riscv_xlen == 64
+#   define ZYAN_RISCV64
 #else
 #   error "Unsupported architecture detected"
 #endif
