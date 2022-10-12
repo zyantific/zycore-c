@@ -193,7 +193,7 @@ endif ()
 
 configure_package_config_file(cmake/zycore-config.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/zycore-config.cmake"
-    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake"
 )
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/zycore-config-version.cmake"
@@ -203,16 +203,17 @@ install(FILES
     "cmake/zyan-functions.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/zycore-config.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/zycore-config-version.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake"
 )
 
 install(TARGETS "Zycore" EXPORT "zycore-targets"
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 install(EXPORT "zycore-targets"
     NAMESPACE "Zycore::"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zycore")
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake")
 install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # =============================================================================================== #
