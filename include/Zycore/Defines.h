@@ -136,6 +136,8 @@
 #   define ZYAN_ARM
 #elif defined(__EMSCRIPTEN__) || defined(__wasm__) || defined(__WASM__)
 #   define ZYAN_WASM
+#elif defined(__loongarch__)
+#   define ZYAN_LOONGARCH
 #elif defined(__powerpc64__)
 #   define ZYAN_PPC64
 #elif defined(__powerpc__)
