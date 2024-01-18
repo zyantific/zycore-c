@@ -97,6 +97,9 @@
 #elif defined(__FreeBSD__)
 #   define ZYAN_FREEBSD
 #   define ZYAN_POSIX
+#elif defined(__NetBSD__)
+#   define ZYAN_NETBSD
+#   define ZYAN_POSIX
 #elif defined(sun) || defined(__sun)
 #   define ZYAN_SOLARIS
 #   define ZYAN_POSIX
