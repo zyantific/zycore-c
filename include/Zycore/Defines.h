@@ -103,7 +103,7 @@
 #elif defined(sun) || defined(__sun)
 #   define ZYAN_SOLARIS
 #   define ZYAN_POSIX
-#elif defined(__unix)
+#elif defined(__unix) || defined(__unix__)
 #   define ZYAN_UNIX
 #   define ZYAN_POSIX
 #elif defined(__posix)
