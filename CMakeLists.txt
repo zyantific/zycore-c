@@ -9,7 +9,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15")
     cmake_policy(SET CMP0091 NEW)
 endif ()
 
-project(Zycore VERSION 1.4.0.0 LANGUAGES C)
+project(Zycore VERSION 1.5.0.0 LANGUAGES C)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
