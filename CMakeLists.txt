@@ -118,6 +118,7 @@ else ()
     add_library("Zycore" STATIC)
     target_compile_definitions("Zycore" PUBLIC "ZYCORE_STATIC_BUILD")
 endif ()
+add_library("Zycore::Zycore" ALIAS "Zycore")
 
 set_target_properties("Zycore" PROPERTIES
     LINKER_LANGUAGE C
