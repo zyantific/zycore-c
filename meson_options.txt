@@ -1,0 +1,6 @@
+option(
+  'nolibc',
+  type: 'boolean',
+  value: false,
+  description: 'Do not use any C standard library functions (for exotic build-envs like kernel drivers)',
+)
