@@ -9,6 +9,7 @@ project(
     'c_std=c11',
     'cpp_std=c++17',
     'warning_level=3',
+    'b_lto=true',
   ],
 )
 
