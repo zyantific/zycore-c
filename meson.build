@@ -122,13 +122,15 @@ install_headers(hdrs_common, subdir: 'Zycore')
 install_headers(hdrs_api, subdir: 'Zycore/API')
 install_headers(hdrs_internal, subdir: 'Zycore/Internal')
 
+extra_cflags = nolibc ? ['-DZYAN_NO_LIBC'] : []
+
 zycore_dep = declare_dependency(
-  compile_args: nolibc ? ['-DZYAN_NO_LIBC'] : [],
   include_directories: inc,
   link_with: zycore_lib,
+  compile_args: extra_cflags,
 )
 
-if not get_option('nolibc')
+if not nolibc
   gtest_dep = dependency('gtest', required: false)
   if gtest_dep.found() and add_languages('cpp', native: false)
     test(
@@ -167,6 +169,7 @@ pkg.generate(
   name: 'zycore',
   description: 'Zyan Core Library for C',
   url: 'https://github.com/zyantific/zycore-c',
+  extra_cflags: extra_cflags,
 )
 
 meson.override_dependency('zycore', zycore_dep)
