@@ -124,6 +124,7 @@ install_headers(hdrs_internal, subdir: 'Zycore/Internal')
 
 extra_cflags = nolibc ? ['-DZYAN_NO_LIBC'] : []
 
+# Note: on MSVC, define ZYCORE_STATIC_BUILD accordingly in the user project.
 zycore_dep = declare_dependency(
   include_directories: inc,
   link_with: zycore_lib,
