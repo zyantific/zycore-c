@@ -90,7 +90,9 @@ if host_machine.system() == 'windows'
   src += windows.compile_resources('resources/VersionInfo.rc')
 endif
 
-if get_option('nolibc')
+nolibc = get_option('nolibc')
+
+if nolibc
   add_project_arguments(
     '-DZYAN_NO_LIBC',
     language: 'c',
@@ -108,6 +110,7 @@ zycore_lib = library(
   'Zycore',
   src + hdrs,
   c_static_args: ['-DZYCORE_STATIC_BUILD'],
+  c_shared_args: ['-DZYCORE_SHOULD_EXPORT'],
   include_directories: inc,
   implicit_include_directories: false,
   dependencies: dep,
@@ -120,6 +123,7 @@ install_headers(hdrs_api, subdir: 'Zycore/API')
 install_headers(hdrs_internal, subdir: 'Zycore/Internal')
 
 zycore_dep = declare_dependency(
+  compile_args: nolibc ? ['-DZYAN_NO_LIBC'] : [],
   include_directories: inc,
   link_with: zycore_lib,
 )
