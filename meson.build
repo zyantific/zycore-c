@@ -91,6 +91,7 @@ if host_machine.system() == 'windows'
 endif
 
 nolibc = get_option('nolibc')
+doc = get_option('doc').disable_auto_if(meson.is_subproject())
 
 if nolibc
   add_project_arguments(
@@ -174,3 +175,50 @@ pkg.generate(
 )
 
 meson.override_dependency('zycore', zycore_dep)
+
+doxygen_exe = find_program('doxygen', required: doc)
+if doxygen_exe.found()
+  cdata = configuration_data()
+  cdata.set('VERSION', meson.project_version())
+  cdata.set('TOP_SRCDIR', meson.project_source_root())
+  cdata.set('TOP_BUILDDIR', meson.project_build_root())
+
+  dot_exe = find_program('dot', required: false)
+  if dot_exe.found()
+    cdata.set('HAVE_DOT', 'YES')
+    cdata.set('DOT_PATH', dot_exe.full_path())
+    cdata.set(
+      'HAVE_DOT_1_8_10',
+      dot_exe.version().version_compare('>=1.8.10') ? 'YES' : 'NO',
+    )
+  else
+    cdata.set('HAVE_DOT', 'NO')
+  endif
+
+  if find_program('pdf2svg', required: false).found() or find_program('inkscape', required: false).found()
+    cdata.set('HTML_FORMULA_FORMAT', 'svg')
+  else
+    cdata.set('HTML_FORMULA_FORMAT', 'png')
+  endif
+
+  cdata.set('PREDEFINED', nolibc ? 'ZYAN_NO_LIBC' : '')
+
+  doxyfile = configure_file(
+    input: 'Doxyfile.in',
+    output: 'Doxyfile',
+    configuration: cdata,
+    install: false,
+  )
+
+  datadir = join_paths(get_option('datadir'), 'doc', 'Zycore')
+  custom_target(
+    'ZycoreDoc',
+    input: doxyfile,
+    output: 'doc',
+    command: [doxygen_exe, doxyfile],
+    depend_files: [hdrs],
+    install: true,
+    install_dir: datadir,
+  )
+endif
+

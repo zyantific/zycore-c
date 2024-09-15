@@ -4,3 +4,9 @@ option(
   value: false,
   description: 'Do not use any C standard library functions (for exotic build-envs like kernel drivers)',
 )
+option(
+  'doc',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build doxygen documentation (requires Doxygen)',
+)
