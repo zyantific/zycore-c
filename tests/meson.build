@@ -1,6 +1,8 @@
 gtest_dep = dependency('gtest', required: tests)
 
-if gtest_dep.found() and add_languages('cpp', native: false, required: tests)
+tests_req = gtest_dep.found() and add_languages('cpp', native: false, required: tests)
+
+if tests_req
   test(
     'string',
     executable(
@@ -27,5 +29,10 @@ if gtest_dep.found() and add_languages('cpp', native: false, required: tests)
       dependencies: [gtest_dep, zycore_dep],
     ),
     protocol: 'gtest',
+  )
+
+  summary(
+    {'tests': tests_req},
+    section: 'Features',
   )
 endif

@@ -144,9 +144,7 @@ zycore_dep = declare_dependency(
   compile_args: extra_cflags,
 )
 
-if examples.enabled()
-  subdir('examples')
-endif
+subdir('examples')
 subdir('tests')
 
 pkg = import('pkgconfig')
@@ -161,8 +159,8 @@ pkg.generate(
 meson.override_dependency('zycore', zycore_dep)
 
 doxygen_exe = find_program('doxygen', required: doc)
-if doxygen_exe.found()
-  doc = doc.enable_auto_if(doxygen_exe.found())
+doc_req = doxygen_exe.found()
+if doc_req
   cdata = configuration_data()
   cdata.set('VERSION', meson.project_version())
   cdata.set('TOP_SRCDIR', meson.project_source_root())
@@ -205,26 +203,17 @@ if doxygen_exe.found()
     install: true,
     install_dir: datadir,
   )
+
+  summary(
+    {
+      'dot': cdata.get('HAVE_DOT') == 'YES',
+      'formula format': cdata.get('HTML_FORMULA_FORMAT'),
+    },
+    section: 'Doxygen',
+  )
 endif
 
-features = {
-  'examples': examples,
-  'tests': tests,
-  'doc': doc,
-}
-
-found = []
-missing = []
-
-foreach feature, status : features
-  if status.enabled()
-    found += feature
-  elif status.disabled()
-    missing += feature
-  endif
-endforeach
-
 summary(
-  {'enabled': ', '.join(found), 'disabled': ', '.join(missing)},
+  {'doc': doc_req, 'nolibc': nolibc},
   section: 'Features',
 )
