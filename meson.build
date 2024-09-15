@@ -9,7 +9,6 @@ project(
     'c_std=c11',
     'cpp_std=c++17',
     'warning_level=3',
-    'b_lto=true',
   ],
 )
 
@@ -90,8 +89,21 @@ if host_machine.system() == 'windows'
   src += windows.compile_resources('resources/VersionInfo.rc')
 endif
 
+root = not meson.is_subproject()
+
 nolibc = get_option('nolibc')
-doc = get_option('doc').disable_auto_if(meson.is_subproject())
+
+examples = get_option('examples')
+doc = get_option('doc')
+tests = get_option('tests')
+
+# Extra targets
+examples = examples.disable_if(nolibc)
+tests = tests.disable_if(nolibc)
+
+doc = doc.disable_auto_if(not root)
+examples = examples.disable_auto_if(not root).enable_auto_if(root)
+tests = tests.disable_auto_if(not root)
 
 if nolibc
   add_project_arguments(
@@ -132,38 +144,10 @@ zycore_dep = declare_dependency(
   compile_args: extra_cflags,
 )
 
-if not nolibc
-  gtest_dep = dependency('gtest', required: false)
-  if gtest_dep.found() and add_languages('cpp', native: false)
-    test(
-      'string',
-      executable(
-        'test_string',
-        'tests/String.cpp',
-        dependencies: [gtest_dep, zycore_dep],
-      ),
-      protocol: 'gtest',
-    )
-    test(
-      'vector',
-      executable(
-        'test_vector',
-        'tests/Vector.cpp',
-        dependencies: [gtest_dep, zycore_dep],
-      ),
-      protocol: 'gtest',
-    )
-    test(
-      'argparse',
-      executable(
-        'test_argparse',
-        'tests/ArgParse.cpp',
-        dependencies: [gtest_dep, zycore_dep],
-      ),
-      protocol: 'gtest',
-    )
-  endif
+if examples.enabled()
+  subdir('examples')
 endif
+subdir('tests')
 
 pkg = import('pkgconfig')
 pkg.generate(
@@ -178,6 +162,7 @@ meson.override_dependency('zycore', zycore_dep)
 
 doxygen_exe = find_program('doxygen', required: doc)
 if doxygen_exe.found()
+  doc = doc.enable_auto_if(doxygen_exe.found())
   cdata = configuration_data()
   cdata.set('VERSION', meson.project_version())
   cdata.set('TOP_SRCDIR', meson.project_source_root())
@@ -222,3 +207,24 @@ if doxygen_exe.found()
   )
 endif
 
+features = {
+  'examples': examples,
+  'tests': tests,
+  'doc': doc,
+}
+
+found = []
+missing = []
+
+foreach feature, status : features
+  if status.enabled()
+    found += feature
+  elif status.disabled()
+    missing += feature
+  endif
+endforeach
+
+summary(
+  {'enabled': ', '.join(found), 'disabled': ', '.join(missing)},
+  section: 'Features',
+)
