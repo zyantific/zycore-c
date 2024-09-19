@@ -76,6 +76,7 @@ jobs:
       - name: Setup meson
         run: |
           pipx install meson
+          sudo apt-get install -y ninja-build
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -165,7 +166,7 @@ jobs:
       - name: Configure
         run: |
           $VCPATH = vswhere -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath -latest
-          & '$VCPATH\VC\Auxiliary\Build\vcvarsall.bat' ${{ matrix.platform.flags }}
+          & $VCPATH\VC\Auxiliary\Build\vcvarsall.bat ${{ matrix.platform.flags }}
           meson setup build-${{ matrix.flavor }} --buildtype=${{ matrix.flavor }} ${{ matrix.mode.args }}
 
       - name: Build
