@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-linux-cmake:
-    name: Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }}) with cmake
+    name: CMake Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }})
     runs-on: ubuntu-latest
 
     strategy:
@@ -53,7 +53,7 @@ jobs:
           cmake --build build --config ${{ matrix.flavor }}
 
   build-linux-meson:
-    name: Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }}) with meson
+    name: Meson Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }})
     runs-on: ubuntu-latest
 
     strategy:
@@ -104,7 +104,7 @@ jobs:
           meson test -C build-${{ matrix.flavor }}
 
   build-windows-cmake:
-    name: Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }}) with cmake
+    name: CMake Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }})
     runs-on: windows-latest
 
     strategy:
@@ -137,7 +137,7 @@ jobs:
           cmake --build build --config ${{ matrix.flavor }}
 
   build-windows-meson:
-    name: Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }}) with meson
+    name: Meson Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }})
     runs-on: windows-latest
 
     strategy:
