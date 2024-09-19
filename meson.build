@@ -108,6 +108,7 @@ tests = tests.disable_auto_if(not root)
 if nolibc
   add_project_arguments(
     '-DZYAN_NO_LIBC',
+    '-fno-stack-protector',
     language: 'c',
   )
   dep += declare_dependency(link_args: ['-nostdlib', '-nodefaultlibs'])
