@@ -7,7 +7,7 @@ project(
   meson_version: '>=1.3',
   default_options: [
     'c_std=c11',
-    'cpp_std=c++17',
+    'cpp_std=c++17,vc++17',
     'warning_level=3',
   ],
 )
