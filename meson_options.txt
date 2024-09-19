@@ -1,0 +1,25 @@
+option(
+  'nolibc',
+  type: 'boolean',
+  value: false,
+  description: 'Do not use any C standard library functions (for exotic build-envs like kernel drivers)',
+  yield: true,
+)
+option(
+  'doc',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build doxygen documentation (requires Doxygen)',
+)
+option(
+  'examples',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build examples',
+)
+option(
+  'tests',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build tests',
+)
