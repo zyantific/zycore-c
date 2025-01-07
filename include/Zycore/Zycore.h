@@ -51,7 +51,7 @@ extern "C" {
 /**
  * A macro that defines the zycore version.
  */
-#define ZYCORE_VERSION 0x0001000500000000ULL
+#define ZYCORE_VERSION 0x0001000500010000ULL
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Helper macros                                                                                  */
