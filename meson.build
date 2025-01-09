@@ -1,7 +1,7 @@
 project(
   'Zycore',
   'c',
-  version: '1.5.0',
+  version: '1.5.1',
   license: 'MIT',
   license_files: 'LICENSE',
   meson_version: '>=1.3',
