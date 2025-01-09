@@ -10,7 +10,7 @@ on:
 jobs:
   build-linux-cmake:
     name: CMake Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
@@ -54,7 +54,7 @@ jobs:
 
   build-linux-meson:
     name: Meson Build ${{ matrix.platform.name }} ${{ matrix.compiler.name }} ${{ matrix.flavor }} (${{ matrix.mode.name }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
