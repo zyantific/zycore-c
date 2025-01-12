@@ -64,6 +64,10 @@
 #if defined(__clang__)
 #   define ZYAN_CLANG
 #   define ZYAN_GNUC
+#   if defined(_MSC_VER)
+#       define ZYAN_CLANG_CL
+#       define ZYAN_MSVC
+#   endif
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
 #   define ZYAN_ICC
 #elif defined(__GNUC__) || defined(__GNUG__)
