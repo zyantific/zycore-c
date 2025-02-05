@@ -125,6 +125,7 @@ zycore_lib = library(
   src + hdrs,
   c_static_args: ['-DZYCORE_STATIC_BUILD'],
   c_shared_args: ['-DZYCORE_SHOULD_EXPORT'],
+  gnu_symbol_visibility: 'hidden',
   include_directories: inc,
   implicit_include_directories: false,
   dependencies: dep,
