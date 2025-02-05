@@ -198,8 +198,13 @@
 #   define ZYAN_DLLEXPORT __declspec(dllexport)
 #   define ZYAN_DLLIMPORT __declspec(dllimport)
 #else
-#   define ZYAN_DLLEXPORT
-#   define ZYAN_DLLIMPORT
+#   if defined(ZYAN_GNUC)
+#       define ZYAN_DLLEXPORT __attribute__((__visibility__("default")))
+#       define ZYAN_DLLIMPORT extern
+#   else
+#       define ZYAN_DLLEXPORT
+#       define ZYAN_DLLIMPORT
+#   endif
 #endif
 
 /* ============================================================================================== */
@@ -243,7 +248,11 @@
 /**
  * Symbol is not exported and for internal use only.
  */
-#define ZYCORE_NO_EXPORT
+#if defined(ZYAN_GNUC)
+#   define ZYCORE_NO_EXPORT __attribute__((__visibility__("hidden")))
+#else
+#   define ZYCORE_NO_EXPORT
+#endif
 
 /* ============================================================================================== */
 /* Misc compatibility macros                                                                      */

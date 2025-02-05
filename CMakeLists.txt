@@ -124,7 +124,8 @@ set_target_properties("Zycore" PROPERTIES
     LINKER_LANGUAGE C
     VERSION "${Zycore_VERSION}"
     SOVERSION "${Zycore_VERSION_MAJOR}.${Zycore_VERSION_MINOR}"
-    DEFINE_SYMBOL "ZYCORE_SHOULD_EXPORT")
+    DEFINE_SYMBOL "ZYCORE_SHOULD_EXPORT"
+    C_VISIBILITY_PRESET hidden)
 target_include_directories("Zycore"
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
