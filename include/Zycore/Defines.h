@@ -194,7 +194,7 @@
 /* Generic DLL import/export helpers                                                              */
 /* ============================================================================================== */
 
-#if defined(ZYAN_MSVC)
+#if defined(ZYAN_MSVC) || (defined(ZYAN_WINDOWS) && defined(ZYAN_GNUC))
 #   define ZYAN_DLLEXPORT __declspec(dllexport)
 #   define ZYAN_DLLIMPORT __declspec(dllimport)
 #else
