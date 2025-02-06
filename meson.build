@@ -111,7 +111,6 @@ if nolibc
     '-fno-stack-protector',
     language: 'c',
   )
-  dep += declare_dependency(link_args: ['-nostdlib', '-nodefaultlibs'])
 elif host_machine.system() == 'linux'
   add_project_arguments(
     '-D_GNU_SOURCE',
@@ -125,6 +124,7 @@ zycore_lib = library(
   src + hdrs,
   c_static_args: ['-DZYCORE_STATIC_BUILD'],
   c_shared_args: ['-DZYCORE_SHOULD_EXPORT'],
+  link_args: (nolibc and cc.get_linker_id().startswith('ld.')) ? ['-nostdlib', '-nodefaultlibs'] : [],
   gnu_symbol_visibility: 'hidden',
   include_directories: inc,
   implicit_include_directories: false,
