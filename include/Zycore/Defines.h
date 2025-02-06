@@ -295,6 +295,9 @@
       (defined(__cplusplus) && defined (_MSC_VER) && (_MSC_VER >= 1600)) || \
       (defined (_MSC_VER) && (_MSC_VER >= 1800))
 #   define ZYAN_STATIC_ASSERT(x) static_assert(x, #x)
+#elif defined(ZYAN_GNUC)
+#   define ZYAN_STATIC_ASSERT(x) \
+        __attribute__((unused)) typedef int ZYAN_MACRO_CONCAT_EXPAND(ZYAN_SASSERT_, __COUNTER__) [(x) ? 1 : -1]
 #else
 #   define ZYAN_STATIC_ASSERT(x) \
         typedef int ZYAN_MACRO_CONCAT_EXPAND(ZYAN_SASSERT_, __COUNTER__) [(x) ? 1 : -1]
