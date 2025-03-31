@@ -18,11 +18,11 @@ if cc.get_argument_syntax() == 'msvc'
   if get_option('b_lto')
     add_project_arguments(
       '/GL', # -flto
-      language: 'c',
+      language: ['c', 'cpp'],
     )
     add_project_link_arguments(
       '/LTCG',
-      language: 'c',
+      language: ['c', 'cpp'],
     )
   endif
 endif
@@ -89,8 +89,6 @@ if host_machine.system() == 'windows'
   src += windows.compile_resources('resources/VersionInfo.rc')
 endif
 
-root = not meson.is_subproject()
-
 nolibc = get_option('nolibc')
 
 examples = get_option('examples')
@@ -98,12 +96,12 @@ doc = get_option('doc')
 tests = get_option('tests')
 
 # Extra targets
-examples = examples.disable_if(nolibc)
-tests = tests.disable_if(nolibc)
+examples = examples.require(not nolibc)
+tests = tests.require(not nolibc)
 
-doc = doc.disable_auto_if(not root)
-examples = examples.disable_auto_if(not root).enable_auto_if(root)
-tests = tests.disable_auto_if(not root)
+doc = doc.disable_auto_if(meson.is_subproject())
+examples = examples.disable_auto_if(meson.is_subproject())
+tests = tests.disable_auto_if(meson.is_subproject())
 
 if nolibc
   add_project_arguments(
