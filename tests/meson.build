@@ -30,9 +30,9 @@ if tests_req
     ),
     protocol: 'gtest',
   )
-
-  summary(
-    {'tests': tests_req},
-    section: 'Features',
-  )
 endif
+
+summary(
+  {'tests': tests_req},
+  section: 'Features',
+)

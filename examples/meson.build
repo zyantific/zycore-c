@@ -1,4 +1,4 @@
-examples_req = examples.enabled()
+examples_req = examples.allowed()
 
 if examples_req
   executable('String', 'String.c', dependencies: [zycore_dep])
