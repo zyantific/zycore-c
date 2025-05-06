@@ -2,7 +2,7 @@ if (TARGET Zycore)
     return()
 endif ()
 
-cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.15")
     # Enable runtime library selection via CMAKE_MSVC_RUNTIME_LIBRARY
