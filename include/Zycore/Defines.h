@@ -154,6 +154,50 @@
 #   define ZYAN_PPC
 #elif defined(__riscv) && __riscv_xlen == 64
 #   define ZYAN_RISCV64
+#elif defined(__arc__)
+#   define ZYAN_ARC
+#elif defined(__s390x__)
+#   define ZYAN_S390
+#elif defined(__sparc__)
+#   define ZYAN_SPARC
+#elif defined(__mips__)
+#   define ZYAN_MIPS
+#elif defined(__riscv__) || defined(__riscv)
+#   define ZYAN_RISCV
+#else
+#   error "Unsupported architecture detected"
+#endif
+
+/* ============================================================================================== */
+/* Endianness detection                                                                           */
+/* ============================================================================================== */
+
+#if defined(__i386__)
+#define ZYAN_ENDIAN 0
+#elif defined(__EMSCRIPTEN__)
+#define ZYAN_ENDIAN 0
+#elif defined(__x86_64__)
+#define ZYAN_ENDIAN 0
+#elif defined(__POWERPC__)
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define ZYAN_ENDIAN 0
+#else
+#define ZYAN_ENDIAN 1
+#endif
+#elif defined(__arm__)
+#define ZYAN_ENDIAN 0
+#elif defined(__arm64__) || defined(__aarch64__)
+#define ZYAN_ENDIAN 0
+#elif defined(__arc__)
+#define ZYAN_ENDIAN 0
+#elif defined(__s390x__)
+#define ZYAN_ENDIAN 1
+#elif defined(__sparc__)
+#define ZYAN_ENDIAN 1
+#elif defined(__mips__)
+#define ZYAN_ENDIAN 1
+#elif defined(__riscv__) || defined(__riscv)
+#define ZYAN_ENDIAN 0
 #else
 #   error "Unsupported architecture detected"
 #endif
