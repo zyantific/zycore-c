@@ -57,6 +57,32 @@
  */
 #define ZYAN_MACRO_CONCAT_EXPAND(x, y) ZYAN_MACRO_CONCAT(x, y)
 
+/**
+ * Checks if a header can be included.
+ *
+ * @param name  Header file name.
+ *
+ * @return      True if header exists, false if it doesn't or it's not possible to check.
+ */
+#if defined(__has_include)
+#   define ZYAN_HAS_INCLUDE(name) __has_include(name)
+#else
+#   define ZYAN_HAS_INCLUDE(name) 0
+#endif
+
+/**
+ * Checks if a symbol is a recognized built-in function.
+ *
+ * @param symbol  Function name.
+ *
+ * @return        True if symbol is known, false otherwise.
+ */
+#if defined(__has_builtin)
+#   define ZYAN_HAS_BUILTIN(symbol) __has_builtin(symbol)
+#else
+#   define ZYAN_HAS_BUILTIN(symbol) 0
+#endif
+
 /* ============================================================================================== */
 /* Compiler detection                                                                             */
 /* ============================================================================================== */
@@ -152,10 +178,52 @@
 #   define ZYAN_PPC64
 #elif defined(__powerpc__)
 #   define ZYAN_PPC
-#elif defined(__riscv) && __riscv_xlen == 64
-#   define ZYAN_RISCV64
+#elif defined(__riscv) || defined(__riscv__)
+#   if __riscv_xlen == 64
+#       define ZYAN_RISCV64
+#   else
+#       define ZYAN_RISCV32
+#   endif
+#elif defined(__arc__)
+#   define ZYAN_ARC
+#elif defined(__s390x__)
+#   define ZYAN_S390
+#elif defined(__sparc__)
+#   define ZYAN_SPARC
+#elif defined(__mips__)
+#   define ZYAN_MIPS
 #else
 #   error "Unsupported architecture detected"
+#endif
+
+/* ============================================================================================== */
+/* Endianness detection                                                                           */
+/* ============================================================================================== */
+
+#define ZYAN_LITTLE_ENDIAN 0
+#define ZYAN_BIG_ENDIAN 1
+
+#if !defined(ZYAN_NO_LIBC) && ZYAN_HAS_INCLUDE(<stdbit.h>)
+#   include <stdbit.h>
+#   if __STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__
+#       define ZYAN_ENDIAN ZYAN_LITTLE_ENDIAN
+#   elif __STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_BIG__
+#       define ZYAN_ENDIAN ZYAN_BIG_ENDIAN
+#   else
+#       error "Unsupported endianness"
+#   endif
+#elif defined(__BYTE_ORDER__)
+#   if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#       define ZYAN_ENDIAN ZYAN_LITTLE_ENDIAN
+#   elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#       define ZYAN_ENDIAN ZYAN_BIG_ENDIAN
+#   else
+#       error "Unsupported endianness"
+#   endif
+#elif defined(ZYAN_S390) || defined(ZYAN_SPARC) || defined(ZYAN_MIPS)
+#   define ZYAN_ENDIAN ZYAN_BIG_ENDIAN
+#else
+#   define ZYAN_ENDIAN ZYAN_LITTLE_ENDIAN
 #endif
 
 /* ============================================================================================== */
@@ -264,8 +332,8 @@
 #   define ZYAN_NO_SANITIZE(what)
 #endif
 
-#if defined(ZYAN_MSVC) || defined(ZYAN_BORLAND)
-#   define ZYAN_INLINE __inline
+#if defined(ZYAN_BORLAND)
+#   define ZYAN_INLINE static __inline
 #else
 #   define ZYAN_INLINE static inline
 #endif
@@ -507,9 +575,9 @@
  */
 #if defined(ZYAN_LINUX) && defined(ZYAN_KERNEL)
 #   include <asm/div64.h> /* do_div */
-#   define ZYAN_DIV64(n, divisor) do_div(n, divisor)
+#   define ZYAN_DIV64(n, divisor) do_div((n), (divisor))
 #else
-#   define ZYAN_DIV64(n, divisor) (n /= divisor)
+#   define ZYAN_DIV64(n, divisor) ((n) /= (divisor))
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */
