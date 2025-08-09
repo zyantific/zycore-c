@@ -6,7 +6,7 @@ function (zyan_set_common_flags target)
     if (MSVC)
         # MSVC support for C11 is still pretty lacking, so we instead just disable the warnings
         # about using non-standard C extensions.
-        target_compile_options("${target}" PUBLIC "/wd4201")
+        target_compile_options("${target}" PUBLIC $<$<COMPILE_LANGUAGE:C,CXX>:/wd4201>)
     else ()
         # For the more civilized compilers, we go with C11.
         set_target_properties("${target}" PROPERTIES C_STANDARD 11)
@@ -15,7 +15,7 @@ function (zyan_set_common_flags target)
     if (ZYAN_DEV_MODE)
         # If in developer mode, be pedantic.
         if (MSVC)
-            target_compile_options("${target}" PUBLIC "/WX" "/W4")
+            target_compile_options("${target}" PUBLIC $<$<COMPILE_LANGUAGE:C,CXX>:/WX> $<$<COMPILE_LANGUAGE:C,CXX>:/W4>)
         else ()
             target_compile_options("${target}" PUBLIC "-Wall" "-pedantic" "-Wextra" "-Werror")
         endif ()
