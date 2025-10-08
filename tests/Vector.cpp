@@ -213,9 +213,9 @@ TEST(VectorTest, Destructor)
         ZYAN_ARRAY_LENGTH(buffer), reinterpret_cast<ZyanMemberProcedure>(&FreeZyanU16)), 
         ZYAN_STATUS_SUCCESS);
     
-    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(buffer); ++i)
+    for (ZyanU16 i = 0; i < ZYAN_ARRAY_LENGTH(buffer); ++i)
     {
-        const auto element = static_cast<ZyanU16>(i) + 0;
+        const ZyanU16 element = i + 0;
         ASSERT_EQ(ZyanVectorPushBack(&vector, &element), ZYAN_STATUS_SUCCESS);
         ASSERT_EQ(buffer[i], element);
     }
@@ -229,14 +229,14 @@ TEST(VectorTest, Destructor)
     ASSERT_EQ(buffer[14], 0);
 
     ASSERT_EQ(ZyanVectorClear(&vector), ZYAN_STATUS_SUCCESS);
-    for (ZyanUSize i : buffer)
+    for (auto i : buffer)
     {
         ASSERT_EQ(i, 0);
     }
 
-    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(buffer); ++i)
+    for (ZyanU16 i = 0; i < ZYAN_ARRAY_LENGTH(buffer); ++i)
     {
-        const auto element = static_cast<ZyanU16>(i) + 1;
+        const ZyanU16 element = i + 1;
         ASSERT_EQ(ZyanVectorPushBack(&vector, &element), ZYAN_STATUS_SUCCESS);
         ASSERT_EQ(buffer[i], element);
     }
