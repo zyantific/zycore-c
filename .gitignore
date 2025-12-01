@@ -98,3 +98,7 @@ doc/html
 /.vscode
 /.idea
 /cmake-build-*
+
+# subproject directories
+/subprojects/*
+!/subprojects/*.wrap
