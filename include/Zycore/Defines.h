@@ -476,7 +476,7 @@
 #if defined(__RESHARPER__)
 #   define ZYAN_PRINTF_ATTR(format_index, first_to_check) \
         [[gnu::format(printf, format_index, first_to_check)]]
-#elif defined(ZYAN_GCC)
+#elif defined(ZYAN_GNUC)
 #   define ZYAN_PRINTF_ATTR(format_index, first_to_check) \
         __attribute__((format(printf, format_index, first_to_check)))
 #else
