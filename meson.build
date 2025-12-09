@@ -14,19 +14,6 @@ project(
 
 cc = meson.get_compiler('c')
 
-if cc.get_argument_syntax() == 'msvc'
-  if get_option('b_lto')
-    add_project_arguments(
-      '/GL', # -flto
-      language: ['c', 'cpp'],
-    )
-    add_project_link_arguments(
-      '/LTCG',
-      language: ['c', 'cpp'],
-    )
-  endif
-endif
-
 inc = include_directories('include')
 
 dep = []
