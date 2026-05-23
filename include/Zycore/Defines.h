@@ -197,6 +197,9 @@
 #       define ZYAN_RISCV32
 #       define ZYAN_ARCHITECTURE_WIDTH 32
 #   endif
+#elif defined(__alpha__)
+#   define ZYAN_ALPHA
+#   define ZYAN_ARCHITECTURE_WIDTH 64
 #elif defined(__arc__)
 #   define ZYAN_ARC
 #elif defined(__s390x__)
