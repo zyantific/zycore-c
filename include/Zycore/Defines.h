@@ -183,10 +183,10 @@
 #elif defined(__loongarch__)
 #   define ZYAN_LOONGARCH
 #   define ZYAN_ARCHITECTURE_WIDTH 64
-#elif defined(__powerpc64__)
+#elif defined(__powerpc64__) || defined(__ppc64__)
 #   define ZYAN_PPC64
 #   define ZYAN_ARCHITECTURE_WIDTH 64
-#elif defined(__powerpc__)
+#elif defined(__powerpc__) || defined(__ppc__)
 #   define ZYAN_PPC
 #   define ZYAN_ARCHITECTURE_WIDTH 32
 #elif defined(__riscv) || defined(__riscv__)
