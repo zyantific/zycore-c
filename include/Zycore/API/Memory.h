@@ -182,7 +182,8 @@ ZYCORE_EXPORT ZyanStatus ZyanMemoryVirtualAlloc(void** address, ZyanUSize size,
  * `ZYAN_MEMORY_REGION_STATE_FREE`; on POSIX they are synthesized from the gaps between
  * mappings. On macOS a free region may report `base == address` rather than the true
  * lower bound of the gap; callers must rely only on `state`, `size`, and the invariant
- * above.
+ * above. The sole exception is `address` at the very top of the address space (the last
+ * representable byte), which is never mappable in practice.
  *
  * @return  A zyan status code.
  */

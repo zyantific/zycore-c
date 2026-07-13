@@ -33,7 +33,7 @@
 #elif defined(ZYAN_POSIX)
 #   include <unistd.h>
 #   include <stdio.h>
-#   if defined(__APPLE__)
+#   if defined(ZYAN_APPLE)
 #       include <mach/mach.h>
 #       include <mach/mach_vm.h>
 #   endif
@@ -206,7 +206,7 @@ ZyanStatus ZyanMemoryVirtualQuery(const void* address, ZyanMemoryRegionInfo* inf
     info->protection = (ZyanMemoryPageProtection)mbi.Protect;
     return ZYAN_STATUS_SUCCESS;
 
-#elif defined(__linux__)
+#elif defined(ZYAN_LINUX)
 
     const ZyanUPointer target = (ZyanUPointer)address;
     FILE* const maps = fopen("/proc/self/maps", "r");
@@ -262,7 +262,7 @@ ZyanStatus ZyanMemoryVirtualQuery(const void* address, ZyanMemoryRegionInfo* inf
     }
     return ZYAN_STATUS_SUCCESS;
 
-#elif defined(__APPLE__)
+#elif defined(ZYAN_APPLE)
 
     mach_vm_address_t region_addr = (mach_vm_address_t)(ZyanUPointer)address;
     mach_vm_size_t region_size = 0;
@@ -308,6 +308,17 @@ ZyanStatus ZyanMemoryVirtualQuery(const void* address, ZyanMemoryRegionInfo* inf
     info->protection = (ZyanMemoryPageProtection)prot;
     mach_port_deallocate(mach_task_self(), object_name);
     return ZYAN_STATUS_SUCCESS;
+
+#elif defined(ZYAN_POSIX)
+
+    // Other POSIX platforms have no portable virtual-memory query primitive.
+    // The inline-hook engine only needs this on Linux and macOS.
+    ZYAN_UNUSED(address);
+    info->base       = ZYAN_NULL;
+    info->size       = 0;
+    info->state      = ZYAN_MEMORY_REGION_STATE_FREE;
+    info->protection = (ZyanMemoryPageProtection)0;
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
 
 #else
 #   error "Unsupported platform detected"
