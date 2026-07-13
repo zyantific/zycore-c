@@ -42,6 +42,8 @@
 #   include <ucontext.h>
 #   include <semaphore.h>
 #   include <string.h>
+#   include <time.h>
+#   include <errno.h>
 #elif defined(ZYAN_APPLE)
 #   include <mach/mach.h>
 #   include <pthread.h>
@@ -441,9 +443,27 @@ ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id)
         return ZYAN_STATUS_BAD_SYSTEMCALL;
     }
 
-    while (sem_wait(&slot->parked) != 0)
+    // Wait for the target to park in the signal handler, but bounded: if the thread never runs the
+    // handler (for example, it is exiting, so the signal is dropped), an unbounded wait would
+    // deadlock. A live thread parks within microseconds, so a multi-second timeout reliably
+    // distinguishes a parked thread from an unresponsive one, which is retired and reported as a
+    // failed suspend so the caller can skip it.
+    struct timespec deadline;
+    if (clock_gettime(CLOCK_REALTIME, &deadline) != 0)
     {
-        // retry on EINTR
+        slot->active = 0;
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    deadline.tv_sec += 5;
+
+    while (sem_timedwait(&slot->parked, &deadline) != 0)
+    {
+        if (errno == EINTR)
+        {
+            continue;
+        }
+        slot->active = 0;
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
     }
     return ZYAN_STATUS_SUCCESS;
 }
