@@ -340,7 +340,9 @@ static void ZyanThreadControlHandler(int sig, siginfo_t* info, void* ucontext)
     }
 
     ucontext_t* const uc = (ucontext_t*)ucontext;
+#if defined(ZYAN_X64)
     slot->saved_ip = (ZyanUPointer)uc->uc_mcontext.gregs[REG_RIP];
+#endif
     sem_post(&slot->parked);
 
     while (sem_wait(&slot->resume) != 0)
@@ -350,7 +352,11 @@ static void ZyanThreadControlHandler(int sig, siginfo_t* info, void* ucontext)
 
     if (slot->apply_ip)
     {
+#if defined(ZYAN_X64)
         uc->uc_mcontext.gregs[REG_RIP] = (greg_t)slot->new_ip;
+#else
+        ZYAN_UNUSED(uc);
+#endif
     }
     sem_post(&slot->done);
 }
@@ -461,6 +467,7 @@ ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
 
 ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer* ip)
 {
+#if defined(ZYAN_X64)
     if (!ip)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -472,10 +479,16 @@ ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer*
     }
     *ip = slot->saved_ip;
     return ZYAN_STATUS_SUCCESS;
+#else
+    ZYAN_UNUSED(thread_id);
+    ZYAN_UNUSED(ip);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+#endif
 }
 
 ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer ip)
 {
+#if defined(ZYAN_X64)
     ZyanThreadParkSlot* const slot = ZyanFindSlot((pid_t)thread_id);
     if (!slot)
     {
@@ -484,6 +497,11 @@ ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer 
     slot->new_ip = ip;
     slot->apply_ip = 1;
     return ZYAN_STATUS_SUCCESS;
+#else
+    ZYAN_UNUSED(thread_id);
+    ZYAN_UNUSED(ip);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+#endif
 }
 
 #elif defined(ZYAN_APPLE)
