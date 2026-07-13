@@ -72,6 +72,60 @@ TEST(ThreadControlTest, EnumerateFindsSpawnedThreadsAndExcludesCurrent)
     ZyanVectorDestroy(&ids_incl);
 }
 
+TEST(ThreadControlTest, SuspendStopsProgressResumeContinues)
+{
+    std::atomic<bool> stop{false};
+    std::atomic<unsigned long> counter{0};
+    std::atomic<ZyanThreadId> worker_id{0};
+
+    std::thread worker([&]() {
+        ZyanThreadId self = 0;
+        // Publish this thread's enumeration id by finding the one that is not any other.
+        // Simpler: the worker just runs; the test finds the id by enumeration below.
+        ZYAN_UNUSED(self);
+        while (!stop.load()) { counter.fetch_add(1, std::memory_order_relaxed); }
+    });
+
+    // Find the worker's id: enumerate excluding current; there should be exactly one extra
+    // thread that keeps incrementing. We pick the id whose thread is making progress by
+    // suspending each candidate and checking the counter; but to keep it deterministic we
+    // run this test with only the worker as an extra thread.
+    ZyanVector ids;
+    ASSERT_EQ(ZyanVectorInit(&ids, sizeof(ZyanThreadId), 16,
+        reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL)), ZYAN_STATUS_SUCCESS);
+    // Give the worker a moment to start.
+    while (counter.load() < 1000) { std::this_thread::yield(); }
+    ASSERT_EQ(ZyanThreadEnumerate(&ids, ZYAN_FALSE), ZYAN_STATUS_SUCCESS);
+
+    // Suspend every enumerated thread (gtest has no other busy threads here), then verify the
+    // counter freezes.
+    ZyanUSize n = 0; ZyanVectorGetSize(&ids, &n);
+    for (ZyanUSize i = 0; i < n; ++i)
+    {
+        const ZyanThreadId id = *reinterpret_cast<const ZyanThreadId*>(ZyanVectorGet(&ids, i));
+        ASSERT_EQ(ZyanThreadSuspend(id), ZYAN_STATUS_SUCCESS);
+    }
+
+    const unsigned long a = counter.load();
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    const unsigned long b = counter.load();
+    EXPECT_EQ(a, b); // frozen while suspended
+
+    for (ZyanUSize i = 0; i < n; ++i)
+    {
+        const ZyanThreadId id = *reinterpret_cast<const ZyanThreadId*>(ZyanVectorGet(&ids, i));
+        ASSERT_EQ(ZyanThreadResume(id), ZYAN_STATUS_SUCCESS);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    EXPECT_GT(counter.load(), b); // progressing again after resume
+
+    stop.store(true);
+    worker.join();
+    ZyanVectorDestroy(&ids);
+    ZYAN_UNUSED(worker_id);
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

@@ -38,6 +38,10 @@
 #   include <unistd.h>
 #   include <dirent.h>
 #   include <stdlib.h>
+#   include <signal.h>
+#   include <ucontext.h>
+#   include <semaphore.h>
+#   include <string.h>
 #elif defined(ZYAN_APPLE)
 #   include <mach/mach.h>
 #   include <pthread.h>
@@ -175,5 +179,239 @@ ZyanStatus ZyanThreadEnumerate(ZyanVector* thread_ids, ZyanBool include_current)
 
 #endif
 }
+
+/* ============================================================================================== */
+/* Suspend / resume / instruction pointer                                                         */
+/* ============================================================================================== */
+
+#if defined(ZYAN_WINDOWS)
+
+ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id)
+{
+    const HANDLE handle = OpenThread(THREAD_SUSPEND_RESUME, ZYAN_FALSE, (DWORD)thread_id);
+    if (!handle)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    const DWORD result = SuspendThread(handle);
+    CloseHandle(handle);
+    return (result == (DWORD)-1) ? ZYAN_STATUS_BAD_SYSTEMCALL : ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
+{
+    const HANDLE handle = OpenThread(THREAD_SUSPEND_RESUME, ZYAN_FALSE, (DWORD)thread_id);
+    if (!handle)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    const DWORD result = ResumeThread(handle);
+    CloseHandle(handle);
+    return (result == (DWORD)-1) ? ZYAN_STATUS_BAD_SYSTEMCALL : ZYAN_STATUS_SUCCESS;
+}
+
+#elif defined(ZYAN_LINUX)
+
+// The suspend signal parks the target thread inside its handler until it is resumed, exposing and
+// optionally rewriting the thread's instruction pointer. A dedicated realtime signal is used so it
+// does not collide with application signal handlers. Suspends are serialised by the caller.
+#define ZYAN_THREAD_CONTROL_SIGNAL (SIGRTMIN + 6)
+
+typedef struct ZyanThreadParkSlot_
+{
+    volatile pid_t        tid;
+    volatile int          active;
+    sem_t                 parked;   // handler -> controller: "I am parked, saved_ip is valid"
+    sem_t                 resume;   // controller -> handler: "resume now"
+    sem_t                 done;     // handler -> controller: "I applied new_ip and am returning"
+    volatile ZyanUPointer saved_ip;
+    volatile ZyanUPointer new_ip;
+    volatile int          apply_ip;
+} ZyanThreadParkSlot;
+
+// Array of stable slot pointers. The pointer array may be reallocated, but individual slots never
+// move, so a handler parked on its slot pointer is never invalidated.
+static ZyanThreadParkSlot** g_slots = ZYAN_NULL;
+static ZyanUSize g_slot_count = 0;
+static ZyanUSize g_slot_capacity = 0;
+static volatile int g_handler_installed = 0;
+
+static pid_t ZyanGetTid(void)
+{
+    return (pid_t)syscall(SYS_gettid);
+}
+
+static ZyanThreadParkSlot* ZyanFindSlot(pid_t tid)
+{
+    for (ZyanUSize i = 0; i < g_slot_count; ++i)
+    {
+        if (g_slots[i]->active && (g_slots[i]->tid == tid))
+        {
+            return g_slots[i];
+        }
+    }
+    return ZYAN_NULL;
+}
+
+static void ZyanThreadControlHandler(int sig, siginfo_t* info, void* ucontext)
+{
+    ZYAN_UNUSED(sig);
+    ZYAN_UNUSED(info);
+
+    ZyanThreadParkSlot* const slot = ZyanFindSlot(ZyanGetTid());
+    if (!slot)
+    {
+        return; // spurious delivery for a thread we are not parking
+    }
+
+    ucontext_t* const uc = (ucontext_t*)ucontext;
+    slot->saved_ip = (ZyanUPointer)uc->uc_mcontext.gregs[REG_RIP];
+    sem_post(&slot->parked);
+
+    while (sem_wait(&slot->resume) != 0)
+    {
+        // retry on EINTR
+    }
+
+    if (slot->apply_ip)
+    {
+        uc->uc_mcontext.gregs[REG_RIP] = (greg_t)slot->new_ip;
+    }
+    sem_post(&slot->done);
+}
+
+static ZyanStatus ZyanThreadControlEnsureHandler(void)
+{
+    if (g_handler_installed)
+    {
+        return ZYAN_STATUS_SUCCESS;
+    }
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = &ZyanThreadControlHandler;
+    sa.sa_flags = SA_SIGINFO | SA_RESTART;
+    sigfillset(&sa.sa_mask);
+    if (sigaction(ZYAN_THREAD_CONTROL_SIGNAL, &sa, ZYAN_NULL) != 0)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    g_handler_installed = 1;
+    return ZYAN_STATUS_SUCCESS;
+}
+
+static ZyanThreadParkSlot* ZyanAcquireSlot(void)
+{
+    for (ZyanUSize i = 0; i < g_slot_count; ++i)
+    {
+        if (!g_slots[i]->active)
+        {
+            return g_slots[i];
+        }
+    }
+    if (g_slot_count == g_slot_capacity)
+    {
+        const ZyanUSize new_cap = g_slot_capacity ? (g_slot_capacity * 2) : 8;
+        ZyanThreadParkSlot** const grown =
+            (ZyanThreadParkSlot**)realloc(g_slots, new_cap * sizeof(ZyanThreadParkSlot*));
+        if (!grown)
+        {
+            return ZYAN_NULL;
+        }
+        g_slots = grown;
+        g_slot_capacity = new_cap;
+    }
+    ZyanThreadParkSlot* const slot = (ZyanThreadParkSlot*)malloc(sizeof(ZyanThreadParkSlot));
+    if (!slot)
+    {
+        return ZYAN_NULL;
+    }
+    memset(slot, 0, sizeof(*slot));
+    if ((sem_init(&slot->parked, 0, 0) != 0) ||
+        (sem_init(&slot->resume, 0, 0) != 0) ||
+        (sem_init(&slot->done, 0, 0) != 0))
+    {
+        free(slot);
+        return ZYAN_NULL;
+    }
+    g_slots[g_slot_count++] = slot;
+    return slot;
+}
+
+ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id)
+{
+    ZYAN_CHECK(ZyanThreadControlEnsureHandler());
+
+    ZyanThreadParkSlot* const slot = ZyanAcquireSlot();
+    if (!slot)
+    {
+        return ZYAN_STATUS_NOT_ENOUGH_MEMORY;
+    }
+
+    slot->tid      = (pid_t)thread_id;
+    slot->saved_ip = 0;
+    slot->new_ip   = 0;
+    slot->apply_ip = 0;
+    slot->active   = 1;               // publish before signalling
+    __sync_synchronize();
+
+    if (syscall(SYS_tgkill, getpid(), (pid_t)thread_id, ZYAN_THREAD_CONTROL_SIGNAL) != 0)
+    {
+        slot->active = 0;
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+
+    while (sem_wait(&slot->parked) != 0)
+    {
+        // retry on EINTR
+    }
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
+{
+    ZyanThreadParkSlot* const slot = ZyanFindSlot((pid_t)thread_id);
+    if (!slot)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    sem_post(&slot->resume);
+    while (sem_wait(&slot->done) != 0)
+    {
+        // retry on EINTR
+    }
+    slot->active = 0;                 // free the slot for reuse only after the handler returned
+    return ZYAN_STATUS_SUCCESS;
+}
+
+#elif defined(ZYAN_APPLE)
+
+ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id)
+{
+    return (thread_suspend((thread_act_t)thread_id) == KERN_SUCCESS)
+        ? ZYAN_STATUS_SUCCESS : ZYAN_STATUS_BAD_SYSTEMCALL;
+}
+
+ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
+{
+    return (thread_resume((thread_act_t)thread_id) == KERN_SUCCESS)
+        ? ZYAN_STATUS_SUCCESS : ZYAN_STATUS_BAD_SYSTEMCALL;
+}
+
+#elif defined(ZYAN_POSIX)
+
+ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id)
+{
+    ZYAN_UNUSED(thread_id);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+}
+
+ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
+{
+    ZYAN_UNUSED(thread_id);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+}
+
+#endif
 
 #endif /* ZYAN_NO_LIBC */
