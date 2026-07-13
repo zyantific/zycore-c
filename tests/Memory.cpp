@@ -86,6 +86,19 @@ TEST(MemoryTest, VirtualQueryReportsFreeRegion)
               reinterpret_cast<ZyanUPointer>(address));
 }
 
+TEST(MemoryTest, VirtualAllocFixedFailsWhenOccupied)
+{
+    void* address = ZYAN_NULL;
+    ASSERT_EQ(ZyanMemoryVirtualAlloc(&address, 0x1000, ZYAN_PAGE_READWRITE),
+        ZYAN_STATUS_SUCCESS);
+
+    void* occupied = address; // same, now-mapped base
+    EXPECT_NE(ZyanMemoryVirtualAlloc(&occupied, 0x1000, ZYAN_PAGE_READWRITE),
+        ZYAN_STATUS_SUCCESS);
+
+    ZyanMemoryVirtualFree(address, 0x1000);
+}
+
 /* ============================================================================================== */
 /* Entry point                                                                                    */
 /* ============================================================================================== */
