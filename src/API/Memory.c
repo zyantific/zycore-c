@@ -180,6 +180,140 @@ ZyanStatus ZyanMemoryVirtualAlloc(void** address, ZyanUSize size,
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZyanStatus ZyanMemoryVirtualQuery(const void* address, ZyanMemoryRegionInfo* info)
+{
+    if (!info)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+#if defined(ZYAN_WINDOWS)
+
+    MEMORY_BASIC_INFORMATION mbi;
+    if (VirtualQuery(address, &mbi, sizeof(mbi)) == 0)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    info->base = mbi.BaseAddress;
+    info->size = mbi.RegionSize;
+    switch (mbi.State)
+    {
+    case MEM_FREE:    info->state = ZYAN_MEMORY_REGION_STATE_FREE;      break;
+    case MEM_RESERVE: info->state = ZYAN_MEMORY_REGION_STATE_RESERVED;  break;
+    case MEM_COMMIT:  info->state = ZYAN_MEMORY_REGION_STATE_COMMITTED; break;
+    default:          info->state = ZYAN_MEMORY_REGION_STATE_FREE;      break;
+    }
+    info->protection = (ZyanMemoryPageProtection)mbi.Protect;
+    return ZYAN_STATUS_SUCCESS;
+
+#elif defined(__linux__)
+
+    const ZyanUPointer target = (ZyanUPointer)address;
+    FILE* const maps = fopen("/proc/self/maps", "r");
+    if (!maps)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+
+    char line[512];
+    ZyanUPointer prev_end = 0;
+    ZyanBool found = ZYAN_FALSE;
+    while (fgets(line, sizeof(line), maps))
+    {
+        unsigned long start, end;
+        char perms[5] = { 0 };
+        if (sscanf(line, "%lx-%lx %4s", &start, &end, perms) != 3)
+        {
+            continue;
+        }
+        if (target < start)
+        {
+            info->base       = (void*)prev_end;
+            info->size       = (ZyanUSize)(start - prev_end);
+            info->state      = ZYAN_MEMORY_REGION_STATE_FREE;
+            info->protection = (ZyanMemoryPageProtection)0;
+            found = ZYAN_TRUE;
+            break;
+        }
+        if (target < end)
+        {
+            int prot = 0;
+            if (perms[0] == 'r') prot |= PROT_READ;
+            if (perms[1] == 'w') prot |= PROT_WRITE;
+            if (perms[2] == 'x') prot |= PROT_EXEC;
+            info->base       = (void*)start;
+            info->size       = (ZyanUSize)(end - start);
+            info->state      = ZYAN_MEMORY_REGION_STATE_COMMITTED;
+            info->protection = (ZyanMemoryPageProtection)prot;
+            found = ZYAN_TRUE;
+            break;
+        }
+        prev_end = end;
+    }
+    fclose(maps);
+
+    if (!found)
+    {
+        // Above all mappings: free up to the top of the address space.
+        info->base       = (void*)prev_end;
+        info->size       = (ZyanUSize)(~(ZyanUPointer)0 - prev_end);
+        info->state      = ZYAN_MEMORY_REGION_STATE_FREE;
+        info->protection = (ZyanMemoryPageProtection)0;
+    }
+    return ZYAN_STATUS_SUCCESS;
+
+#elif defined(__APPLE__)
+
+    mach_vm_address_t region_addr = (mach_vm_address_t)(ZyanUPointer)address;
+    mach_vm_size_t region_size = 0;
+    vm_region_basic_info_data_64_t vinfo;
+    mach_msg_type_number_t count = VM_REGION_BASIC_INFO_COUNT_64;
+    mach_port_t object_name = MACH_PORT_NULL;
+
+    const kern_return_t kr = mach_vm_region(mach_task_self(), &region_addr, &region_size,
+        VM_REGION_BASIC_INFO_64, (vm_region_info_t)&vinfo, &count, &object_name);
+    if (kr == KERN_INVALID_ADDRESS)
+    {
+        info->base       = (void*)address;
+        info->size       = (ZyanUSize)(~(ZyanUPointer)0 - (ZyanUPointer)address);
+        info->state      = ZYAN_MEMORY_REGION_STATE_FREE;
+        info->protection = (ZyanMemoryPageProtection)0;
+        return ZYAN_STATUS_SUCCESS;
+    }
+    if (kr != KERN_SUCCESS)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+
+    // `mach_vm_region` returns the region at or above the queried address. If it starts
+    // above `address`, `address` sits in a free gap below it.
+    if ((ZyanUPointer)region_addr > (ZyanUPointer)address)
+    {
+        info->base       = (void*)address;
+        info->size       = (ZyanUSize)((ZyanUPointer)region_addr - (ZyanUPointer)address);
+        info->state      = ZYAN_MEMORY_REGION_STATE_FREE;
+        info->protection = (ZyanMemoryPageProtection)0;
+        // Release the send-right returned by mach_vm_region to avoid leaking a Mach port.
+        mach_port_deallocate(mach_task_self(), object_name);
+        return ZYAN_STATUS_SUCCESS;
+    }
+
+    int prot = 0;
+    if (vinfo.protection & VM_PROT_READ)    prot |= PROT_READ;
+    if (vinfo.protection & VM_PROT_WRITE)   prot |= PROT_WRITE;
+    if (vinfo.protection & VM_PROT_EXECUTE) prot |= PROT_EXEC;
+    info->base       = (void*)(ZyanUPointer)region_addr;
+    info->size       = (ZyanUSize)region_size;
+    info->state      = ZYAN_MEMORY_REGION_STATE_COMMITTED;
+    info->protection = (ZyanMemoryPageProtection)prot;
+    mach_port_deallocate(mach_task_self(), object_name);
+    return ZYAN_STATUS_SUCCESS;
+
+#else
+#   error "Unsupported platform detected"
+#endif
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */

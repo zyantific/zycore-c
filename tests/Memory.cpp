@@ -52,6 +52,40 @@ TEST(MemoryTest, VirtualAllocFreeRoundtrip)
     EXPECT_EQ(ZyanMemoryVirtualFree(address, 0x1000), ZYAN_STATUS_SUCCESS);
 }
 
+TEST(MemoryTest, VirtualQueryReportsCommittedRegion)
+{
+    void* address = ZYAN_NULL;
+    ASSERT_EQ(ZyanMemoryVirtualAlloc(&address, 0x1000, ZYAN_PAGE_READWRITE),
+        ZYAN_STATUS_SUCCESS);
+
+    ZyanMemoryRegionInfo info;
+    ASSERT_EQ(ZyanMemoryVirtualQuery(address, &info), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(info.state, ZYAN_MEMORY_REGION_STATE_COMMITTED);
+    EXPECT_LE(reinterpret_cast<ZyanUPointer>(info.base),
+              reinterpret_cast<ZyanUPointer>(address));
+    EXPECT_GE(reinterpret_cast<ZyanUPointer>(info.base) + info.size,
+              reinterpret_cast<ZyanUPointer>(address) + 0x1000);
+
+    ZyanMemoryVirtualFree(address, 0x1000);
+}
+
+TEST(MemoryTest, VirtualQueryReportsFreeRegion)
+{
+    // Allocate then free to obtain an address that is very likely unmapped afterwards.
+    void* address = ZYAN_NULL;
+    ASSERT_EQ(ZyanMemoryVirtualAlloc(&address, 0x1000, ZYAN_PAGE_READWRITE),
+        ZYAN_STATUS_SUCCESS);
+    ASSERT_EQ(ZyanMemoryVirtualFree(address, 0x1000), ZYAN_STATUS_SUCCESS);
+
+    ZyanMemoryRegionInfo info;
+    ASSERT_EQ(ZyanMemoryVirtualQuery(address, &info), ZYAN_STATUS_SUCCESS);
+    EXPECT_EQ(info.state, ZYAN_MEMORY_REGION_STATE_FREE);
+    EXPECT_LE(reinterpret_cast<ZyanUPointer>(info.base),
+              reinterpret_cast<ZyanUPointer>(address));
+    EXPECT_GT(reinterpret_cast<ZyanUPointer>(info.base) + info.size,
+              reinterpret_cast<ZyanUPointer>(address));
+}
+
 /* ============================================================================================== */
 /* Entry point                                                                                    */
 /* ============================================================================================== */
