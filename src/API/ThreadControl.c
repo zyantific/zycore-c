@@ -216,6 +216,7 @@ ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer*
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
+#if defined(ZYAN_X64) || defined(ZYAN_X86)
     const HANDLE handle = OpenThread(THREAD_GET_CONTEXT, ZYAN_FALSE, (DWORD)thread_id);
     if (!handle)
     {
@@ -230,16 +231,23 @@ ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer*
     {
         return ZYAN_STATUS_BAD_SYSTEMCALL;
     }
-#if defined(ZYAN_X64)
+#   if defined(ZYAN_X64)
     *ip = (ZyanUPointer)context.Rip;
-#else
+#   else
     *ip = (ZyanUPointer)context.Eip;
-#endif
+#   endif
     return ZYAN_STATUS_SUCCESS;
+#else
+    // Register access is only implemented for x86-64 (and x86) this round.
+    ZYAN_UNUSED(thread_id);
+    ZYAN_UNUSED(ip);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+#endif
 }
 
 ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer ip)
 {
+#if defined(ZYAN_X64) || defined(ZYAN_X86)
     const HANDLE handle = OpenThread(THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, ZYAN_FALSE,
         (DWORD)thread_id);
     if (!handle)
@@ -254,14 +262,20 @@ ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer 
         CloseHandle(handle);
         return ZYAN_STATUS_BAD_SYSTEMCALL;
     }
-#if defined(ZYAN_X64)
+#   if defined(ZYAN_X64)
     context.Rip = (DWORD64)ip;
-#else
+#   else
     context.Eip = (DWORD)ip;
-#endif
+#   endif
     const BOOL ok = SetThreadContext(handle, &context);
     CloseHandle(handle);
     return ok ? ZYAN_STATUS_SUCCESS : ZYAN_STATUS_BAD_SYSTEMCALL;
+#else
+    // Register access is only implemented for x86-64 (and x86) this round.
+    ZYAN_UNUSED(thread_id);
+    ZYAN_UNUSED(ip);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+#endif
 }
 
 #elif defined(ZYAN_LINUX)
@@ -492,6 +506,7 @@ ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer*
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
+#if defined(ZYAN_X64)
     x86_thread_state64_t state;
     mach_msg_type_number_t count = x86_THREAD_STATE64_COUNT;
     if (thread_get_state((thread_act_t)thread_id, x86_THREAD_STATE64,
@@ -501,10 +516,17 @@ ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer*
     }
     *ip = (ZyanUPointer)state.__rip;
     return ZYAN_STATUS_SUCCESS;
+#else
+    // Register access is only implemented for x86-64 this round.
+    ZYAN_UNUSED(thread_id);
+    ZYAN_UNUSED(ip);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+#endif
 }
 
 ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer ip)
 {
+#if defined(ZYAN_X64)
     x86_thread_state64_t state;
     mach_msg_type_number_t count = x86_THREAD_STATE64_COUNT;
     if (thread_get_state((thread_act_t)thread_id, x86_THREAD_STATE64,
@@ -519,6 +541,12 @@ ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer 
         return ZYAN_STATUS_BAD_SYSTEMCALL;
     }
     return ZYAN_STATUS_SUCCESS;
+#else
+    // Register access is only implemented for x86-64 this round.
+    ZYAN_UNUSED(thread_id);
+    ZYAN_UNUSED(ip);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+#endif
 }
 
 #elif defined(ZYAN_POSIX)
