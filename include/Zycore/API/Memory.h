@@ -38,6 +38,10 @@
 
 #ifndef ZYAN_NO_LIBC
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if   defined(ZYAN_WINDOWS)
 #   include <windows.h>
 #elif defined(ZYAN_POSIX)
@@ -73,6 +77,29 @@ typedef enum ZyanMemoryPageProtection_
 
 #endif
 } ZyanMemoryPageProtection;
+
+/**
+ * Defines the `ZyanMemoryRegionState` enum.
+ */
+typedef enum ZyanMemoryRegionState_
+{
+    ZYAN_MEMORY_REGION_STATE_FREE,
+    ZYAN_MEMORY_REGION_STATE_RESERVED,
+    ZYAN_MEMORY_REGION_STATE_COMMITTED
+} ZyanMemoryRegionState;
+
+/**
+ * Defines the `ZyanMemoryRegionInfo` struct returned by `ZyanMemoryVirtualQuery`.
+ *
+ * `protection` is only meaningful when `state` is `ZYAN_MEMORY_REGION_STATE_COMMITTED`.
+ */
+typedef struct ZyanMemoryRegionInfo_
+{
+    void* base;
+    ZyanUSize size;
+    ZyanMemoryRegionState state;
+    ZyanMemoryPageProtection protection;
+} ZyanMemoryRegionInfo;
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -128,9 +155,47 @@ ZYCORE_EXPORT ZyanStatus ZyanMemoryVirtualProtect(void* address, ZyanUSize size,
  */
 ZYCORE_EXPORT ZyanStatus ZyanMemoryVirtualFree(void* address, ZyanUSize size);
 
+/**
+ * Reserves and commits `size` bytes of memory with the given `protection`.
+ *
+ * @param   address     On entry, the requested base (aligned to the system allocation
+ *                      granularity) or `ZYAN_NULL` to let the system choose. On success,
+ *                      receives the actual base.
+ * @param   size        The number of bytes to allocate.
+ * @param   protection  The initial page protection.
+ *
+ * A non-null requested base that cannot be satisfied exactly fails with
+ * `ZYAN_STATUS_BAD_SYSTEMCALL` rather than allocating elsewhere.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanMemoryVirtualAlloc(void** address, ZyanUSize size,
+    ZyanMemoryPageProtection protection);
+
+/**
+ * Returns information about the virtual-memory region that contains `address`.
+ *
+ * @param   address The address to query.
+ * @param   info    Receives the region information.
+ *
+ * `base <= address < base + size` always holds. Free (unmapped) ranges are reported as
+ * `ZYAN_MEMORY_REGION_STATE_FREE`; on POSIX they are synthesized from the gaps between
+ * mappings. On macOS a free region may report `base == address` rather than the true
+ * lower bound of the gap; callers must rely only on `state`, `size`, and the invariant
+ * above.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanMemoryVirtualQuery(const void* address,
+    ZyanMemoryRegionInfo* info);
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ZYAN_NO_LIBC */
 

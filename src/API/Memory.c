@@ -32,6 +32,14 @@
 
 #elif defined(ZYAN_POSIX)
 #   include <unistd.h>
+#   include <stdio.h>
+#   if defined(__APPLE__)
+#       include <mach/mach.h>
+#       include <mach/mach_vm.h>
+#   endif
+#   if !defined(MAP_ANONYMOUS) && defined(MAP_ANON)
+#       define MAP_ANONYMOUS MAP_ANON
+#   endif
 #else
 #   error "Unsupported platform detected"
 #endif
@@ -123,6 +131,53 @@ ZyanStatus ZyanMemoryVirtualFree(void* address, ZyanUSize size)
 #endif
 
     return ZYAN_STATUS_SUCCESS;    
+}
+
+ZyanStatus ZyanMemoryVirtualAlloc(void** address, ZyanUSize size,
+    ZyanMemoryPageProtection protection)
+{
+    if (!address || (size == 0))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+#if defined(ZYAN_WINDOWS)
+
+    void* const result = VirtualAlloc(*address, size, MEM_RESERVE | MEM_COMMIT, protection);
+    if (!result)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    *address = result;
+
+#elif defined(ZYAN_POSIX)
+
+    int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+#if defined(MAP_FIXED_NOREPLACE)
+    if (*address)
+    {
+        flags |= MAP_FIXED_NOREPLACE;
+    }
+#endif
+
+    void* const result = mmap(*address, size, protection, flags, -1, 0);
+    if (result == MAP_FAILED)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+
+    // Reject rather than silently relocating when an exact base was requested but the
+    // kernel ignored the hint (e.g. a platform without `MAP_FIXED_NOREPLACE`).
+    if (*address && (result != *address))
+    {
+        munmap(result, size);
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    *address = result;
+
+#endif
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
