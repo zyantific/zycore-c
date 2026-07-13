@@ -255,6 +255,9 @@ ZYCORE_EXPORT ZyanStatus ZyanThreadEnumerate(ZyanVector* thread_ids, ZyanBool in
  * Suspends the given thread. The thread must belong to the current process and must not be the
  * calling thread.
  *
+ * All calls to `ZyanThreadSuspend` and `ZyanThreadResume` must be issued from a single controlling
+ * thread; they are not safe to call concurrently for the same or different target threads.
+ *
  * @param   thread_id   A thread id obtained from `ZyanThreadEnumerate`.
  *
  * @return  A zyan status code.
@@ -263,6 +266,9 @@ ZYCORE_EXPORT ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id);
 
 /**
  * Resumes a thread previously suspended with `ZyanThreadSuspend`.
+ *
+ * All calls to `ZyanThreadSuspend` and `ZyanThreadResume` must be issued from a single controlling
+ * thread; they are not safe to call concurrently for the same or different target threads.
  *
  * @param   thread_id   A thread id obtained from `ZyanThreadEnumerate`.
  *

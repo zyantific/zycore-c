@@ -231,9 +231,16 @@ typedef struct ZyanThreadParkSlot_
 
 // Array of stable slot pointers. The pointer array may be reallocated, but individual slots never
 // move, so a handler parked on its slot pointer is never invalidated.
+//
+// These globals are written by the controller thread (ZyanAcquireSlot) and read by the target
+// thread's signal handler (ZyanFindSlot). `tgkill` entering the kernel and the subsequent signal
+// delivery provide the memory barrier that publishes the controller's writes to the handler; that
+// is the same ordering guarantee other signal-based thread-stop implementations rely on. Suspends
+// are serialised by a single controller thread, so there are no concurrent writers. `volatile`
+// additionally prevents the compiler from caching the loop bound, matching the per-slot fields.
 static ZyanThreadParkSlot** g_slots = ZYAN_NULL;
-static ZyanUSize g_slot_count = 0;
-static ZyanUSize g_slot_capacity = 0;
+static volatile ZyanUSize g_slot_count = 0;
+static volatile ZyanUSize g_slot_capacity = 0;
 static volatile int g_handler_installed = 0;
 
 static pid_t ZyanGetTid(void)
