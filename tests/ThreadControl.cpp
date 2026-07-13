@@ -126,6 +126,64 @@ TEST(ThreadControlTest, SuspendStopsProgressResumeContinues)
     ZYAN_UNUSED(worker_id);
 }
 
+// Exposes the address just past its spin loop so the test can redirect the instruction pointer
+// there. `g_after_addr` is published once the thread is spinning.
+static volatile bool          g_ip_stop = false;
+static volatile bool          g_ip_reached_end = false;
+static void*                  g_after_addr = nullptr;
+static std::atomic<bool>      g_ip_running{false};
+
+static void IpSpinTarget()
+{
+    g_after_addr = &&after_loop;      // GCC/Clang labels-as-values extension
+    g_ip_running.store(true);
+loop:
+    if (!g_ip_stop) { goto loop; }
+after_loop:
+    g_ip_reached_end = true;
+}
+
+TEST(ThreadControlTest, SetInstructionPointerRedirectsExecution)
+{
+    g_ip_stop = false;
+    g_ip_reached_end = false;
+    g_after_addr = nullptr;
+    g_ip_running.store(false);
+
+    std::thread worker(IpSpinTarget);
+    while (!g_ip_running.load() || (g_after_addr == nullptr)) { std::this_thread::yield(); }
+
+    ZyanVector ids;
+    ASSERT_EQ(ZyanVectorInit(&ids, sizeof(ZyanThreadId), 16,
+        reinterpret_cast<ZyanMemberProcedure>(ZYAN_NULL)), ZYAN_STATUS_SUCCESS);
+    ASSERT_EQ(ZyanThreadEnumerate(&ids, ZYAN_FALSE), ZYAN_STATUS_SUCCESS);
+    ZyanUSize n = 0; ZyanVectorGetSize(&ids, &n);
+    ASSERT_GE(n, static_cast<ZyanUSize>(1));
+
+    // Suspend the (single) worker, read its IP, redirect it past the loop, resume.
+    const ZyanThreadId id = *reinterpret_cast<const ZyanThreadId*>(ZyanVectorGet(&ids, 0));
+    ASSERT_EQ(ZyanThreadSuspend(id), ZYAN_STATUS_SUCCESS);
+
+    ZyanUPointer ip = 0;
+    ASSERT_EQ(ZyanThreadGetInstructionPointer(id, &ip), ZYAN_STATUS_SUCCESS);
+    EXPECT_NE(ip, static_cast<ZyanUPointer>(0));
+
+    ASSERT_EQ(ZyanThreadSetInstructionPointer(id, reinterpret_cast<ZyanUPointer>(g_after_addr)),
+        ZYAN_STATUS_SUCCESS);
+    ASSERT_EQ(ZyanThreadResume(id), ZYAN_STATUS_SUCCESS);
+
+    // Without ever setting g_ip_stop, the thread must reach the end because we moved its IP.
+    for (int i = 0; (i < 1000) && !g_ip_reached_end; ++i)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    EXPECT_TRUE(g_ip_reached_end);
+
+    g_ip_stop = true; // safety net if the redirect did not take
+    worker.join();
+    ZyanVectorDestroy(&ids);
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

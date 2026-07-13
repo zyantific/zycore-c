@@ -210,6 +210,60 @@ ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
     return (result == (DWORD)-1) ? ZYAN_STATUS_BAD_SYSTEMCALL : ZYAN_STATUS_SUCCESS;
 }
 
+ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer* ip)
+{
+    if (!ip)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    const HANDLE handle = OpenThread(THREAD_GET_CONTEXT, ZYAN_FALSE, (DWORD)thread_id);
+    if (!handle)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    CONTEXT context;
+    ZYAN_MEMSET(&context, 0, sizeof(context));
+    context.ContextFlags = CONTEXT_CONTROL;
+    const BOOL ok = GetThreadContext(handle, &context);
+    CloseHandle(handle);
+    if (!ok)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+#if defined(ZYAN_X64)
+    *ip = (ZyanUPointer)context.Rip;
+#else
+    *ip = (ZyanUPointer)context.Eip;
+#endif
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer ip)
+{
+    const HANDLE handle = OpenThread(THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, ZYAN_FALSE,
+        (DWORD)thread_id);
+    if (!handle)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    CONTEXT context;
+    ZYAN_MEMSET(&context, 0, sizeof(context));
+    context.ContextFlags = CONTEXT_CONTROL;
+    if (!GetThreadContext(handle, &context))
+    {
+        CloseHandle(handle);
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+#if defined(ZYAN_X64)
+    context.Rip = (DWORD64)ip;
+#else
+    context.Eip = (DWORD)ip;
+#endif
+    const BOOL ok = SetThreadContext(handle, &context);
+    CloseHandle(handle);
+    return ok ? ZYAN_STATUS_SUCCESS : ZYAN_STATUS_BAD_SYSTEMCALL;
+}
+
 #elif defined(ZYAN_LINUX)
 
 // The suspend signal parks the target thread inside its handler until it is resumed, exposing and
@@ -391,6 +445,33 @@ ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer* ip)
+{
+    if (!ip)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    ZyanThreadParkSlot* const slot = ZyanFindSlot((pid_t)thread_id);
+    if (!slot)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    *ip = slot->saved_ip;
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer ip)
+{
+    ZyanThreadParkSlot* const slot = ZyanFindSlot((pid_t)thread_id);
+    if (!slot)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    slot->new_ip = ip;
+    slot->apply_ip = 1;
+    return ZYAN_STATUS_SUCCESS;
+}
+
 #elif defined(ZYAN_APPLE)
 
 ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id)
@@ -405,6 +486,41 @@ ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
         ? ZYAN_STATUS_SUCCESS : ZYAN_STATUS_BAD_SYSTEMCALL;
 }
 
+ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer* ip)
+{
+    if (!ip)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    x86_thread_state64_t state;
+    mach_msg_type_number_t count = x86_THREAD_STATE64_COUNT;
+    if (thread_get_state((thread_act_t)thread_id, x86_THREAD_STATE64,
+        (thread_state_t)&state, &count) != KERN_SUCCESS)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    *ip = (ZyanUPointer)state.__rip;
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer ip)
+{
+    x86_thread_state64_t state;
+    mach_msg_type_number_t count = x86_THREAD_STATE64_COUNT;
+    if (thread_get_state((thread_act_t)thread_id, x86_THREAD_STATE64,
+        (thread_state_t)&state, &count) != KERN_SUCCESS)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    state.__rip = (uint64_t)ip;
+    if (thread_set_state((thread_act_t)thread_id, x86_THREAD_STATE64,
+        (thread_state_t)&state, x86_THREAD_STATE64_COUNT) != KERN_SUCCESS)
+    {
+        return ZYAN_STATUS_BAD_SYSTEMCALL;
+    }
+    return ZYAN_STATUS_SUCCESS;
+}
+
 #elif defined(ZYAN_POSIX)
 
 ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id)
@@ -416,6 +532,20 @@ ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id)
 ZyanStatus ZyanThreadResume(ZyanThreadId thread_id)
 {
     ZYAN_UNUSED(thread_id);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+}
+
+ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer* ip)
+{
+    ZYAN_UNUSED(thread_id);
+    ZYAN_UNUSED(ip);
+    return ZYAN_STATUS_BAD_SYSTEMCALL;
+}
+
+ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer ip)
+{
+    ZYAN_UNUSED(thread_id);
+    ZYAN_UNUSED(ip);
     return ZYAN_STATUS_BAD_SYSTEMCALL;
 }
 
