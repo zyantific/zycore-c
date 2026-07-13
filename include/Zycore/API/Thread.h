@@ -34,6 +34,7 @@
 
 #include <Zycore/Defines.h>
 #include <Zycore/Status.h>
+#include <Zycore/Vector.h>
 
 #ifndef ZYAN_NO_LIBC
 
@@ -229,6 +230,66 @@ ZYCORE_EXPORT ZyanStatus ZyanThreadTlsGetValue(ZyanThreadTlsIndex index, void** 
  * @return  A zyan status code.
  */
 ZYCORE_EXPORT ZyanStatus ZyanThreadTlsSetValue(ZyanThreadTlsIndex index, void* data);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Thread control                                                                                 */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Enumerates the threads of the current process.
+ *
+ * @param   thread_ids      A `ZyanVector` (element size `sizeof(ZyanThreadId)`), initialised by
+ *                          the caller, that receives the thread ids.
+ * @param   include_current `ZYAN_TRUE` to include the calling thread, `ZYAN_FALSE` to exclude it.
+ *
+ * The ids produced here are the only values accepted by `ZyanThreadSuspend`, `ZyanThreadResume`,
+ * `ZyanThreadGetInstructionPointer`, and `ZyanThreadSetInstructionPointer`. Their concrete meaning
+ * is platform specific (kernel thread id on Linux, thread id on Windows, mach thread port on
+ * macOS) and must not be compared against values from `ZyanThreadGetCurrentThreadId`.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadEnumerate(ZyanVector* thread_ids, ZyanBool include_current);
+
+/**
+ * Suspends the given thread. The thread must belong to the current process and must not be the
+ * calling thread.
+ *
+ * @param   thread_id   A thread id obtained from `ZyanThreadEnumerate`.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadSuspend(ZyanThreadId thread_id);
+
+/**
+ * Resumes a thread previously suspended with `ZyanThreadSuspend`.
+ *
+ * @param   thread_id   A thread id obtained from `ZyanThreadEnumerate`.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadResume(ZyanThreadId thread_id);
+
+/**
+ * Reads the instruction pointer of a currently suspended thread.
+ *
+ * @param   thread_id   A thread id obtained from `ZyanThreadEnumerate`, currently suspended.
+ * @param   ip          Receives the instruction pointer.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadGetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer* ip);
+
+/**
+ * Sets the instruction pointer of a currently suspended thread. The new value takes effect when
+ * the thread is resumed.
+ *
+ * @param   thread_id   A thread id obtained from `ZyanThreadEnumerate`, currently suspended.
+ * @param   ip          The new instruction pointer.
+ *
+ * @return  A zyan status code.
+ */
+ZYCORE_EXPORT ZyanStatus ZyanThreadSetInstructionPointer(ZyanThreadId thread_id, ZyanUPointer ip);
 
 /* ---------------------------------------------------------------------------------------------- */
 

@@ -175,6 +175,7 @@ target_sources("Zycore"
         "src/API/Synchronization.c"
         "src/API/Terminal.c"
         "src/API/Thread.c"
+        "src/API/ThreadControl.c"
         # Common
         "src/Allocator.c"
         "src/ArgParse.c"
@@ -278,7 +279,7 @@ endif ()
 
 function (zyan_add_test test)
     add_executable("Test${test}" "tests/${test}.cpp")
-    target_link_libraries("Test${test}" "Zycore" "gtest")
+    target_link_libraries("Test${test}" "Zycore" "gtest" Threads::Threads)
     set_target_properties("Test${test}" PROPERTIES
         LANGUAGE CXX
         CXX_STANDARD 17
@@ -294,10 +295,12 @@ endfunction ()
 if (ZYCORE_BUILD_TESTS)
     enable_language(CXX)
     enable_testing()
+    find_package(Threads REQUIRED)
     zyan_add_test("String")
     zyan_add_test("Vector")
     zyan_add_test("ArgParse")
     zyan_add_test("Memory")
+    zyan_add_test("ThreadControl")
 endif ()
 
 # =============================================================================================== #
