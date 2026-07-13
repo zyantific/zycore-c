@@ -132,33 +132,25 @@ TEST(ThreadControlTest, SuspendStopsProgressResumeContinues)
 // Only used by the labels-as-values based spin target below, so the whole block is guarded to
 // avoid unused-variable warnings on compilers that fall into the GTEST_SKIP path.
 #if defined(ZYAN_GNUC)
-static std::atomic<bool>      g_ip_stop{false};
-static std::atomic<bool>      g_ip_reached_end{false};
-static void*                  g_after_addr = nullptr;
-static std::atomic<bool>      g_ip_running{false};
-
-// Two known-safe redirect points within the spin loop: the top of the loop (before the atomic
-// call) and right after `load()` returns. `atomic<bool>::load` is not guaranteed to compile to a
-// single instruction, so a suspend can land inside that call; redirecting RIP away from there
-// would abandon the call's stack frame. The test below retries until it catches the worker at
-// one of these two points, where the stack is guaranteed to match IpSpinTarget's own frame.
-static void*                  g_loop_addr = nullptr;
-static void*                  g_safe_after_load_addr = nullptr;
+// g_ip_stop and g_ip_reached_end are intentionally `volatile bool`, not std::atomic: the spin
+// loop's condition must compile to an inline memory read with NO function call, so that whenever
+// the worker is suspended its instruction pointer is inside IpSpinTarget's own stack frame. That
+// is what makes redirecting the IP to `after_loop` (a same-frame jump) stack-safe. An atomic load
+// can compile to a real call, and suspending the worker inside that call would corrupt its stack
+// when the IP is redirected away.
+static volatile bool     g_ip_stop = false;
+static volatile bool     g_ip_reached_end = false;
+static void*             g_after_addr = nullptr;
+static std::atomic<bool> g_ip_running{false};
 
 static void IpSpinTarget()
 {
     g_after_addr = &&after_loop;      // GCC/Clang labels-as-values extension
-    g_loop_addr = &&loop;
-    g_safe_after_load_addr = &&safe_after_load;
     g_ip_running.store(true);
 loop:
-    {
-        const bool stop = g_ip_stop.load();
-    safe_after_load:
-        if (!stop) { goto loop; }
-    }
+    if (!g_ip_stop) { goto loop; }
 after_loop:
-    g_ip_reached_end.store(true);
+    g_ip_reached_end = true;
 }
 #endif
 
@@ -167,8 +159,8 @@ TEST(ThreadControlTest, SetInstructionPointerRedirectsExecution)
 #if !defined(ZYAN_GNUC)
     GTEST_SKIP() << "requires the computed-goto (labels-as-values) extension";
 #else
-    g_ip_stop.store(false);
-    g_ip_reached_end.store(false);
+    g_ip_stop = false;
+    g_ip_reached_end = false;
     g_after_addr = nullptr;
     g_ip_running.store(false);
 
@@ -182,40 +174,24 @@ TEST(ThreadControlTest, SetInstructionPointerRedirectsExecution)
     ZyanUSize n = 0; ZyanVectorGetSize(&ids, &n);
     ASSERT_GE(n, static_cast<ZyanUSize>(1));
 
-    // Suspend the (single) worker and read its IP, retrying until it is caught at one of the two
-    // known-safe points (see the comment above `g_loop_addr`); redirecting from anywhere else
-    // would abandon a live call frame and corrupt the worker's stack.
     const ZyanThreadId id = *reinterpret_cast<const ZyanThreadId*>(ZyanVectorGet(&ids, 0));
+    ASSERT_EQ(ZyanThreadSuspend(id), ZYAN_STATUS_SUCCESS);
+
     ZyanUPointer ip = 0;
-    bool caught_at_safe_point = false;
-    for (int attempt = 0; attempt < 100000; ++attempt)
-    {
-        ASSERT_EQ(ZyanThreadSuspend(id), ZYAN_STATUS_SUCCESS);
-        ASSERT_EQ(ZyanThreadGetInstructionPointer(id, &ip), ZYAN_STATUS_SUCCESS);
-        if ((ip == reinterpret_cast<ZyanUPointer>(g_loop_addr)) ||
-            (ip == reinterpret_cast<ZyanUPointer>(g_safe_after_load_addr)))
-        {
-            caught_at_safe_point = true;
-            break;
-        }
-        ASSERT_EQ(ZyanThreadResume(id), ZYAN_STATUS_SUCCESS);
-        std::this_thread::sleep_for(std::chrono::microseconds(5));
-    }
-    ASSERT_TRUE(caught_at_safe_point);
+    ASSERT_EQ(ZyanThreadGetInstructionPointer(id, &ip), ZYAN_STATUS_SUCCESS);
     EXPECT_NE(ip, static_cast<ZyanUPointer>(0));
 
     ASSERT_EQ(ZyanThreadSetInstructionPointer(id, reinterpret_cast<ZyanUPointer>(g_after_addr)),
         ZYAN_STATUS_SUCCESS);
     ASSERT_EQ(ZyanThreadResume(id), ZYAN_STATUS_SUCCESS);
 
-    // Without ever setting g_ip_stop, the thread must reach the end because we moved its IP.
-    for (int i = 0; (i < 1000) && !g_ip_reached_end.load(); ++i)
+    for (int i = 0; (i < 1000) && !g_ip_reached_end; ++i)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    EXPECT_TRUE(g_ip_reached_end.load());
+    EXPECT_TRUE(g_ip_reached_end);
 
-    g_ip_stop.store(true); // safety net if the redirect did not take
+    g_ip_stop = true; // safety net if the redirect did not take
     worker.join();
     ZyanVectorDestroy(&ids);
 #endif
