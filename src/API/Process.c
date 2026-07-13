@@ -36,7 +36,6 @@
 #      include <windows.h>
 #endif
 #elif defined(ZYAN_POSIX)
-#   include <sys/mman.h>
 #else
 #   error "Unsupported platform detected"
 #endif
@@ -60,10 +59,12 @@ ZyanStatus ZyanProcessFlushInstructionCache(void* address, ZyanUSize size)
 
 #elif defined(ZYAN_POSIX)
 
-    if (msync(address, size, MS_SYNC | MS_INVALIDATE))
-    {
-        return ZYAN_STATUS_BAD_SYSTEMCALL;
-    }
+    // `__builtin___clear_cache` is the portable GCC/Clang primitive for flushing the instruction
+    // cache over a byte range: a no-op on coherent-icache architectures (x86) and the required
+    // cache-maintenance elsewhere (AArch64). Unlike `msync` it has no page-alignment requirement
+    // and is the correct operation for freshly written code; `msync` synchronises file-backed
+    // mappings, which is wrong here and rejects the unaligned anonymous addresses this receives.
+    __builtin___clear_cache((char*)address, (char*)address + size);
 
 #endif
 
