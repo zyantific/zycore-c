@@ -588,7 +588,7 @@
  *
  * Note that this macro only works for powers of 2.
  */
-#define ZYAN_ALIGN_DOWN(x, align) (((x) - 1) & ~((align) - 1))
+#define ZYAN_ALIGN_DOWN(x, align) ((x) & ~((align) - 1))
 
 /**
  * Divide the 64bit integer value by the given divisor.
