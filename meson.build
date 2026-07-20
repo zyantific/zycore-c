@@ -7,25 +7,12 @@ project(
   meson_version: '>=1.3',
   default_options: [
     'c_std=c11',
-    'cpp_std=c++17,vc++17',
+    'cpp_std=c++17',
     'warning_level=3',
   ],
 )
 
 cc = meson.get_compiler('c')
-
-if cc.get_argument_syntax() == 'msvc'
-  if get_option('b_lto')
-    add_project_arguments(
-      '/GL', # -flto
-      language: ['c', 'cpp'],
-    )
-    add_project_link_arguments(
-      '/LTCG',
-      language: ['c', 'cpp'],
-    )
-  endif
-endif
 
 inc = include_directories('include')
 
@@ -103,9 +90,10 @@ doc = doc.disable_auto_if(meson.is_subproject())
 examples = examples.disable_auto_if(meson.is_subproject())
 tests = tests.disable_auto_if(meson.is_subproject())
 
+predef = nolibc ? ['ZYAN_NO_LIBC'] : []
+
 if nolibc
   add_project_arguments(
-    '-DZYAN_NO_LIBC',
     '-fno-stack-protector',
     language: 'c',
   )
@@ -117,11 +105,18 @@ elif host_machine.system() == 'linux'
   dep += dependency('threads')
 endif
 
+predef_cflags = []
+foreach def : predef
+  predef_cflags += f'-D@def@'
+endforeach
+
+add_project_arguments(predef_cflags, language: ['c', 'cpp'])
+
 zycore_lib = library(
   'Zycore',
   src + hdrs,
-  c_static_args: ['-DZYCORE_STATIC_BUILD'],
-  c_shared_args: ['-DZYCORE_SHOULD_EXPORT'],
+  c_static_args: '-DZYCORE_STATIC_BUILD',
+  c_shared_args: '-DZYCORE_SHOULD_EXPORT',
   link_args: (nolibc and cc.get_linker_id().startswith('ld.')) ? ['-nostdlib', '-nodefaultlibs'] : [],
   gnu_symbol_visibility: 'hidden',
   include_directories: inc,
@@ -135,28 +130,39 @@ install_headers(hdrs_common, subdir: 'Zycore')
 install_headers(hdrs_api, subdir: 'Zycore/API')
 install_headers(hdrs_internal, subdir: 'Zycore/Internal')
 
-extra_cflags = nolibc ? ['-DZYAN_NO_LIBC'] : []
-
-# Note: on MSVC, define ZYCORE_STATIC_BUILD accordingly in the user project.
-zycore_dep = declare_dependency(
-  include_directories: inc,
-  link_with: zycore_lib,
-  compile_args: extra_cflags,
+meson.override_dependency(
+  'zycore',
+  declare_dependency(
+    include_directories: inc,
+    link_with: zycore_lib,
+    compile_args: predef_cflags,
+  ),
+  static: false,
 )
+meson.override_dependency(
+  'zycore',
+  declare_dependency(
+    include_directories: inc,
+    link_with: zycore_lib,
+    compile_args: predef_cflags + '-DZYCORE_STATIC_BUILD',
+  ),
+  static: true,
+)
+zycore_dep = dependency('zycore')
+
+pkg = import('pkgconfig', required: false)
+if pkg.found()
+  pkg.generate(
+    zycore_lib,
+    extra_cflags: predef_cflags,
+    name: 'zycore',
+    description: 'Zyan Core Library for C',
+    url: 'https://github.com/zyantific/zycore-c',
+  )
+endif
 
 subdir('examples')
 subdir('tests')
-
-pkg = import('pkgconfig')
-pkg.generate(
-  zycore_lib,
-  name: 'zycore',
-  description: 'Zyan Core Library for C',
-  url: 'https://github.com/zyantific/zycore-c',
-  extra_cflags: extra_cflags,
-)
-
-meson.override_dependency('zycore', zycore_dep)
 
 doxygen_exe = find_program('doxygen', required: doc)
 doc_req = doxygen_exe.found()
@@ -184,7 +190,7 @@ if doc_req
     cdata.set('HTML_FORMULA_FORMAT', 'png')
   endif
 
-  cdata.set('PREDEFINED', nolibc ? 'ZYAN_NO_LIBC' : '')
+  cdata.set('PREDEFINED', ' '.join(predef))
 
   doxyfile = configure_file(
     input: 'Doxyfile.in',
@@ -193,7 +199,6 @@ if doc_req
     install: false,
   )
 
-  datadir = join_paths(get_option('datadir'), 'doc', 'Zycore')
   custom_target(
     'ZycoreDoc',
     input: doxyfile,
@@ -201,7 +206,7 @@ if doc_req
     command: [doxygen_exe, doxyfile],
     depend_files: [hdrs],
     install: true,
-    install_dir: datadir,
+    install_dir: get_option('datadir') / 'doc' / 'Zycore',
   )
 
   summary(
