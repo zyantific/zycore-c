@@ -30,6 +30,15 @@ if tests_req
     ),
     protocol: 'gtest',
   )
+  test(
+    'format',
+    executable(
+      'test_format',
+      'Format.cpp',
+      dependencies: [gtest_dep, zycore_dep],
+    ),
+    protocol: 'gtest',
+  )
 endif
 
 summary(

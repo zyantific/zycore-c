@@ -40,21 +40,12 @@
 #define ZYCORE_MAXCHARS_HEX_32  8
 #define ZYCORE_MAXCHARS_HEX_64 16
 
-/* ---------------------------------------------------------------------------------------------- */
-/* Lookup Tables                                                                                  */
-/* ---------------------------------------------------------------------------------------------- */
-
-static const char* const DECIMAL_LOOKUP =
-    "00010203040506070809"
-    "10111213141516171819"
-    "20212223242526272829"
-    "30313233343536373839"
-    "40414243444546474849"
-    "50515253545556575859"
-    "60616263646566676869"
-    "70717273747576777879"
-    "80818283848586878889"
-    "90919293949596979899";
+/**
+ * Extra capacity reserved past the formatted digits. The SWAR fixed-width (4/8-byte) stores may
+ * write up to 7 bytes past the last digit; the overrun lands only in this slack, is never counted
+ * in `size`, and is overwritten by the terminating '\0'.
+ */
+#define ZYCORE_FMT_SLACK 8
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Static strings                                                                                 */
@@ -80,6 +71,138 @@ static const ZyanStringView STR_SUB = ZYAN_DEFINE_STRING_VIEW("-");
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
+/* SWAR integer -> ASCII cores (table-free)                                                       */
+/* ---------------------------------------------------------------------------------------------- */
+
+/*
+ * Table-free integer-to-ASCII via SWAR (SIMD Within A Register): the packers convert several
+ * digits at once inside one 32/64-bit word. Decimal packs two digits per 16-bit lane using a
+ * fixed-point reciprocal (`* 103 >> 10` == `/ 10` for a 0..99 lane); hexadecimal spreads the
+ * nibbles one-per-byte and maps them to ASCII arithmetically. Each packer puts the
+ * most-significant character in byte 0; `ZyanStoreLE32`/`ZyanStoreLE64` then commit the word to
+ * memory in that order on any host (a plain store on little-endian, a byte-swap first on big-
+ * endian) -- the only endianness-aware step, so one code path serves both.
+ *
+ * These are established SWAR idioms, not a single named algorithm. The branchless hex mapping (the
+ * `> 9` mask plus 0x07 / 0x27 bias) is described by W. Muła:
+ *   https://web.archive.org/web/20260517061800/http://0x80.pl/notesen/2010-06-09-brancheless-hex-print.html
+ * The decimal packing is the classic reciprocal-per-lane SWAR itoa (T. Mathisen's lineage); the
+ * divide-by-constant reciprocals are standard bit-twiddling, see Warren, "Hacker's Delight".
+ */
+
+ZYAN_INLINE void ZyanStoreLE32(void* dst, ZyanU32 word)
+{
+#if ZYAN_ENDIAN == ZYAN_BIG_ENDIAN
+    word = ZYAN_BYTESWAP32(word);
+#endif
+    ZYAN_MEMCPY(dst, &word, 4);
+}
+
+ZYAN_INLINE void ZyanStoreLE64(void* dst, ZyanU64 word)
+{
+#if ZYAN_ENDIAN == ZYAN_BIG_ENDIAN
+    word = ZYAN_BYTESWAP64(word);
+#endif
+    ZYAN_MEMCPY(dst, &word, 8);
+}
+
+/**
+ * Converts `x` (< 10000) to 4 packed ASCII bytes, most-significant digit in byte 0.
+ */
+ZYAN_INLINE ZyanU32 ZyanDec4Lanes(ZyanU32 x)
+{
+    const ZyanU32 a    = x / 100, b = x % 100;
+    const ZyanU32 p    = a | (b << 16);                     // two 2-digit values, one per 16-bit lane
+    const ZyanU32 tens = ((p * 103u) >> 10) & 0x000F000Fu;  // (v * 103) >> 10 == v / 10 for v < 100
+    const ZyanU32 ones = p - tens * 10u;
+    return (tens | (ones << 8)) + 0x30303030u;
+}
+
+/**
+ * Converts `x` (< 10^8) to 8 packed ASCII bytes, most-significant digit in byte 0.
+ */
+ZYAN_INLINE ZyanU64 ZyanDec8Lanes(ZyanU32 x)
+{
+    return (ZyanU64)ZyanDec4Lanes(x / 10000u) | ((ZyanU64)ZyanDec4Lanes(x % 10000u) << 32);
+}
+
+/**
+ * Converts the 8 nibbles of `x` to 8 packed ASCII hex bytes, least-significant nibble in byte 0.
+ * `bias` is 0x27 (lowercase) or 0x07 (uppercase), added to each lane > 9 to step '9'+1 onto 'a'/'A'.
+ */
+ZYAN_INLINE ZyanU64 ZyanHex8Lanes(ZyanU32 x, ZyanU64 bias)
+{
+    ZyanU64 y = x;
+    y = (y | (y << 16)) & 0x0000FFFF0000FFFFULL;
+    y = (y | (y <<  8)) & 0x00FF00FF00FF00FFULL;
+    y = (y | (y <<  4)) & 0x0F0F0F0F0F0F0F0FULL;             // one nibble per byte
+    const ZyanU64 mask = ((y + 0x0606060606060606ULL) >> 4) & 0x0101010101010101ULL; // 1 per lane > 9
+    return y + 0x3030303030303030ULL + mask * bias;
+}
+
+/**
+ * Returns the number of decimal digits of `x` (which must be < 10^8), 1..8.
+ */
+ZYAN_INLINE ZyanU8 ZyanDecDigits(ZyanU32 x)
+{
+    ZyanU8 d = 1;
+    if (x >= 10000u) { d += 4; x /= 10000u; }
+    if (x >= 100u)   { d += 2; x /= 100u; }
+    if (x >= 10u)    { d += 1; }
+    return d;
+}
+
+/**
+ * Writes the decimal digits of `value` MSD-first into `dst` and returns the digit count (1..20).
+ *
+ * `value` is split into chunks of at most 8 digits; the leading chunk is shifted to drop its
+ * leading zeros. `dst` needs room for the digits plus `ZYCORE_FMT_SLACK` trailing bytes, as the
+ * fixed-width stores may write past the last digit.
+ */
+ZYAN_INLINE ZyanU8 ZyanFormatDecSWAR(char* dst, ZyanU64 value)
+{
+    if (value < 10000ULL)
+    {
+        const ZyanU8  d = ZyanDecDigits((ZyanU32)value);
+        const ZyanU32 s = ZyanDec4Lanes((ZyanU32)value) >> ((4 - d) * 8);
+        ZyanStoreLE32(dst, s);
+        return d;
+    }
+    if (value < 100000000ULL)
+    {
+        const ZyanU8  d = ZyanDecDigits((ZyanU32)value);
+        const ZyanU64 s = ZyanDec8Lanes((ZyanU32)value) >> ((8 - d) * 8);
+        ZyanStoreLE64(dst, s);
+        return d;
+    }
+    if (value < 10000000000000000ULL)
+    {
+        const ZyanU32 hi = (ZyanU32)(value / 100000000ULL);
+        const ZyanU32 lo = (ZyanU32)(value % 100000000ULL);
+        const ZyanU8  dh = ZyanDecDigits(hi);
+        const ZyanU64 sh = ZyanDec8Lanes(hi) >> ((8 - dh) * 8);
+        const ZyanU64 sl = ZyanDec8Lanes(lo);
+        ZyanStoreLE64(dst, sh);
+        ZyanStoreLE64(dst + dh, sl);
+        return (ZyanU8)(dh + 8);
+    }
+    {
+        const ZyanU32 hi  = (ZyanU32)(value / 10000000000000000ULL);   // < 1845
+        const ZyanU64 rem = value % 10000000000000000ULL;
+        const ZyanU32 mid = (ZyanU32)(rem / 100000000ULL);
+        const ZyanU32 lo  = (ZyanU32)(rem % 100000000ULL);
+        const ZyanU8  dh  = ZyanDecDigits(hi);
+        const ZyanU32 sh  = ZyanDec4Lanes(hi) >> ((4 - dh) * 8);
+        const ZyanU64 sm  = ZyanDec8Lanes(mid);
+        const ZyanU64 sl  = ZyanDec8Lanes(lo);
+        ZyanStoreLE32(dst, sh);
+        ZyanStoreLE64(dst + dh, sm);
+        ZyanStoreLE64(dst + dh + 8, sl);
+        return (ZyanU8)(dh + 16);
+    }
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Decimal                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -91,38 +214,25 @@ ZyanStatus ZyanStringAppendDecU32(ZyanString* string, ZyanU32 value, ZyanU8 padd
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    char buffer[ZYCORE_MAXCHARS_DEC_32];
-    char *buffer_end = &buffer[ZYCORE_MAXCHARS_DEC_32];
-    char *buffer_write_pointer = buffer_end;
-    while (value >= 100)
-    {
-        const ZyanU32 value_old = value;
-        buffer_write_pointer -= 2;
-        value /= 100;
-        ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[(value_old - (value * 100)) * 2], 2);
-    }
-    buffer_write_pointer -= 2;
-    ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[value * 2], 2);
-
-    const ZyanUSize offset_odd    = (ZyanUSize)(value < 10);
-    const ZyanUSize length_number = buffer_end - buffer_write_pointer - offset_odd;
-    const ZyanUSize length_total  = ZYAN_MAX(length_number, padding_length);
     const ZyanUSize length_target = string->vector.size;
 
-    if (string->vector.size + length_total > string->vector.capacity)
+    // Reserve worst-case width + slack, so the digits can be written before their count is known.
+    const ZyanUSize reserve = ZYAN_MAX((ZyanUSize)padding_length, ZYCORE_MAXCHARS_DEC_64)
+        + ZYCORE_FMT_SLACK;
+    if (string->vector.size + reserve > string->vector.capacity)
     {
-        ZYAN_CHECK(ZyanStringResize(string, string->vector.size + length_total - 1));
+        ZYAN_CHECK(ZyanStringResize(string, string->vector.size + reserve - 1));
     }
 
-    ZyanUSize offset_write = 0;
+    char* buffer = (char*)string->vector.data + length_target - 1;
+    const ZyanUSize length_number = ZyanFormatDecSWAR(buffer, value);
+    const ZyanUSize length_total  = ZYAN_MAX(length_number, (ZyanUSize)padding_length);
     if (padding_length > length_number)
     {
-        offset_write = padding_length - length_number;
-        ZYAN_MEMSET((char*)string->vector.data + length_target - 1, '0', offset_write);
+        const ZyanUSize pad = length_total - length_number;
+        ZYAN_MEMMOVE(buffer + pad, buffer, length_number);   // right-justify, then '0'-pad the gap
+        ZYAN_MEMSET(buffer, '0', pad);
     }
-
-    ZYAN_MEMCPY((char*)string->vector.data + length_target + offset_write - 1,
-        buffer_write_pointer + offset_odd, length_number);
     string->vector.size = length_target + length_total;
     ZYCORE_STRING_NULLTERMINATE(string);
 
@@ -137,38 +247,25 @@ ZyanStatus ZyanStringAppendDecU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    char buffer[ZYCORE_MAXCHARS_DEC_64];
-    char *buffer_end = &buffer[ZYCORE_MAXCHARS_DEC_64];
-    char *buffer_write_pointer = buffer_end;
-    while (value >= 100)
-    {
-        const ZyanU64 value_old = value;
-        buffer_write_pointer -= 2;
-        value /= 100;
-        ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[(value_old - (value * 100)) * 2], 2);
-    }
-    buffer_write_pointer -= 2;
-    ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[value * 2], 2);
-
-    const ZyanUSize offset_odd    = (ZyanUSize)(value < 10);
-    const ZyanUSize length_number = buffer_end - buffer_write_pointer - offset_odd;
-    const ZyanUSize length_total  = ZYAN_MAX(length_number, padding_length);
     const ZyanUSize length_target = string->vector.size;
 
-    if (string->vector.size + length_total > string->vector.capacity)
+    // Reserve worst-case width + slack, so the digits can be written before their count is known.
+    const ZyanUSize reserve = ZYAN_MAX((ZyanUSize)padding_length, ZYCORE_MAXCHARS_DEC_64)
+        + ZYCORE_FMT_SLACK;
+    if (string->vector.size + reserve > string->vector.capacity)
     {
-        ZYAN_CHECK(ZyanStringResize(string, string->vector.size + length_total - 1));
+        ZYAN_CHECK(ZyanStringResize(string, string->vector.size + reserve - 1));
     }
 
-    ZyanUSize offset_write = 0;
+    char* buffer = (char*)string->vector.data + length_target - 1;
+    const ZyanUSize length_number = ZyanFormatDecSWAR(buffer, value);
+    const ZyanUSize length_total  = ZYAN_MAX(length_number, (ZyanUSize)padding_length);
     if (padding_length > length_number)
     {
-        offset_write = padding_length - length_number;
-        ZYAN_MEMSET((char*)string->vector.data + length_target - 1, '0', offset_write);
+        const ZyanUSize pad = length_total - length_number;
+        ZYAN_MEMMOVE(buffer + pad, buffer, length_number);   // right-justify, then '0'-pad the gap
+        ZYAN_MEMSET(buffer, '0', pad);
     }
-
-    ZYAN_MEMCPY((char*)string->vector.data + length_target + offset_write - 1,
-        buffer_write_pointer + offset_odd, length_number);
     string->vector.size = length_target + length_total;
     ZYCORE_STRING_NULLTERMINATE(string);
 
@@ -201,6 +298,35 @@ ZYAN_INLINE ZyanU8 ZyanHexDigitCount(ZyanU64 value)
 #endif
 }
 
+/**
+ * Writes the hexadecimal digits of `value` MSD-first into `dst` and returns the digit count (1..16).
+ *
+ * Each 32-bit half is packed by `ZyanHex8Lanes` (least-significant nibble in byte 0), byte-swapped
+ * so the most-significant nibble lands in byte 0, then shifted to drop the leading-zero nibbles.
+ * `dst` needs `ZYCORE_FMT_SLACK` trailing bytes of room (see `ZyanFormatDecSWAR`).
+ */
+ZYAN_INLINE ZyanU8 ZyanFormatHexSWAR(char* dst, ZyanU64 value, ZyanBool uppercase)
+{
+    const ZyanU8  digits = value ? ZyanHexDigitCount(value) : 1;
+    const ZyanU64 bias   = uppercase ? 0x07ULL : 0x27ULL;   // '9'+1 -> 'A' / 'a' in each lane > 9
+    if (value <= 0xFFFFFFFFULL)
+    {
+        const ZyanU64 b = ZYAN_BYTESWAP64(ZyanHex8Lanes((ZyanU32)value, bias));
+        const ZyanU64 s = b >> ((8 - digits) * 8);
+        ZyanStoreLE64(dst, s);
+        return digits;
+    }
+    {
+        const ZyanU8  dh = (ZyanU8)(digits - 8);           // significant nibbles in the high dword
+        const ZyanU64 hi = ZYAN_BYTESWAP64(ZyanHex8Lanes((ZyanU32)(value >> 32), bias));
+        const ZyanU64 sh = hi >> ((8 - dh) * 8);
+        const ZyanU64 lo = ZYAN_BYTESWAP64(ZyanHex8Lanes((ZyanU32)value, bias));
+        ZyanStoreLE64(dst, sh);
+        ZyanStoreLE64(dst + dh, lo);
+        return digits;
+    }
+}
+
 #if ZYAN_ARCHITECTURE_WIDTH != 64
 ZyanStatus ZyanStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 padding_length,
     ZyanBool uppercase)
@@ -210,48 +336,26 @@ ZyanStatus ZyanStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 padd
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    const ZyanUSize len = string->vector.size;
-    const ZyanUSize remaining = string->vector.capacity - len;
+    const ZyanUSize length_target = string->vector.size;
 
-    if (!value)
+    // Reserve worst-case width + slack, so the digits can be written before their count is known.
+    const ZyanUSize reserve = ZYAN_MAX((ZyanUSize)padding_length, ZYCORE_MAXCHARS_HEX_64)
+        + ZYCORE_FMT_SLACK;
+    if (string->vector.size + reserve > string->vector.capacity)
     {
-        const ZyanU8 n = (padding_length ? padding_length : 1);
-
-        if (remaining < (ZyanUSize)n)
-        {
-            ZYAN_CHECK(ZyanStringResize(string, len + n - 1));
-        }
-
-        ZYAN_MEMSET((char*)string->vector.data + len - 1, '0', n);
-        string->vector.size = len + n;
-        ZYCORE_STRING_NULLTERMINATE(string);
-
-        return ZYAN_STATUS_SUCCESS;
+        ZYAN_CHECK(ZyanStringResize(string, string->vector.size + reserve - 1));
     }
 
-    const ZyanU8 digits = ZyanHexDigitCount(value);
-    const ZyanUSize total = ZYAN_MAX((ZyanUSize)digits, (ZyanUSize)padding_length);
-
-    if (remaining < total)
+    char* buffer = (char*)string->vector.data + length_target - 1;
+    const ZyanUSize length_number = ZyanFormatHexSWAR(buffer, value, uppercase);
+    const ZyanUSize length_total  = ZYAN_MAX(length_number, (ZyanUSize)padding_length);
+    if (padding_length > length_number)
     {
-        ZYAN_CHECK(ZyanStringResize(string, len + total - 1));
+        const ZyanUSize pad = length_total - length_number;
+        ZYAN_MEMMOVE(buffer + pad, buffer, length_number);   // right-justify, then '0'-pad the gap
+        ZYAN_MEMSET(buffer, '0', pad);
     }
-
-    // `ZyanStringResize` may reallocate, so resolve the buffer only after it.
-    char* buffer = (char*)string->vector.data + len - 1;
-    if (total > (ZyanUSize)digits)
-    {
-        ZYAN_MEMSET(buffer, '0', total - digits);
-        buffer += total - digits;
-    }
-
-    const char* const digit_chars = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
-    for (ZyanU8 i = digits; i-- > 0;)
-    {
-        *buffer++ = digit_chars[(value >> (i * 4)) & 0x0F];
-    }
-
-    string->vector.size = len + total;
+    string->vector.size = length_target + length_total;
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -266,48 +370,26 @@ ZyanStatus ZyanStringAppendHexU64(ZyanString* string, ZyanU64 value, ZyanU8 padd
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    const ZyanUSize len = string->vector.size;
-    const ZyanUSize remaining = string->vector.capacity - len;
+    const ZyanUSize length_target = string->vector.size;
 
-    if (!value)
+    // Reserve worst-case width + slack, so the digits can be written before their count is known.
+    const ZyanUSize reserve = ZYAN_MAX((ZyanUSize)padding_length, ZYCORE_MAXCHARS_HEX_64)
+        + ZYCORE_FMT_SLACK;
+    if (string->vector.size + reserve > string->vector.capacity)
     {
-        const ZyanU8 n = (padding_length ? padding_length : 1);
-
-        if (remaining < (ZyanUSize)n)
-        {
-            ZYAN_CHECK(ZyanStringResize(string, len + n - 1));
-        }
-
-        ZYAN_MEMSET((char*)string->vector.data + len - 1, '0', n);
-        string->vector.size = len + n;
-        ZYCORE_STRING_NULLTERMINATE(string);
-
-        return ZYAN_STATUS_SUCCESS;
+        ZYAN_CHECK(ZyanStringResize(string, string->vector.size + reserve - 1));
     }
 
-    const ZyanU8 digits = ZyanHexDigitCount(value);
-    const ZyanUSize total = ZYAN_MAX((ZyanUSize)digits, (ZyanUSize)padding_length);
-
-    if (remaining < total)
+    char* buffer = (char*)string->vector.data + length_target - 1;
+    const ZyanUSize length_number = ZyanFormatHexSWAR(buffer, value, uppercase);
+    const ZyanUSize length_total  = ZYAN_MAX(length_number, (ZyanUSize)padding_length);
+    if (padding_length > length_number)
     {
-        ZYAN_CHECK(ZyanStringResize(string, len + total - 1));
+        const ZyanUSize pad = length_total - length_number;
+        ZYAN_MEMMOVE(buffer + pad, buffer, length_number);   // right-justify, then '0'-pad the gap
+        ZYAN_MEMSET(buffer, '0', pad);
     }
-
-    // `ZyanStringResize` may reallocate, so resolve the buffer only after it.
-    char* buffer = (char*)string->vector.data + len - 1;
-    if (total > (ZyanUSize)digits)
-    {
-        ZYAN_MEMSET(buffer, '0', total - digits);
-        buffer += total - digits;
-    }
-
-    const char* const digit_chars = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
-    for (ZyanU8 i = digits; i-- > 0;)
-    {
-        *buffer++ = digit_chars[(value >> (i * 4)) & 0x0F];
-    }
-
-    string->vector.size = len + total;
+    string->vector.size = length_target + length_total;
     ZYCORE_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
